@@ -7,7 +7,12 @@ Thumbs.db
 *.swo
 *~
 .idea/
+
+# VS Code
 .vscode/
+*.code-workspace
+.history/
+*.vsix
 
 # Claude Code (this repo's own local settings)
 .claude/settings.local.json
