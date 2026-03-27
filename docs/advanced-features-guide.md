@@ -47,10 +47,13 @@ Hooks are shell commands that run automatically before or after Claude uses a to
 
 Key concepts:
 
-- **`matcher`** -- pipe-separated tool names (e.g., `"Edit|Write"`)
+- **`matcher`** -- pipe-separated tool names or regex (e.g., `"Edit|Write"`, `"mcp__.*"`)
 - **`$CLAUDE_FILE_PATH`** -- the file path Claude is editing, injected automatically
+- **`$CLAUDE_PROJECT_DIR`** -- the project root directory
+- **`statusMessage`** -- text shown in the UI while the hook runs
 - **`PreToolUse` + `exit 1`** -- blocks the tool action (file protection pattern)
 - **`PostToolUse` + `|| true`** -- runs after the action; prevents lint errors from interrupting Claude
+- Other events: `Notification`, `Stop`, `SessionStart`, `SubagentStop` — see [hooks docs](https://code.claude.com/docs/en/hooks) for all event types
 
 ## Agents
 
@@ -85,6 +88,7 @@ Key fields:
 - **`name`** / **`description`** -- identity and specialization
 - **`tools`** -- allowed tools (Read, Edit, Write, Bash, Grep, Glob, Agent, Skill)
 - **`model`** -- which model (sonnet, opus, haiku)
+- **`effort`** -- processing effort level (high, medium, low)
 
 The body after frontmatter defines scope and rules in natural language.
 
@@ -117,7 +121,7 @@ Create model, repository, service, handler, and test files.
 Run build and tests to confirm everything works.
 ```
 
-The four-step pattern (gather, validate, execute, verify) keeps skills predictable. Step 1 uses `AskUserQuestion` to collect inputs; Step 4 runs build/test commands to confirm the work.
+The four-step pattern (gather, validate, execute, verify) keeps skills predictable. Step 1 uses `AskUserQuestion` to collect inputs; Step 4 runs build/test commands to confirm the work. Each skill becomes a slash command — `/add-endpoint` invokes `.claude/skills/add-endpoint/SKILL.md`.
 
 ## Templates
 

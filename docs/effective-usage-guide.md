@@ -55,6 +55,7 @@ For non-trivial tasks, follow this cycle:
 | `/rewind` | Same as double-Esc -- open the rewind menu |
 | `/clear` | Reset context between unrelated tasks. **Use frequently.** |
 | `/compact` | Summarize conversation to free context. Add focus: `/compact focus on the API changes` |
+| `#` | Prompt Claude to update CLAUDE.md with learnings from the current session |
 | `/context` | See what is using space in your context window. Use to diagnose when context is getting full. |
 | `--continue` | Resume your most recent conversation (launch flag) |
 | `--resume` | Choose from recent conversations to resume (launch flag) |
