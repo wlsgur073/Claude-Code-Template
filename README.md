@@ -58,7 +58,7 @@ Claude-Code-Templates/
 ├── templates/advanced/    ← Advanced feature scaffolds (hooks, agents, skills)
 ├── examples/              ← Filled reference versions (fictional "TaskFlow" project)
 ├── examples/advanced/     ← Filled advanced feature examples
-├── docs/                  ← Guides explaining each concept
+├── guide/                 ← Guides explaining each concept
 └── ko-KR/                 ← Korean translations (mirrors root structure)
 ```
 
@@ -66,7 +66,7 @@ Claude-Code-Templates/
 | ------------- | --------- |
 | `templates/` | Blank scaffolds with HTML comment prompts — copy and fill in |
 | `examples/` | Realistic filled examples — use as a reference while editing |
-| `docs/` | Standalone guides — read any one without the others |
+| `guide/` | Standalone guides — read any one without the others |
 | `ko-KR/` | Korean translations — same structure as root |
 
 ## How Claude Code Memory Works
@@ -89,13 +89,13 @@ Claude Code has a layered memory system:
 
 | Guide | What it covers |
 | ------- | --------------- |
-| [Getting Started](docs/getting-started.md) | Step-by-step setup walkthrough |
-| [CLAUDE.md Guide](docs/claude-md-guide.md) | Writing effective CLAUDE.md files |
-| [Rules Guide](docs/rules-guide.md) | .claude/rules/ usage and path-scoping |
-| [Settings Guide](docs/settings-guide.md) | settings.json configuration |
-| [Directory Structure](docs/directory-structure-guide.md) | The .claude/ ecosystem |
-| [Effective Usage](docs/effective-usage-guide.md) | Day-one usage patterns |
-| [Advanced Features](docs/advanced-features-guide.md) | Hooks, agents, and skills |
+| [Getting Started](guide/getting-started.md) | Step-by-step setup walkthrough |
+| [CLAUDE.md Guide](guide/claude-md-guide.md) | Writing effective CLAUDE.md files |
+| [Rules Guide](guide/rules-guide.md) | .claude/rules/ usage and path-scoping |
+| [Settings Guide](guide/settings-guide.md) | settings.json configuration |
+| [Directory Structure](guide/directory-structure-guide.md) | The .claude/ ecosystem |
+| [Effective Usage](guide/effective-usage-guide.md) | Day-one usage patterns |
+| [Advanced Features](guide/advanced-features-guide.md) | Hooks, agents, and skills |
 
 ## Recommended Plugins
 

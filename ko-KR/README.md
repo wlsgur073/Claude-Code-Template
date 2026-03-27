@@ -53,7 +53,7 @@ Claude-Code-Templates/
 ├── templates/advanced/    ← 고급 기능 템플릿 (hooks, agents, skills)
 ├── examples/              ← 실전 예시 (가상 "TaskFlow" 프로젝트)
 ├── examples/advanced/     ← 고급 기능 실전 예시
-├── docs/                  ← 가이드 (영어)
+├── guide/                 ← 가이드 (영어)
 └── ko-KR/                 ← 한국어 번역 (루트 구조와 동일)
 ```
 
@@ -62,7 +62,7 @@ Claude-Code-Templates/
 | `templates/` | HTML 주석 안내가 포함된 빈 템플릿 — 복사 후 내용 채우기 |
 | `ko-KR/` | 한국어 번역 — 루트 구조 미러링 |
 | `examples/` | 실전 예시 — 편집 시 참고용 |
-| `docs/` | 독립 가이드 — 각각 따로 읽을 수 있음 |
+| `guide/` | 독립 가이드 — 각각 따로 읽을 수 있음 |
 
 ## Claude Code 메모리 작동 방식
 
