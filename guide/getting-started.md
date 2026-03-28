@@ -13,20 +13,21 @@ This guide walks you through setting up Claude Code configuration for your proje
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
 
-## Step 1: Run /init (or Use Automated Setup)
+## Step 1: Choose Your Setup Method
 
-Start by running `/init` inside Claude Code. This is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) -- Claude analyzes your codebase and auto-generates a CLAUDE.md tailored to your project.
+| Option | What it does | Best for |
+| ------ | ------------ | -------- |
+| `/init` | Analyzes code, generates basic CLAUDE.md | Quick start — good for many projects |
+| `@setup-prompt.md` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../README.md#quick-start)) |
 
-**Prefer a one-step setup?** Use our automated setup prompt instead -- it runs `/init`-style analysis plus generates rules, permissions, and optional advanced features in one go. See the [Quick Start](../README.md#quick-start) for details.
-
-**Starting a brand new project?** The setup prompt supports empty projects too. Run `@setup-prompt.md` and choose "New/empty project" -- Claude guides you through selecting a tech stack and generates a minimal starter configuration. No existing code required.
+**`/init`** is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) — Claude analyzes your codebase and auto-generates a CLAUDE.md:
 
 ```text
 claude
 > /init
 ```
 
-The output from `/init` gives you a solid starting point. Our templates fill gaps that `/init` typically misses -- things like permission configuration, modular rule files, and folder-level instructions. The two are complementary: merge them rather than choosing one over the other.
+**`@setup-prompt.md`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. **Using both?** Run `/init` first, then `@setup-prompt.md` choosing "Existing project" — it detects your existing CLAUDE.md and merges rather than overwrites.
 
 ## Step 2: Copy the Templates (Manual Alternative)
 
@@ -115,6 +116,8 @@ Launch Claude Code in your project and confirm everything is loaded:
 ## Step 7: Explore Advanced Features (Optional)
 
 Once your basic configuration is working, explore hooks, agents, and skills for more sophisticated workflows. See the [Advanced Features Guide](advanced-features-guide.md).
+
+**Upgrading from Starter to Advanced:** Run `@setup-prompt.md` again, choose "Existing project" at the first prompt, and answer the 6 Advanced questions. Claude detects your existing configuration and merges the new sections in.
 
 ## What's Next
 

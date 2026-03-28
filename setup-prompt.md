@@ -125,17 +125,52 @@ Do NOT output your analysis yet. Use it to inform your questions.
 
 > "I didn't find any code or dependency files in this project. The Starter path is recommended for new projects — it's faster and generates a minimal config you can grow from. Would you like to switch to the Starter path, or continue with the full Advanced setup?"
 
-If the user switches, follow the STARTER PATH. If they continue, proceed with open-ended questions (no detected defaults).
+If the user switches, follow the STARTER PATH. If they continue, use the **Open-ended** variant for every question in Phase 2A. Generate the same full Advanced output files.
 
 ## Phase 2A: Ask Questions
 
-Ask the user the following questions **one at a time**. Use detected defaults from Phase 1A when possible (e.g., "I found Jest in your devDependencies. Is `npm test` your test command?").
+Ask the user the following questions **one at a time**. For each question, use the **Detected** variant when Phase 1A found relevant information, or the **Open-ended** variant when the project is empty or nothing was detected.
 
-1. **Project overview** — Confirm detected language/framework. Ask for a 1-2 sentence description of what the project does.
-2. **Build & run** — Confirm or ask for build command, dev server command, and how to run the project.
-3. **Testing** — Confirm test runner and command. Ask about coverage targets and preferred test patterns (factories, mocks, integration, etc.).
-4. **Code style** — Ask about naming conventions, formatting preferences (indentation size, line length), and import ordering.
-5. **Workflow** — Ask about branch naming convention, commit message style, and any pre-development checklist items.
+1. **Project overview**
+
+   **Detected:**
+   > "I found [language/framework] with [detected project type]. Is that correct? And in 1-2 sentences, what does this project do?"
+
+   **Open-ended:**
+   > "What language/framework is this project using, and what does it do in 1-2 sentences?"
+
+2. **Build & run**
+
+   **Detected:**
+   > "I see [build tool] in your project. Are these your commands? build: `[detected]`, dev: `[detected]`, run: `[detected]` — or would you like to change them?"
+
+   **Open-ended:**
+   > "What commands do you use to build, run a dev server, and run the project?"
+
+3. **Testing**
+
+   **Detected:**
+   > "I found [test framework] in your dependencies. Is `[detected test command]` your test command? Do you have a coverage target or preferred test patterns (factories, mocks, integration tests)?"
+
+   **Open-ended:**
+   > "What test framework and command will you use? Do you have a coverage target or preferred test patterns (factories, mocks, integration tests)?"
+
+4. **Code style**
+
+   **Detected:**
+   > "I see [formatter/linter config] in your project. Should I use those settings? Anything to add for naming conventions, indentation, line length, or import ordering?"
+
+   **Open-ended:**
+   > "What are your preferences for naming conventions, formatting (indentation size, line length), and import ordering? Or should I use standard [language] conventions?"
+
+5. **Workflow**
+
+   **Detected:**
+   > "I noticed [evidence, e.g., branch pattern in git log, commitlint config]. Is your branch convention `[detected]` and commit style `[detected]`? Any pre-development checklist items?"
+
+   **Open-ended:**
+   > "What branch naming convention and commit message style do you use? Any steps you always do before starting development?"
+
 6. **Advanced features** — Ask: "Would you like to set up any of these optional features?"
    - (a) Auto-linting hooks — automatically runs linter after every file edit
    - (b) File protection hooks — blocks edits to `.env` and sensitive files
@@ -300,6 +335,12 @@ model: "sonnet"
 [Domain-specific rules]
 ```
 
+After creating each agent, ask:
+
+> "Would you like to add another agent role, or move on?"
+
+Repeat until the user says to move on.
+
 **Skill commands** — ask user for skill purpose, then create `.claude/skills/<name>/SKILL.md`:
 
 ```markdown
@@ -322,6 +363,12 @@ description: "[What this skill automates]"
 ## Step 4: Verify
 [Build/test commands to confirm]
 ```
+
+After creating each skill, ask:
+
+> "Would you like to add another skill, or move on to the summary?"
+
+Repeat until the user says to move on.
 
 ---
 

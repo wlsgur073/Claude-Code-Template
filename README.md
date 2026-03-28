@@ -31,12 +31,22 @@ from day one.
    > `@` imports the file's content into the conversation — Claude reads
    > the setup instructions and follows them automatically.
 
+   **Alternative import methods** (if the relative path doesn't match your setup):
+
+   | Method | Command |
+   | ------ | ------- |
+   | Absolute path | `@~/Claude-Code-Templates/setup-prompt.md` |
+   | Direct paste | Copy the contents of `setup-prompt.md` and paste directly into the conversation |
+
 3. **Choose your path** — Claude asks whether this is a new or existing project:
 
    | Path | Questions | Generated files |
    | ---- | --------- | --------------- |
    | **New project** | 4 quick questions (tech stack, description, commands, style) | `CLAUDE.md` (5 sections) + `.claude/settings.json` |
    | **Existing project** | 6 questions with auto-detected defaults | `CLAUDE.md` (8 sections) + `.claude/settings.json` + `.claude/rules/*.md` + optional hooks/agents/skills |
+
+   > **Which path?** Pick **New project** if you have zero or minimal code and want to get started fast.
+   > Pick **Existing project** if you already have source files — or if you previously used the Starter path and want to upgrade to the full configuration.
 
 4. **Done** — Claude generates all configuration files and prints a summary table.
    Run `/memory` to verify everything loaded correctly.
@@ -87,15 +97,17 @@ Claude Code has a layered memory system:
 
 ## Docs
 
-| Guide | What it covers |
-| ------- | --------------- |
-| [Getting Started](guide/getting-started.md) | Step-by-step setup walkthrough |
-| [CLAUDE.md Guide](guide/claude-md-guide.md) | Writing effective CLAUDE.md files |
-| [Rules Guide](guide/rules-guide.md) | .claude/rules/ usage and path-scoping |
-| [Settings Guide](guide/settings-guide.md) | settings.json configuration |
-| [Directory Structure](guide/directory-structure-guide.md) | The .claude/ ecosystem |
-| [Effective Usage](guide/effective-usage-guide.md) | Day-one usage patterns |
-| [Advanced Features](guide/advanced-features-guide.md) | Hooks, agents, and skills |
+Start here, then follow the path that matches your level:
+
+| Step | Guide | Who needs it |
+| ---- | ----- | ------------ |
+| 1 | [Getting Started](guide/getting-started.md) | Everyone — setup walkthrough |
+| 2 | [CLAUDE.md Guide](guide/claude-md-guide.md) | Everyone — writing effective instructions |
+| 3 | [Settings Guide](guide/settings-guide.md) | Everyone — permissions and preferences |
+| 4 | [Rules Guide](guide/rules-guide.md) | When CLAUDE.md exceeds ~100 lines |
+| 5 | [Directory Structure](guide/directory-structure-guide.md) | When you want to understand `.claude/` |
+| 6 | [Effective Usage](guide/effective-usage-guide.md) | After your first day with Claude Code |
+| 7 | [Advanced Features](guide/advanced-features-guide.md) | When you need hooks, agents, or skills |
 
 ## Recommended Plugins
 
