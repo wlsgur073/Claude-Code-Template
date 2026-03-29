@@ -10,10 +10,7 @@
   "plugins": [
     {
       "name": "claude-code-template",
-      "source": {
-        "source": "github",
-        "repo": "wlsgur073/Claude-Code-Template"
-      },
+      "source": "./plugin",
       "description": "Guided Claude Code setup — generates CLAUDE.md, settings, rules, hooks, agents, and skills for any project",
       "version": "2.1.0",
       "author": {

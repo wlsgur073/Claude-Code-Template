@@ -33,9 +33,9 @@ from day one.
 
    | Method | Command |
    | ------ | ------- |
-   | Local plugin | `claude --plugin-dir /path/to/Claude-Code-Template` |
-   | `@` import | `@../Claude-Code-Template/commands/setup.md` |
-   | Direct paste | Copy the contents of `commands/setup.md` and paste directly into the conversation |
+   | Local plugin | `claude --plugin-dir /path/to/Claude-Code-Template/plugin` |
+   | `@` import | `@../Claude-Code-Template/plugin/commands/setup.md` |
+   | Direct paste | Copy the contents of `plugin/commands/setup.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude asks whether this is a new or existing project:
 
@@ -58,9 +58,12 @@ from day one.
 
 ```text
 Claude-Code-Template/
-├── .claude-plugin/        ← Plugin manifest (makes this repo installable as a plugin)
-├── commands/
-│   └── setup.md           ← Setup command (/claude-code-template:setup)
+├── .claude-plugin/        ← Marketplace manifest (makes this repo a plugin marketplace)
+├── plugin/                ← Plugin package
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   └── commands/
+│       └── setup.md       ← Setup command (/claude-code-template:setup)
 ├── starter/               ← Minimal scaffold for beginners (CLAUDE.md + settings.json)
 ├── advanced/              ← Full scaffold (rules, hooks, agents, skills, statusline)
 ├── ecosystem/             ← Ready-to-use components catalog (coming soon)

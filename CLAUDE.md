@@ -4,8 +4,8 @@ This is a documentation and template repository — it contains no application c
 
 ## Repository Structure
 
-- `.claude-plugin/` — Plugin manifest (makes this repo installable as a Claude Code plugin)
-- `commands/setup.md` — Setup command (`/claude-code-template:setup`) — guided interview that generates project configuration
+- `.claude-plugin/` — Marketplace manifest (makes this repo a plugin marketplace)
+- `plugin/` — Plugin package containing `.claude-plugin/plugin.json` and `commands/setup.md` (`/claude-code-template:setup`)
 - `starter/` — Minimal scaffold for beginners (CLAUDE.md with 5 sections + settings.json)
 - `advanced/` — Full scaffold including rules, hooks, agents, skills, and statusline
 - `ecosystem/` — Ready-to-use components catalog (skills, hooks, agents) — structure only, content coming soon
