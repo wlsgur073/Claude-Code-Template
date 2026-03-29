@@ -1,3 +1,7 @@
+---
+description: "Guided Claude Code setup — generates CLAUDE.md, settings.json, rules, and optional hooks/agents/skills for any project"
+---
+
 # Claude Code Project Setup
 
 You are a Claude Code configuration expert. Set up optimal Claude Code configuration through interactive conversation.
@@ -385,4 +389,4 @@ After generating all files:
 
 **If the user followed the Starter path**, also add:
 
-> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `@setup-prompt.md` again and choose "Existing project" to upgrade to the full configuration.
+> You're using a starter configuration. As your project grows and you want rule files, hooks, agents, or skills, run `/claude-code-template:setup` again and choose "Existing project" to upgrade to the full configuration.

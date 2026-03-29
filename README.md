@@ -2,9 +2,9 @@
   <img src="assets/banner.svg" alt="Claude Code Template" width="700"/>
 </p>
 
-Starter templates and guides for configuring Claude Code. Clone this repo,
-copy the scaffolds into your project, and fill them in using the examples
-as reference.
+Starter templates and guides for configuring Claude Code. Install the
+plugin, run `/claude-code-template:setup`, and Claude generates all
+configuration files through a guided interview.
 
 **Audience:** Developers new to Claude Code who want a working configuration
 from day one.
@@ -13,30 +13,28 @@ from day one.
 
 ## Quick Start
 
-1. **Clone this repo** next to your project:
+1. **Install the plugin** in Claude Code:
 
-   ```bash
-   git clone https://github.com/wlsgur073/Claude-Code-Templates.git
-   # Result: your-project/ and Claude-Code-Templates/ are siblings
+   ```
+   claude
+   > /install-plugin https://github.com/wlsgur073/Claude-Code-Template
    ```
 
-2. **Run Claude in your project** and reference the setup prompt with `@`:
+2. **Run the setup command** in your project:
 
    ```
    cd your-project
    claude
-   > @../Claude-Code-Templates/setup-prompt.md
+   > /claude-code-template:setup
    ```
 
-   > `@` imports the file's content into the conversation — Claude reads
-   > the setup instructions and follows them automatically.
-
-   **Alternative import methods** (if the relative path doesn't match your setup):
+   **Alternative methods** (without installing the plugin):
 
    | Method | Command |
    | ------ | ------- |
-   | Absolute path | `@~/Claude-Code-Templates/setup-prompt.md` |
-   | Direct paste | Copy the contents of `setup-prompt.md` and paste directly into the conversation |
+   | Clone + `@` import | `@../Claude-Code-Template/commands/setup.md` |
+   | Absolute path | `@~/Claude-Code-Template/commands/setup.md` |
+   | Direct paste | Copy the contents of `commands/setup.md` and paste directly into the conversation |
 
 3. **Choose your path** — Claude asks whether this is a new or existing project:
 
@@ -52,13 +50,16 @@ from day one.
    Run `/memory` to verify everything loaded correctly.
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
-> CLAUDE.md. Then merge our template to fill gaps `/init` misses.
+> CLAUDE.md. Then run `/claude-code-template:setup` choosing "Existing project"
+> to fill gaps `/init` misses.
 
 ## What's Inside
 
 ```text
-Claude-Code-Templates/
-├── setup-prompt.md        ← Automated setup prompt (used in Quick Start)
+Claude-Code-Template/
+├── .claude-plugin/        ← Plugin manifest (makes this repo installable as a plugin)
+├── commands/
+│   └── setup.md           ← Setup command (/claude-code-template:setup)
 ├── starter/               ← Minimal scaffold for beginners (CLAUDE.md + settings.json)
 ├── advanced/              ← Full scaffold (rules, hooks, agents, skills, statusline)
 ├── ecosystem/             ← Ready-to-use components catalog (coming soon)
@@ -159,7 +160,7 @@ Customize the Claude Code status bar to show model, context usage, cost, duratio
 **One-line setup:**
 
 ```bash
-cp Claude-Code-Templates/advanced/statusline.sh ~/.claude/statusline.sh
+cp Claude-Code-Template/advanced/statusline.sh ~/.claude/statusline.sh
 ```
 
 Claude Code automatically detects `~/.claude/statusline.sh` — no additional configuration needed.

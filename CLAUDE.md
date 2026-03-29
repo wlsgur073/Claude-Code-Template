@@ -4,14 +4,15 @@ This is a documentation and template repository — it contains no application c
 
 ## Repository Structure
 
+- `.claude-plugin/` — Plugin manifest (makes this repo installable as a Claude Code plugin)
+- `commands/setup.md` — Setup command (`/claude-code-template:setup`) — guided interview that generates project configuration
 - `starter/` — Minimal scaffold for beginners (CLAUDE.md with 5 sections + settings.json)
 - `advanced/` — Full scaffold including rules, hooks, agents, skills, and statusline
 - `ecosystem/` — Ready-to-use components catalog (skills, hooks, agents) — structure only, content coming soon
 - `examples/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
 - `examples/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills)
 - `guide/` — Guides covering each Claude Code configuration concept (CLAUDE.md writing, rules, settings, directory structure, effective usage patterns)
-- `setup-prompt.md` — Automated setup prompt referenced via `@` import from user projects
-- `ko-KR/` — Korean translations mirroring the root structure (`starter/`, `advanced/`, `ecosystem/`, `guide/`, `setup-prompt.md`, `README.md`)
+- `ko-KR/` — Korean translations mirroring the root structure (`starter/`, `advanced/`, `ecosystem/`, `guide/`, `README.md`)
 - `docs/` — GitHub community health files (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md)
 - `.claude/` — This repo's own Claude Code settings
 

@@ -18,7 +18,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 | Option | What it does | Best for |
 | ------ | ------------ | -------- |
 | `/init` | Analyzes code, generates basic CLAUDE.md | Quick start — good for many projects |
-| `@setup-prompt.md` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../README.md#quick-start)) |
+| `/claude-code-template:setup` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../README.md#quick-start)) |
 
 **`/init`** is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) — Claude analyzes your codebase and auto-generates a CLAUDE.md:
 
@@ -27,11 +27,11 @@ claude
 > /init
 ```
 
-**`@setup-prompt.md`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. **Using both?** Run `/init` first, then `@setup-prompt.md` choosing "Existing project" — it detects your existing CLAUDE.md and merges rather than overwrites.
+**`/claude-code-template:setup`** runs `/init`-style analysis plus generates rules, permissions, and optional advanced features. Install the plugin first (`/install-plugin https://github.com/wlsgur073/Claude-Code-Template`). **Using both?** Run `/init` first, then `/claude-code-template:setup` choosing "Existing project" — it detects your existing CLAUDE.md and merges rather than overwrites.
 
 ## Step 2: Copy the Templates (Manual Alternative)
 
-If you used `@setup-prompt.md` in Step 1, skip this step -- your files are already generated. The setup prompt's starter path produces output matching the `starter/` template, and the advanced path matches `advanced/`.
+If you used `/claude-code-template:setup` in Step 1, skip this step -- your files are already generated. The setup command's starter path produces output matching the `starter/` template, and the advanced path matches `advanced/`.
 
 If you prefer to copy templates manually, choose your starting point:
 
@@ -39,21 +39,21 @@ If you prefer to copy templates manually, choose your starting point:
 
 ```bash
 # Copy the minimal CLAUDE.md scaffold (5 sections)
-cp Claude-Code-Templates/starter/CLAUDE.md your-project/CLAUDE.md
+cp Claude-Code-Template/starter/CLAUDE.md your-project/CLAUDE.md
 
 # Copy settings scaffold
 mkdir -p your-project/.claude
-cp Claude-Code-Templates/starter/.claude/settings.json your-project/.claude/settings.json
+cp Claude-Code-Template/starter/.claude/settings.json your-project/.claude/settings.json
 ```
 
 **Advanced** (for full configuration):
 
 ```bash
 # Copy the full CLAUDE.md scaffold (8 sections)
-cp Claude-Code-Templates/advanced/CLAUDE.md your-project/CLAUDE.md
+cp Claude-Code-Template/advanced/CLAUDE.md your-project/CLAUDE.md
 
 # Copy settings, rules, and advanced features
-cp -r Claude-Code-Templates/advanced/.claude your-project/.claude
+cp -r Claude-Code-Template/advanced/.claude your-project/.claude
 ```
 
 If `/init` already created a CLAUDE.md, merge the template sections into it. The template provides a consistent section structure; `/init` provides project-specific content. Combine the best of both.
@@ -117,7 +117,7 @@ Launch Claude Code in your project and confirm everything is loaded:
 
 Once your basic configuration is working, explore hooks, agents, and skills for more sophisticated workflows. See the [Advanced Features Guide](advanced-features-guide.md).
 
-**Upgrading from Starter to Advanced:** Run `@setup-prompt.md` again, choose "Existing project" at the first prompt, and answer the 6 Advanced questions. Claude detects your existing configuration and merges the new sections in.
+**Upgrading from Starter to Advanced:** Run `/claude-code-template:setup` again, choose "Existing project" at the first prompt, and answer the 6 Advanced questions. Claude detects your existing configuration and merges the new sections in.
 
 ## What's Next
 

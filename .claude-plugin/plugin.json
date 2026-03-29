@@ -1,0 +1,10 @@
+{
+  "name": "claude-code-template",
+  "version": "2.1.0",
+  "description": "Guided Claude Code setup — generates CLAUDE.md, settings, rules, hooks, agents, and skills for any project",
+  "author": {
+    "name": "wlsgur073"
+  },
+  "repository": "https://github.com/wlsgur073/Claude-Code-Template",
+  "license": "MIT"
+}
