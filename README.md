@@ -18,7 +18,7 @@ from day one.
    ```
    claude
    > /plugin marketplace add wlsgur073/Claude-Code-Template
-   > /plugin install claude-code-template@wlsgur073-claude-code-template
+   > /plugin install claude-code-template@wlsgur073-plugins
    ```
 
 2. **Run the setup command** in your project:
