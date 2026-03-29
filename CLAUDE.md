@@ -10,7 +10,7 @@ This is a documentation and template repository — it contains no application c
 - `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills)
 - `guide/` — Guides covering each Claude Code configuration concept (CLAUDE.md writing, rules, settings, directory structure, effective usage patterns)
 - `ko-KR/` — Korean translations (`guide/`, `README.md`)
-- `docs/` — GitHub community health files (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md)
+- `docs/` — GitHub community health files (CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, PRIVACY.md)
 - `.claude/` — This repo's own Claude Code settings
 
 ## Contribution Rules
