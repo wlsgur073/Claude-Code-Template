@@ -1,5 +1,7 @@
 # Roadmap
 
+**Last updated:** 2026-03-30
+
 ## Completed (v2.2.0, 2026-03-29)
 
 - Plugin metadata enrichment ($schema, keywords, homepage, tools frontmatter)

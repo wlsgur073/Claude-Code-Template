@@ -1,5 +1,7 @@
 # Generate Skill Refactoring
 
+**Created:** 2026-03-30
+
 ## Goal
 
 393줄짜리 단일 SKILL.md를 공식 플러그인 패턴(plugin-dev, superpowers)에 맞게 skills/ 하위 디렉토리로 분리. 기능 변화 없이 구조만 개선.
