@@ -112,6 +112,8 @@ Once your basic configuration is working, explore hooks, agents, and skills for 
 
 **Upgrading from Starter to Advanced:** Run `/claude-code-template:generate` again, choose "Existing project" at the first prompt, and answer the 6 Advanced questions. Claude detects your existing configuration and merges the new sections in.
 
+> **Tip:** The `claude-code-setup` plugin can recommend additional automations (MCP servers, hooks, skills) tailored to your detected stack. Install it from the official marketplace for post-setup suggestions.
+
 ## What's Next
 
 - [CLAUDE.md Guide](claude-md-guide.md) -- Deep dive on writing effective CLAUDE.md files

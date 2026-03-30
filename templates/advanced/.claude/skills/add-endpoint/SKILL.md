@@ -1,13 +1,17 @@
 ---
 name: "add-endpoint"
 description: "Scaffolds a new REST API endpoint for TaskFlow with handler, service, repository, tests, and Zod schemas"
+allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
+argument-hint: "<resource> [operations]"
 ---
 
 # Steps
 
 ## Step 1: Gather Information
 
-Ask the user:
+Read `references/api-conventions.md` for TaskFlow API patterns.
+
+Parse `$ARGUMENTS` for the resource name and operations (e.g., `/add-endpoint comment create,read,list,delete`). If `$ARGUMENTS` is empty, ask the user:
 - What is the resource name? (e.g., "comment")
 - What CRUD operations are needed? (e.g., "create, read, list, delete")
 - Does it belong to an existing entity? (e.g., "tasks" for task comments)

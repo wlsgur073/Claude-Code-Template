@@ -112,6 +112,8 @@ Rules를 사용하면 좋은 경우:
 
 **스타터에서 고급으로 업그레이드:** `/claude-code-template:generate`을 다시 실행하고, 첫 번째 질문에서 "기존 프로젝트"를 선택한 후 6개의 고급 질문에 답하세요. Claude가 기존 구성을 감지하여 새로운 섹션을 병합합니다.
 
+> **팁:** `claude-code-setup` 플러그인은 감지된 스택에 맞는 추가 자동화(MCP 서버, hooks, skills)를 추천할 수 있습니다. 공식 마켓플레이스에서 설치하면 설정 후 제안을 받을 수 있습니다.
+
 ## 다음 단계
 
 - [CLAUDE.md 가이드](claude-md-guide.md) -- 효과적인 CLAUDE.md 작성법 심화

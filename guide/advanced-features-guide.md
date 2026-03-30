@@ -102,12 +102,15 @@ Create `.claude/skills/<skill-name>/SKILL.md`:
 ---
 name: "add-endpoint"
 description: "Scaffolds a new REST API endpoint with handler, service, and tests"
+allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
+argument-hint: "<resource> [operations]"
 ---
 
 # Steps
 
 ## Step 1: Gather Information
-Ask the user for the resource name and required operations.
+Read `references/api-conventions.md` for project patterns.
+Parse `$ARGUMENTS` for resource name and operations. If empty, ask the user.
 
 ## Step 2: Validate
 Confirm the resource does not already exist. Run the test suite.

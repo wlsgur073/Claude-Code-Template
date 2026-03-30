@@ -2,9 +2,15 @@
 
 For new or empty projects. Generates a minimal 5-section CLAUDE.md and basic settings.
 
-## Phase 1S: Skip Analysis
+## Phase 1S: Quick Check Before Skipping Analysis
 
-There are no files to scan. Skip project analysis entirely. Use the language/framework defaults from the user's answers as your baseline.
+Before skipping analysis, do a quick search for dependency manifests (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`, `Gemfile`) and source code files (`*.ts`, `*.js`, `*.py`, `*.go`, `*.rs`, `*.java`).
+
+**Safety check (MANDATORY):** If dependency manifests OR source code files are found, you MUST tell the user:
+
+> "I noticed this project already has source code and/or dependencies (e.g., [detected files]). The Advanced path can auto-detect your setup and generate more complete configuration (rules, hooks, agents, skills). Would you like to switch to the Advanced path, or continue with Starter?"
+
+If the user switches, follow the ADVANCED PATH (read `templates/advanced.md`). If they continue, proceed with Phase 2S below using the language/framework defaults from the user's answers as your baseline.
 
 ## Phase 2S: Ask Questions
 

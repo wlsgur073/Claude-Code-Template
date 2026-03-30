@@ -11,11 +11,15 @@ Scan the project silently, checking for **actual source code and dependency mani
 3. If manifests or code found: identify language, framework, project type, directory structure, test frameworks, linters, and formatters
 4. Check for existing `CLAUDE.md`, `.claude/` directory, or `.claude/rules/`
 
-**IMPORTANT:** `.claude/` configuration files, `CLAUDE.md`, rule files, agent definitions, and skill files are NOT source code. Do NOT infer project type from these files alone. Only actual source code files and dependency manifests count as evidence of an existing project.
+**CRITICAL — Config files are NOT evidence of a project:**
+
+- `.claude/` configuration files, `CLAUDE.md`, rule files, agent definitions, and skill files are NOT source code
+- Even if `CLAUDE.md` or `.claude/` exists, they do NOT satisfy the safety check below
+- Only files matching step 1 (dependency manifests) or step 2 (source code with language-specific extensions) count as evidence
 
 Do NOT output your analysis yet. Use it to inform your questions.
 
-**Safety check (MANDATORY):** If no source code files AND no dependency manifests are found, you MUST tell the user — regardless of what they selected in Phase 0:
+**Safety check (MANDATORY):** If no source code files (from step 2) AND no dependency manifests (from step 1) are found, you MUST tell the user — regardless of what they selected in Phase 0 and regardless of whether CLAUDE.md or .claude/ exists:
 
 > "I scanned this project but didn't find any source code files or dependency manifests (e.g., package.json, pyproject.toml). This looks like a new or empty project. The Starter path is recommended — it's faster and generates a minimal config you can grow from. Would you like to switch to the Starter path, or continue with the full Advanced setup?"
 
@@ -248,15 +252,14 @@ Repeat until the user says to move on.
 ---
 name: "[skill-name]"
 description: "[What this skill automates]"
-# Optional fields:
-# allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
-# argument-hint: "<required-arg> [optional-arg]"
+allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
+argument-hint: "<required-arg> [optional-arg]"
 ---
 
 # Steps
 
 ## Step 1: Gather Information
-[What to ask the user]
+Parse `$ARGUMENTS` for the required parameters. If `$ARGUMENTS` is empty, ask the user.
 
 ## Step 2: Validate
 [Pre-checks before proceeding]
@@ -267,6 +270,8 @@ description: "[What this skill automates]"
 ## Step 4: Verify
 [Build/test commands to confirm]
 ```
+
+If the skill needs project-specific context (coding conventions, API patterns, example files), create a `references/` directory alongside SKILL.md with supporting markdown files.
 
 After creating each skill, ask:
 
