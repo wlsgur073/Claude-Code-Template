@@ -1,6 +1,6 @@
 ---
 title: "TaskFlow CLAUDE.md (Starter)"
-description: "Minimal 5-section example for a Node.js/Express REST API project"
+description: "Minimal 6-section example for a Node.js/Express REST API project"
 date: "2026-03-18"
 ---
 
@@ -29,7 +29,7 @@ Run `docker compose up -d` before running tests.
 - TypeScript strict mode, 2-space indentation
 - Use named exports, not default exports
 - Error types extend AppError in src/errors/
-- Database queries go in src/repositories/, never in route handlers
+- Database queries go in src/repos/, never in route handlers
 - All async route handlers must use the asyncHandler wrapper
 
 ## Development Approach

@@ -78,7 +78,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands from Q3 (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add `"Read(.env)"`, `"Read(.env.*)"` as sensible defaults
+- `deny`: add `"Read(./.env)"`, `"Read(./.env.*)"` as sensible defaults
 
 **`.gitignore`** — append this line if not already present:
 

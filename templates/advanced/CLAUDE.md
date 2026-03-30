@@ -29,8 +29,15 @@ Run `docker compose up -d` before running tests.
 - TypeScript strict mode, 2-space indentation
 - Use named exports, not default exports
 - Error types extend AppError in src/errors/
-- Database queries go in src/repositories/, never in route handlers
+- Database queries go in src/repos/, never in route handlers
 - All async route handlers must use the asyncHandler wrapper
+
+## Development Approach
+
+- When a request is vague or ambiguous, do not start implementing immediately
+- First, critically analyze the request: identify assumptions, missing context, and possible interpretations
+- Present your analysis and ask targeted clarifying questions before writing code
+- After clarifying, outline your approach briefly and get confirmation before proceeding
 
 ## Workflow
 
