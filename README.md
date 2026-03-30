@@ -41,14 +41,18 @@ from day one.
 
    | Path | Questions | Generated files |
    | ---- | --------- | --------------- |
-   | **New project** | 4 quick questions (tech stack, description, commands, style) | `CLAUDE.md` (5 sections) + `.claude/settings.json` |
+   | **New project** | 4 quick questions (tech stack, description, commands, style) | `CLAUDE.md` (6 sections) + `.claude/settings.json` |
    | **Existing project** | 6 questions with auto-detected defaults | `CLAUDE.md` (8 sections) + `.claude/settings.json` + `.claude/rules/*.md` + optional hooks/agents/skills |
 
    > **Which path?** Pick **New project** if you have zero or minimal code and want to get started fast.
    > Pick **Existing project** if you already have source files — or if you previously used the Starter path and want to upgrade to the full configuration.
+   > **Picked the wrong one?** No worries — Claude detects mismatches and suggests switching paths automatically.
 
 4. **Done** — Claude generates all configuration files and prints a summary table.
    Run `/memory` to verify everything loaded correctly.
+
+5. **Next step (optional)** — Install the `claude-code-setup` plugin to get
+   tailored recommendations for MCP servers, hooks, and skills based on your stack.
 
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
 > CLAUDE.md. Then run `/claude-code-template:generate` choosing "Existing project"
@@ -67,7 +71,9 @@ Claude-Code-Template/
 │   │   └── session-start.sh
 │   └── skills/
 │       └── generate/
-│           └── SKILL.md     ← Generate skill (/claude-code-template:generate)
+│           ├── SKILL.md     ← Generate skill (/claude-code-template:generate)
+│           ├── references/  ← Generation best practices
+│           └── templates/   ← Starter & Advanced path instructions
 ├── templates/starter/       ← Filled starter example (fictional "TaskFlow" project)
 ├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
 ├── guide/                   ← Guides explaining each concept
