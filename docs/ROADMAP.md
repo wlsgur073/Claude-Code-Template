@@ -4,11 +4,6 @@
 
 Make Claude Code configuration effortless for every developer — provide the best templates, guides, and automation so that new users can go from zero to a fully configured project in minutes.
 
-## Current Priorities
-
-- **`/audit` skill** — A new `/claude-code-template:audit` command that validates existing Claude Code configurations against best practices. Detects missing sections, outdated patterns, and suggests improvements.
-- **Guide content refresh** — Review all 7 guides for accuracy after the v2.2–v2.3 directory restructure. Verify cross-references and update examples where needed.
-
 ## Backlog
 
 Items reviewed and accepted but not yet scheduled:
