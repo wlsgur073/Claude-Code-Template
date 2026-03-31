@@ -55,7 +55,7 @@ Keep the subject line concise (under 72 characters). Use the commit body for add
 - **Describe your changes** — Explain what you changed and why
 - **Reference issues** — Link related issues if applicable (e.g., `Closes #12`)
 - **Check cross-references** — If you rename or move files, update all links that point to them
-- **Translation parity** — If you modify `templates/`, update `ko-KR/` accordingly
+- **Translation parity** — If you modify `templates/`, update `docs/i18n/ko-KR/` accordingly
 
 ## Code of Conduct
 
