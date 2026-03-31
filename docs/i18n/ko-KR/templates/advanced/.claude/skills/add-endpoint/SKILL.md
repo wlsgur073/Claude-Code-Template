@@ -1,7 +1,6 @@
 ---
 name: "add-endpoint"
 description: "TaskFlow용 REST API 엔드포인트를 핸들러, 서비스, 레포지토리, 테스트, Zod 스키마와 함께 스캐폴딩"
-allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
 argument-hint: "<resource> [operations]"
 ---
 

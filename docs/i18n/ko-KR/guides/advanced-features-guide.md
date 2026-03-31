@@ -104,7 +104,6 @@ Skills는 `.claude/skills/`에 정의하는 재사용 가능한 다단계 워크
 ---
 name: "add-endpoint"
 description: "Scaffolds a new REST API endpoint with handler, service, and tests"
-allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
 argument-hint: "<resource> [operations]"
 ---
 
@@ -127,7 +126,6 @@ Run build and tests to confirm everything works.
 주요 필드:
 
 - **`name`** / **`description`** -- skill의 이름과 용도
-- **`allowed-tools`** -- 사용 가능한 도구 제한 (참고: skill은 `allowed-tools`, agent는 `tools`를 사용)
 - **`argument-hint`** -- 슬래시 명령 메뉴에 표시되는 사용법 힌트 (예: `"<resource> [operations]"`)
 - **`user-invocable`** -- 슬래시 명령 메뉴에 표시 여부 (기본값: `true`)
 - **`disable-model-invocation`** -- Claude의 자동 트리거 방지 (기본값: `false`)

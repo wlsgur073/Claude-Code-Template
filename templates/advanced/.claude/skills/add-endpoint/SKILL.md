@@ -1,7 +1,6 @@
 ---
 name: "add-endpoint"
 description: "Scaffolds a new REST API endpoint for TaskFlow with handler, service, repository, tests, and Zod schemas"
-allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
 argument-hint: "<resource> [operations]"
 ---
 

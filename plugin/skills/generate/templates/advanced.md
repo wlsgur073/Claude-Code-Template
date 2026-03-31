@@ -252,7 +252,6 @@ Repeat until the user says to move on.
 ---
 name: "[skill-name]"
 description: "[What this skill automates]"
-allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
 argument-hint: "<required-arg> [optional-arg]"
 ---
 

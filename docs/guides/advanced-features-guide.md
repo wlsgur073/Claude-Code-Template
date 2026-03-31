@@ -104,7 +104,6 @@ Create `.claude/skills/<skill-name>/SKILL.md`:
 ---
 name: "add-endpoint"
 description: "Scaffolds a new REST API endpoint with handler, service, and tests"
-allowed-tools: [Read, Edit, Write, Bash, Grep, Glob]
 argument-hint: "<resource> [operations]"
 ---
 
@@ -127,7 +126,6 @@ Run build and tests to confirm everything works.
 Key fields:
 
 - **`name`** / **`description`** -- identity and purpose
-- **`allowed-tools`** -- restrict available tools (note: skills use `allowed-tools`, agents use `tools`)
 - **`argument-hint`** -- usage hint for slash command menu (e.g., `"<resource> [operations]"`)
 - **`user-invocable`** -- show in slash command menu (default: `true`)
 - **`disable-model-invocation`** -- prevent Claude from auto-triggering (default: `false`)
