@@ -13,6 +13,7 @@ We welcome the following types of contributions:
 - **Guide improvements** — Clarify explanations, fix inaccuracies, or add missing details in `guide/`
 - **Template improvements** — Expand or refine the TaskFlow examples in `templates/`
 - **Translations** — Add or improve Korean translations in `ko-KR/`
+- **Roadmap proposals** — Suggest new directions or features via [Discussions (Roadmap category)](https://github.com/wlsgur073/Claude-Code-Template/discussions/categories/roadmap). See [ROADMAP.md](ROADMAP.md) for details.
 - **Typo and grammar fixes** — Always welcome
 
 ## Before You Start
@@ -34,12 +35,12 @@ Please read the root [`CLAUDE.md`](../CLAUDE.md) file — it contains the detail
 
 This project follows [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 type: short description
 ```
 
 | Type | Use for |
-|------|---------|
+| ------ | --------- |
 | `feat` | New guides, templates, examples, or significant additions |
 | `fix` | Corrections to existing content |
 | `docs` | Documentation-only changes (README updates, cross-link fixes) |

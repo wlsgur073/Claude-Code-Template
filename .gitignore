@@ -17,8 +17,9 @@ Thumbs.db
 # Claude Code (this repo's own local settings)
 .claude/settings.local.json
 
-# Internal plans (not user-facing)
+# Internal plans and design specs (not user-facing)
 plans/
+docs/superpowers/
 
 # Node (if contributors install anything for tooling)
 node_modules/
