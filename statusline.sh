@@ -38,7 +38,7 @@ else
     DISPLAY_PATH="$FULL_PATH"
 fi
 
-MAX_PATH_LEN=40
+MAX_PATH_LEN=20
 if [ ${#DISPLAY_PATH} -gt $MAX_PATH_LEN ]; then
     CURRENT=$(basename "$DISPLAY_PATH")
     PARENT=$(basename "$(dirname "$DISPLAY_PATH")")
