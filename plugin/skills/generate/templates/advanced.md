@@ -247,7 +247,7 @@ Replace `[detected-linter-command]` with the actual linter (e.g., `npx eslint`, 
     "hooks": [
       {
         "type": "command",
-        "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.(env|pem|key)' && echo 'BLOCK: Protected file' && exit 1 || exit 0",
+        "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.(env|pem|key)' && echo 'BLOCK: Protected file' && exit 2 || exit 0",
         "statusMessage": "Checking for protected files"
       }
     ]
