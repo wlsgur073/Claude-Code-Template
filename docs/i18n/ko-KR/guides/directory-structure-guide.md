@@ -1,7 +1,7 @@
 ---
 title: ".claude/ 디렉토리 구조"
 description: ".claude/ 생태계, 자동 메모리, 버전 관리 대상 이해하기"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # .claude/ 디렉토리 구조

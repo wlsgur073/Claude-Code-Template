@@ -1,7 +1,7 @@
 ---
 title: "효과적인 CLAUDE.md 파일 작성법"
 description: "Claude Code를 위한 CLAUDE.md 파일의 작성, 구성, 관리 방법"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # 효과적인 CLAUDE.md 파일 작성법

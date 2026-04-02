@@ -1,7 +1,7 @@
 ---
 title: "Advanced Features"
 description: "Hooks, agents, and skills -- extending Claude Code beyond basic configuration"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # Advanced Features

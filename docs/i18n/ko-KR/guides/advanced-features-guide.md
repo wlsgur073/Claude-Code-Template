@@ -1,7 +1,7 @@
 ---
 title: "고급 기능"
 description: "Hooks, agents, skills — 기본 설정을 넘어 Claude Code를 확장하는 방법"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # 고급 기능

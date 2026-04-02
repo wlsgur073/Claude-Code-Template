@@ -1,7 +1,7 @@
 ---
 title: "Configuring settings.json"
 description: "How to configure Claude Code behavior with settings files"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # Configuring settings.json

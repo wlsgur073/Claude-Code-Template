@@ -1,7 +1,7 @@
 ---
 title: "Effective Usage Patterns"
 description: "Essential day-one patterns for using Claude Code effectively"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # Effective Usage Patterns

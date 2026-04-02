@@ -1,7 +1,7 @@
 ---
 title: "Using .claude/rules/"
 description: "How to organize project instructions into modular, path-scoped rule files"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # Using .claude/rules/

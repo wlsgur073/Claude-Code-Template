@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # Getting Started

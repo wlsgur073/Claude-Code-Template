@@ -1,7 +1,7 @@
 ---
 title: "The .claude/ Directory Structure"
 description: "Understanding the .claude/ ecosystem, auto memory, and what to version control"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # The .claude/ Directory Structure

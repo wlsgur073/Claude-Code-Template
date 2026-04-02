@@ -1,7 +1,7 @@
 ---
 title: "Writing Effective CLAUDE.md Files"
 description: "How to write, organize, and maintain CLAUDE.md files for Claude Code"
-version: 2.4.0
+version: 1.0.0
 ---
 
 # Writing Effective CLAUDE.md Files
