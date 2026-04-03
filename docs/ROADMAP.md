@@ -28,7 +28,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed version history.
 
 Have an idea or suggestion for this roadmap?
 
-1. Open a new discussion in the [Roadmap category](https://github.com/wlsgur073/Claude-Code-Template/discussions/categories/roadmap)
+1. Open a new discussion in the [Roadmap category](https://github.com/wlsgur073/Claude-Code-Template/discussions)
 2. Use the proposal template to describe your idea
 3. The community discusses, then the maintainer decides
 

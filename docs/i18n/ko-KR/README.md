@@ -182,7 +182,7 @@ Claude Code가 `~/.claude/statusline.sh`를 자동으로 감지합니다 — 추
 
 참여요? 여기에서요? Claude한테 시키면 되는데.. (피식)
 ...좋아요, 사람도 환영합니다. 이슈나 PR을 열어주세요.
-프로젝트 방향성과 제안은 [ROADMAP.md](../../ROADMAP.md)를 확인하고 [GitHub Discussions](https://github.com/wlsgur073/Claude-Code-Template/discussions/categories/roadmap)에서 참여하세요.
+프로젝트 방향성과 제안은 [ROADMAP.md](../../ROADMAP.md)를 확인하고 [GitHub Discussions](https://github.com/wlsgur073/Claude-Code-Template/discussions)에서 참여하세요.
 
 ## 라이선스
 
