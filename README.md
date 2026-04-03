@@ -82,7 +82,8 @@ Claude-Code-Template/
 │       │   ├── references/  ← Generation best practices
 │       │   └── templates/   ← Starter & Advanced path instructions
 │       └── audit/
-│           └── SKILL.md     ← Audit skill (/claude-code-template:audit)
+│           ├── SKILL.md     ← Audit skill (/claude-code-template:audit)
+│           └── references/  ← Scoring model and formulas
 ├── templates/starter/       ← Filled starter example (fictional "TaskFlow" project)
 ├── templates/advanced/      ← Filled advanced example (rules, hooks, agents, skills)
 ├── docs/

@@ -79,7 +79,8 @@ Claude-Code-Template/
 │       │   ├── references/  ← 생성 모범 사례
 │       │   └── templates/   ← Starter & Advanced 경로 지침
 │       └── audit/
-│           └── SKILL.md     ← 감사 스킬 (/claude-code-template:audit)
+│           ├── SKILL.md     ← 감사 스킬 (/claude-code-template:audit)
+│           └── references/  ← 스코어링 모델 및 산출 공식
 ├── templates/starter/       ← 스타터 실전 예시 (가상 "TaskFlow" 프로젝트)
 ├── templates/advanced/      ← 고급 기능 실전 예시 (rules, hooks, agents, skills)
 ├── docs/
