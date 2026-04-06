@@ -7,6 +7,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.8.1] - 2026-04-06
+
+### Added
+
+- Change Propagation Checklist in CLAUDE.md — documents downstream dependencies when modifying files
+
+### Changed
+
+- `/create` Phase 0: reads `*-secure.md` and `*-optimize.md` to avoid overwriting other skills' changes
+- `/audit` Phase 0: reads `*-secure.md` and `*-optimize.md` for change attribution in "Since your last audit"
+- `/optimize` Phase 0: reads `*-secure.md` for declined items awareness (prevents re-suggesting)
+- `/create` templates: deny patterns expanded from Read-only to full Essential set (Read/Edit/Write for `.env`)
+- `security-patterns.md`: `Read(./secrets/)` promoted from Extended to Essential
+- `/secure` and `/optimize`: record plugin-cache even when no changes are needed (history chain continuity)
+
+### Fixed
+
+- `security-patterns.md`: missing `Write(./secrets/)` in Extended deny patterns — security gap
+- `/secure`: missing `.claude/rules/` directory creation step before writing `security.md`
+- `/create` starter: lint command defaults suggested without dependency verification (added Phase 2.5S check)
+- Deny pattern format standardized to `Read(./secrets/)` across all files (was inconsistent `Read(secrets/)` / `Read(./secrets/**)`)
+- Template `settings.json` deny patterns synced with Essential patterns (EN/KR, 4 files)
+- ko-KR `rules-guide.md` version 1.0.1 → 1.0.0 (match EN source)
+- ko-KR `advanced-features-guide.md` version 1.2.0 → 1.2.1 + content sync (Script-Based Hooks trimmed)
+
 ## [2.8.0] - 2026-04-06
 
 ### Added

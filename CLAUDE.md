@@ -24,8 +24,17 @@ This is a documentation and template repository — it contains no application c
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
-- When modifying guides or templates, verify `/create`, `/audit`, `/secure`, and `/optimize` skills still align — check that skill templates, checklists, and suggestions reflect the updated patterns
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
+
+### Change Propagation Checklist
+
+A single change can ripple across the repo. When modifying any file, check downstream:
+
+- **`security-patterns.md`** → `/create` templates (`starter.md`, `advanced.md`) → filled examples (`templates/*/settings.json` EN + ko-KR, 4 files)
+- **`docs/guides/*.md`** → `docs/i18n/ko-KR/guides/*.md` — sync content + match frontmatter `version`
+- **`templates/starter/` or `advanced/`** → `docs/i18n/ko-KR/templates/` — mirror structure and content
+- **Skill SKILL.md** (behavior change) → verify other skills' Phase 0 reading scope still covers the change; update `CHANGELOG.md`
+- **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
 
 ## Plugin Development Rules
 

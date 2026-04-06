@@ -18,7 +18,9 @@ Before determining the path, check for previous generation results:
 1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
 2. If it does, glob `*-create.md` files, sort by filename, read the latest
 3. Note what features were previously generated and what features the user explicitly declined
-4. Do NOT re-suggest declined features during the advanced features question (Phase 2A Question 6) unless the user asks
+4. Also glob `*-secure.md` and `*-optimize.md` files; read the latest of each if they exist
+5. Note what settings/files other skills have added — do NOT overwrite or duplicate them (applies to both incremental and fresh paths)
+6. Do NOT re-suggest declined features during the advanced features question (Phase 2A Question 6) unless the user asks
 
 If no previous generation exists, skip this and proceed.
 

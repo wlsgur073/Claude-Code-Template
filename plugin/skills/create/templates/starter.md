@@ -58,6 +58,8 @@ Before writing any files, silently scan the project to ground your output in rea
 
 Use these findings in Phase 3S — reference only directories that exist, suggest only commands for installed packages, and mention at least one concrete detail from the actual code.
 
+**Dependency check:** If any command confirmed in Q3 references a tool not found in the dependency manifest (e.g., `ruff` not in `requirements.txt`, `eslint` not in `package.json`), tell the user before generating: "`[tool]` is not listed in your dependencies — include it anyway, or skip?" Adjust the commands based on their answer.
+
 ## Phase 3S: Generate Files
 
 Create files based on user answers AND the scan results from Phase 2.5S. Follow the generation rules in `references/best-practices.md`.
@@ -98,7 +100,7 @@ The **Development Approach** section must include these rules:
 ```
 
 - `allow`: add test, lint, and build commands from Q3 (e.g., `"Bash(npm test)"`, `"Bash(npm run lint)"`)
-- `deny`: add `"Read(./.env)"`, `"Read(./.env.*)"`, `"Read(./secrets/)"` as sensible defaults
+- `deny`: add Essential deny patterns as sensible defaults: `"Read(./.env)"`, `"Read(./.env.*)"`, `"Edit(./.env)"`, `"Edit(./.env.*)"`, `"Write(./.env)"`, `"Write(./.env.*)"`, `"Read(./secrets/)"`
 
 **`.gitignore`** — if `.gitignore` exists, append this line if not already present. If `.gitignore` does not exist, create it with this line:
 

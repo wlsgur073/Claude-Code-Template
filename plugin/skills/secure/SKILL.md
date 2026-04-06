@@ -61,6 +61,8 @@ Present the current security state:
 **If all items are already configured:**
 > "Your security configuration looks solid. No changes needed. Run `/claude-code-template:audit` for a full evaluation."
 
+Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
+
 ## Phase 3: Fix Selected Items
 
 Read `../../references/security-patterns.md` for templates and patterns. For each selected item:
@@ -76,7 +78,8 @@ Merge with existing deny patterns — do not overwrite.
 1. Scan the project for auth middleware, validation libraries, and secrets management patterns
 2. Use the template from `../../references/security-patterns.md`
 3. Customize based on detected patterns — do not use the generic template if specific patterns are found
-4. Create `.claude/rules/security.md`
+4. Create `.claude/rules/` directory if it doesn't exist
+5. Create `.claude/rules/security.md`
 
 ### File Protection Hooks
 

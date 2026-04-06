@@ -1,6 +1,6 @@
 {
   "name": "claude-code-template",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "Guided Claude Code setup — creates, audits, secures, and optimizes your CLAUDE.md, settings.json, rules, hooks, agents, and skills",
   "author": {
     "name": "wlsgur073"

@@ -14,11 +14,12 @@ Follow these phases in order.
 ## Phase 0: Read Context
 
 1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
-2. If it does, glob `*-audit.md` and `*-optimize.md` files
+2. If it does, glob `*-audit.md`, `*-optimize.md`, and `*-secure.md` files
 3. Sort by filename (lexical = chronological), read the latest of each
 4. From audit history: note any T2.3 (hook quality) and T3 (optimization) issues
 5. From optimize history: note any previously declined items — do NOT re-suggest them
-6. If no files exist, this is the first run — proceed to Phase 1
+6. From secure history: note any declined items — avoid re-suggesting related improvements (e.g., if hooks were declined in /secure, do not suggest hook quality fixes)
+7. If no files exist, this is the first run — proceed to Phase 1
 
 ## Phase 1: Scan Optimization State
 
@@ -74,6 +75,8 @@ Only show items that actually need improvement. If audit history exists, pre-hig
 
 **If nothing needs improvement:**
 > "Your configuration is well-organized. No optimizations needed. Run `/claude-code-template:audit` for a full evaluation."
+
+Then skip to **Write History** (Phase 4.2) to record the result (Fixed: none, Declined: none).
 
 ## Phase 3: Implement Selected Improvements
 

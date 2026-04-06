@@ -16,7 +16,9 @@ Before starting checks, look for previous audit results:
 1. Check if `.claude/.plugin-cache/claude-code-template/` directory exists
 2. If it does, glob `*-audit.md` files, sort by filename (lexical = chronological)
 3. Read the latest file and note the previous score, date, and top issues
-4. Keep previous results in mind — you will compare them in Phase 4
+4. Also glob `*-secure.md` and `*-optimize.md` files; read the latest of each if they exist
+5. Note which skills ran since the last audit — use this to attribute improvements in Phase 4
+6. Keep previous results in mind — you will compare them in Phase 4
 
 If no previous audit exists, skip this and proceed to Phase 1.
 
@@ -204,7 +206,7 @@ Apply the scoring model in this order:
 Present results using the output format defined in the scoring model reference. Do not show Phase/Step labels — use the friendly format.
 
 **If previous audit results exist (from Phase 0):** Add a comparison line at the end:
-> "Since your last audit (DATE): score changed from X → Y. Resolved: [issues]. Still open: [issues]."
+> "Since your last audit (DATE): score changed from X → Y. [If /secure or /optimize ran since the last audit, list them: 'Skills applied: /secure, /optimize.'] Resolved: [issues]. Still open: [issues]."
 
 **Next Steps section:** Always include this at the end if there are any non-PASS results:
 
