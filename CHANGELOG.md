@@ -7,6 +7,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.9.0] - 2026-04-08
+
+### Added
+
+- `/audit` T3.1: tree diagram parsing — extracts nested paths from `├──`/`└──` characters and inline comments
+- `/audit` T3.3: tool config verification — checks ESLint, TypeScript, Vitest config file existence beyond manifest
+- `/audit` T3.7: environment variable documentation check — scans `.npmrc`, `.env.example`, `docker-compose.yml`, `Dockerfile` for undocumented `${VAR}` references
+- `/audit` LAV (LLM Accuracy Verification) phase — replaces LQM with bidirectional scoring (-5 to +8) that cross-references CLAUDE.md claims against actual project state
+- `/audit` LAV improvement suggestions — outputs specific fixes for accuracy issues found
+
+### Changed
+
+- `/audit` scoring model: v2 → v3 (`LQM` → `LAV`, added `max(..., 0)` score floor)
+- `/audit` T3 weights redistributed: T3.4 0.15→0.10, T3.5 0.20→0.15, new T3.7 0.10
+- `/audit` architecture: monolithic SKILL.md refactored into orchestrator (~120 lines) + on-demand reference files in `references/checks/`
+- `/audit` Phase 3.5 suggestions migrated into individual check reference files
+- `/audit` output format extracted to `references/output-format.md` for on-demand loading
+
 ## [2.8.1] - 2026-04-06
 
 ### Added
