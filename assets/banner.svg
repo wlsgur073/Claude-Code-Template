@@ -33,6 +33,17 @@
     </g>
   </g>
 
+  <!-- ===== Cowboy Hat (311087-1a1a1a.svg, horizontally flipped) ===== -->
+  <svg x="105" y="-20" width="130" height="103" viewBox="0 0 1280 1009">
+    <g transform="translate(1280, 0) scale(-1, 1)">
+      <g transform="translate(0.000000,1009.000000) scale(0.100000,-0.100000)" fill="#1a1a1a" stroke="none">
+        <path d="M6830 10084 c-14 -2 -56 -9 -95 -15 -238 -37 -475 -134 -955 -391 -129 -69 -302 -159 -385 -200 -82 -41 -222 -121 -310 -179 -336 -219 -443 -255 -955 -318 -469 -59 -594 -92 -850 -227 -197 -104 -386 -237 -696 -490 -90 -73 -235 -187 -321 -252 -365 -276 -497 -426 -572 -647 -105 -313 -115 -689 -30 -1140 28 -151 107 -462 173 -685 94 -318 153 -530 194 -688 l40 -152 -87 -46 c-275 -148 -412 -233 -596 -372 -231 -176 -650 -642 -882 -984 -441 -647 -585 -1230 -457 -1842 115 -548 403 -929 879 -1161 218 -106 512 -194 835 -249 494 -85 783 -60 1655 145 444 104 466 110 695 179 107 32 290 86 405 120 853 250 1640 560 2161 850 730 406 1391 906 2444 1844 91 81 244 209 340 284 368 287 713 578 1075 907 116 105 280 245 365 310 869 667 1181 995 1537 1615 246 428 344 679 360 921 10 157 -33 303 -121 408 -20 24 -36 53 -36 64 0 46 2 46 -286 63 -134 8 -259 -16 -519 -101 -242 -79 -316 -121 -457 -254 -55 -52 -171 -178 -257 -280 -239 -282 -351 -379 -511 -446 -140 -59 -263 -80 -565 -95 -228 -11 -358 -24 -475 -46 -89 -17 -66 -39 -199 186 -130 218 -221 402 -377 765 -133 310 -290 634 -531 1100 -237 455 -357 649 -547 885 -92 115 -331 355 -427 429 -94 74 -225 144 -309 167 -53 14 -299 27 -350 18z"/>
+      </g>
+    </g>
+  </svg>
+  <!-- Hat band (orange accent, banner coords) -->
+  <rect x="120" y="47" width="100" height="12" rx="1" fill="#D97757"/>
+
   <!-- Speech bubble -->
   <rect x="200" y="28" width="125" height="24" rx="6" fill="white" opacity="0.9"/>
   <polygon points="215,52 225,52 208,62" fill="white" opacity="0.9"/>
@@ -47,7 +58,7 @@
   <text x="560" y="142" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="bold" font-size="42" fill="#D97757">Template</text>
 
   <!-- Tagline -->
-  <text x="560" y="175" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#a0a0c0">Your AI's first day at work, handled.</text>
+  <text x="560" y="175" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#a0a0c0">He didn't take the time to configure.</text>
 
   <!-- Terminal command preview -->
   <rect x="400" y="195" width="320" height="32" rx="6" fill="#0d0d1a" stroke="#333355" stroke-width="1"/>
