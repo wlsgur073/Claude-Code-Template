@@ -27,7 +27,7 @@ Score: 70/100 (Grade: B)  |  Maturity: Level 3 — Optimized
   SB: +2 (test + build)
   LAV: +6 (L1: +2 + L2: +2 + L3: +1 + L4: 0 + L5: 0 + L6: +1)
   Quality Cap: none (LAV >= 0)
-  Final: min(max(1.00 x 62.0 + 2 + 6, 0), 100) = 70
+  Final: min(max(1.00 x 62.0 + 2 + 6, 0), cap=100) = 70
 
 [Detailed findings per item...]
 

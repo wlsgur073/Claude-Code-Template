@@ -5,7 +5,7 @@
 The scoring model uses a **Foundation-Gated Multiplicative** structure. Foundation (T1) acts as a gate multiplier on the Detail Score (T2 + T3), reflecting the reality that without solid foundations, protection and optimization scores are less meaningful.
 
 ```
-Final = min(max(FG x DS + SB + LAV, 0), 100)
+Final = min(max(FG x DS + SB + LAV, 0), cap)
          |       |      |     |
          |       |      |     +-- LAV: LLM Accuracy Verification (-9 ~ +10)
          |       |      +-------- Synergy Bonus: complementary item pairs (max +5)
