@@ -123,3 +123,4 @@ Once your basic configuration is working, explore hooks, agents, and skills for 
 - [Effective Usage Guide](effective-usage-guide.md) -- Day-one usage patterns and anti-patterns to avoid
 - [Advanced Features Guide](advanced-features-guide.md) -- Hooks, agents, and skills for teams
 - [MCP Integration Guide](mcp-guide.md) -- Connecting Claude to external tools and services
+- [Recommended Plugins Guide](recommended-plugins-guide.md) -- Curated plugins to extend Claude Code

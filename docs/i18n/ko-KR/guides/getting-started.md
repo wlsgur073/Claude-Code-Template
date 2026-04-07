@@ -123,3 +123,4 @@ Rules를 사용하면 좋은 경우:
 - [효과적인 사용 가이드](effective-usage-guide.md) -- 첫날부터 적용할 사용 패턴과 피해야 할 안티패턴
 - [고급 기능 가이드](advanced-features-guide.md) -- 팀을 위한 hooks, agents, skills
 - [MCP 연동 가이드](mcp-guide.md) -- Claude를 외부 도구 및 서비스에 연결
+- [추천 플러그인 가이드](recommended-plugins-guide.md) -- Claude Code를 확장하는 엄선된 플러그인
