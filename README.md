@@ -1,15 +1,24 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="Claude Code Template" width="700"/>
+  <img src="assets/banner-v2.svg" alt="Claude Code Template" width="700"/>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-2.8.1-brightgreen.svg" alt="Version">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
+  <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
+  <a href="https://github.com/wlsgur073/Claude-Code-Template/stargazers"><img src="https://img.shields.io/github/stars/wlsgur073/Claude-Code-Template?style=social" alt="GitHub Stars"></a>
+</p>
+
+<p align="center">
+  <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語</a>
 </p>
 
 Starter templates and guides for configuring Claude Code. Install the
 plugin, run `/claude-code-template:create`, and Claude generates all
 configuration files through a guided interview.
 
-**Audience:** Developers new to Claude Code who want a working configuration
-from day one.
-
-**[한국어 README](docs/i18n/ko-KR/README.md)**
+**Audience:** Developers new to Claude Code who want a working configuration from day one.
 
 ## Philosophy
 
@@ -97,6 +106,7 @@ Claude-Code-Template/
 ├── docs/
 │   ├── guides/              ← Guides explaining each concept
 │   ├── i18n/ko-KR/          ← Korean translations (guides, templates)
+│   ├── i18n/ja-JP/          ← Japanese translations (guides, templates)
 │   ├── plans/               ← Design and planning documents
 │   └── *.md                 ← Community health files and project roadmap
 └── CHANGELOG.md             ← Version history (Keep a Changelog format)
@@ -108,6 +118,7 @@ Claude-Code-Template/
 | `templates/advanced/` | Filled advanced example — rules, hooks, agents, skills |
 | `docs/guides/` | Standalone guides — read any one without the others |
 | `docs/i18n/ko-KR/` | Korean translations (guides, templates) |
+| `docs/i18n/ja-JP/` | Japanese translations (guides, templates) |
 | `docs/plans/` | Design and planning documents |
 | `docs/*.md` | Community health files and project [roadmap](docs/ROADMAP.md) |
 
@@ -133,44 +144,13 @@ Start here, then follow the path that matches your level:
 | 6 | [Effective Usage](docs/guides/effective-usage-guide.md) | After your first day with Claude Code |
 | 7 | [Advanced Features](docs/guides/advanced-features-guide.md) | When you need hooks, agents, or skills |
 | 8 | [MCP Integration](docs/guides/mcp-guide.md) | When you want to connect external tools |
+| 9 | [Recommended Plugins](docs/guides/recommended-plugins-guide.md) | When you want to extend Claude Code |
 
 ## Recommended Plugins
 
-Claude Code supports official plugins that extend its capabilities.
-Browse available plugins with `/plugin` in Claude Code, or see
-[Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
+Claude Code supports official plugins that extend its capabilities — from full dev workflows to code intelligence. See the **[Recommended Plugins Guide](docs/guides/recommended-plugins-guide.md)** for the full curated list organized by category.
 
-### Development Workflow
-
-| Plugin | What it does |
-| ------ | ------------ |
-| [superpowers](https://github.com/obra/superpowers) | Full dev workflow — spec → design → plan → subagent-driven implementation. Claude works autonomously for hours without drifting from your plan |
-| [feature-dev](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/feature-dev) | Structured 7-phase feature development: explore codebase → ask questions → design → implement → review |
-| [code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) | Multi-agent PR review with confidence scoring to filter false positives. Catches real issues, skips noise |
-| [code-simplifier](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) | Refines recently modified code for clarity and consistency while preserving all behavior |
-
-### Code Intelligence & Quality
-
-| Plugin | What it does |
-| ------ | ------------ |
-| [typescript-lsp](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/typescript-lsp) | TypeScript/JS language server — go-to-definition, find references, and error checking without leaving Claude |
-| [security-guidance](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/security-guidance) | Pre-edit hook that warns about potential security vulnerabilities (XSS, injection, etc.) before code is written |
-| [context7](https://github.com/upstash/context7) | MCP server that fetches up-to-date library docs on demand. No more hallucinated APIs |
-
-### UI & Browser
-
-| Plugin | What it does |
-| ------ | ------------ |
-| [frontend-design](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/frontend-design) | Generates distinctive, production-grade UIs that don't look like "AI made this" |
-| [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Control and inspect a live Chrome browser — debug, automate, and analyze performance via DevTools |
-| [figma](https://github.com/figma/mcp-server-guide) | Pull design context directly from Figma files into your implementation workflow |
-
-### Project Setup
-
-| Plugin | What it does |
-| ------ | ------------ |
-| [claude-code-setup](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-code-setup) | Scans your codebase and recommends the best hooks, skills, MCP servers, and subagents for your project |
-| [claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) | Audit CLAUDE.md quality + capture session learnings with `/revise-claude-md` |
+Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](https://code.claude.com/docs/en/discover-plugins) for details.
 
 ## Statusline
 
