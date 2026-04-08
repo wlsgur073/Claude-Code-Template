@@ -35,19 +35,20 @@ Rule 1 — Recommendation Follow-up
 
 - Context: PENDING in changelog + `latest-*.md` existence.
 - Signal: PENDING and corresponding skill's latest shows not addressed.
-- Action: Re-state with `(Nx pending)` count. Explain what remains unaddressed.
+- Action: Re-state with `(Nx pending)` count where N = previous count + 1. Count increments across all skills (not just the current skill). Explain what remains unaddressed.
 
 Rule 2 — Preference Respect
 
 - Context: DECLINED in changelog + `local/project-profile.md`.
-- Signal: Previously DECLINED feature.
+- Signal: Previously DECLINED feature in any skill's changelog entry (cross-skill scope).
 - Action: Do NOT re-suggest unless project scale/structure changed significantly. If re-suggesting, acknowledge the previous decline.
 
 Rule 3 — Stagnation Detection
 
-- Context: Last 3+ audit entries in changelog.
-- Signal: Same PENDING recommendation 3+ consecutive times OR `Applied: (none)` 3 consecutive times.
-- Action: Ask user to (a) apply now, (b) mark declined, (c) defer. No response after prompt → STALE on next compaction.
+- Context: Last 3+ entries in changelog (any skill, not audit-only).
+- Signal: Same PENDING recommendation appears in 3+ entries consecutively (non-audit entries that don't mention the item do not break the chain). OR `Applied: (none)` in 3 consecutive entries.
+- Action: Ask user to (a) apply now, (b) mark declined, (c) defer. If user defers, increment PENDING count per Rule 1. No response after prompt → STALE on next compaction.
+- STALE application: During compaction (Step 3b), if an item was prompted via Rule 3 and the user did not respond (no apply/decline/defer recorded), mark it STALE in the compacted summary.
 
 Rule 4 — Profile Drift Response
 
@@ -65,7 +66,7 @@ Insert after each skill's existing final phase logic.
 
 **Step 2 — Update Profile**: If profile absent, generate from detected state. If present and changes detected, update relevant sections. `/audit` always regenerates entirely. Update `last_updated` in frontmatter.
 
-**Step 3 — Append to Changelog**: If absent, create with frontmatter + first entry. Run Same-Day Duplicate Check (Step 3a), then Compaction Check (Step 3b).
+**Step 3 — Append to Changelog**: If absent, create with frontmatter (`entry_count: 1`, `compacted_at: never`), `## Compacted History` section containing `(none)`, `## Recent Activity` section, and first entry. Run Same-Day Duplicate Check (Step 3a), then Compaction Check (Step 3b).
 
 **Step 4 — Legacy Cleanup**: Glob for `*-{this-skill}.md` in parent directory. Delete if found.
 
@@ -75,8 +76,8 @@ Insert after each skill's existing final phase logic.
 
 1. Find last `###` line in Recent Activity.
 2. Extract date (`YYYY-MM-DD`) and skill name (after `— /`).
-3. If today + same skill → update in place: increment run count, append detections with run number, merge recommendations to final state. Do NOT duplicate unchanged fields.
-4. If different → append new entry.
+3. If today + same skill → update in place: increment run count, append detections with run number, merge recommendations to final state. Do NOT duplicate unchanged fields. Do NOT increment `entry_count` (same logical entry).
+4. If different → append new entry. Increment `entry_count`.
 
 **Example** — before (10:30:00 run):
 
