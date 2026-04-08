@@ -6,7 +6,7 @@ This is a documentation and template repository — it contains no application c
 ## Repository Structure
 
 - `.claude-plugin/` — Marketplace manifest (makes this repo a plugin marketplace)
-- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/create/SKILL.md` (`/claude-code-template:create`), `skills/audit/SKILL.md` (`/claude-code-template:audit`), `skills/secure/SKILL.md` (`/claude-code-template:secure`), `skills/optimize/SKILL.md` (`/claude-code-template:optimize`), `skills/generate/SKILL.md` (deprecated redirect to `/create`), `references/security-patterns.md` (shared), and `hooks/hooks.json`
+- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/create/SKILL.md` (`/claude-code-template:create`), `skills/audit/SKILL.md` (`/claude-code-template:audit`), `skills/secure/SKILL.md` (`/claude-code-template:secure`), `skills/optimize/SKILL.md` (`/claude-code-template:optimize`), `skills/generate/SKILL.md` (deprecated redirect to `/create`), `references/security-patterns.md` (shared), `references/learning-system.md` (shared), and `hooks/hooks.json`
 - `CHANGELOG.md` — Version history in Keep a Changelog format
 - `templates/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
 - `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills, MCP)
@@ -24,6 +24,7 @@ This is a documentation and template repository — it contains no application c
 - Guides in `docs/guides/` should stay concise — most under ~130 lines, `advanced-features-guide.md` under ~200 (covers 3 topics with code examples)
 - This CLAUDE.md should stay under 200 lines, matching the repo's own recommendation in `docs/guides/claude-md-guide.md`
 - There is no source code — all content is Markdown. Review for clarity, accuracy, and consistency across files
+- When diagrams are needed in Markdown documents, use Mermaid syntax (`\`\`\`mermaid`) — it renders natively on GitHub and keeps everything in plain text without external image dependencies
 - When adding a new guide, follow the existing frontmatter format (`title`, `description`, `version`) and add cross-links from `docs/guides/getting-started.md`
 - CLAUDE.md files under `templates/` are repo content, not instructions for this repo — Claude will lazy-load them when working in those directories, so keep them clearly framed as examples
 

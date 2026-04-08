@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Project Learning System — persistent project profiling and decision journaling across all skills
+- `plugin/references/learning-system.md` — shared reference for Common Phase 0, Learning Rules, Final Phase, Compaction, and Critical Thinking
+- `project-profile.md` — auto-detected project environment stored in `.plugin-cache/local/` (tech stack, structure, configuration state)
+- `config-changelog.md` — decision journal with log compaction (200-line budget, Lossless Anchor preservation)
+- Learning Rules (CSA pattern): Recommendation Follow-up, Preference Respect, Stagnation Detection, Profile Drift Response
+- Critical Thinking & Insight Delivery — Socratic self-verification with anti-sycophancy guidelines
+- Same-Day Duplicate handling — multiple runs of the same skill merge into one changelog entry
+- SessionStart hook enhanced with 3-case profile detection (no config, no profile, stale)
 - `/audit` T3.1: tree diagram parsing — extracts nested paths from `├──`/`└──` characters and inline comments
 - `/audit` T3.3: tool config verification — checks ESLint, TypeScript, Vitest config file existence beyond manifest
 - `/audit` T3.7: environment variable documentation check — scans `.npmrc`, `.env.example`, `docker-compose.yml`, `Dockerfile` for undocumented `${VAR}` references
@@ -23,11 +31,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- All skills: Phase 0 now loads project profile, previous results, and changelog before executing
+- All skills: Final Phase now persists results to `local/` directory, updates profile, appends changelog
+- `/audit`: reads full changelog for trend analysis; always regenerates profile (Layer 3 stale prevention)
 - `/audit` scoring model: v2 → v3 (`LQM` → `LAV`, `max(..., 0)` score floor, Quality Cap, L1–L6 expanded evaluation)
 - `/audit` T3 weights redistributed: T3.4 0.15→0.10, T3.5 0.20→0.15, new T3.7 0.10
 - `/audit` architecture: monolithic SKILL.md refactored into orchestrator (~120 lines) + on-demand reference files in `references/checks/`
 - `/audit` Phase 3.5 suggestions migrated into individual check reference files
 - `/audit` output format extracted to `references/output-format.md` for on-demand loading
+- `/create`: skips path question when profile already exists; records declined features to changelog
+- `/secure`: reads latest-audit for T2 references; resolves audit recommendations when addressed
+- `/optimize`: reads latest-audit + latest-secure; respects cross-skill declined items
+- File storage: `{timestamp}-{skill}.md` pattern replaced by `latest-{skill}.md` (overwrite, max 7 files)
+- Storage path: `.plugin-cache/claude-code-template/` → `.plugin-cache/claude-code-template/local/`
+
+### Migration
+
+- Existing `{timestamp}-{skill}.md` files are automatically migrated to `latest-{skill}.md` on first skill run
+- Legacy files are cleaned up after migration
+- No user action required
 
 ## [2.8.1] - 2026-04-06
 
