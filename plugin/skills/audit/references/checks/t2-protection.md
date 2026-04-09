@@ -20,9 +20,15 @@ Check for these patterns:
 - `.env` or `.env.*` in deny list
 - `secrets/` or similar in deny list
 
+Additionally, check for **operation coverage gaps** in deny patterns:
+- If deny patterns use operation-specific syntax (e.g., `Read(file_path=**/*.pem)`), verify that all three operation types (Read, Edit, Write) are covered for each sensitive file pattern
+- Common sensitive file extensions to check beyond `.env`: `*.pem`, `*.key`, `*.p12`, `*.pfx`, `*.cert`, `*.jks`
+- If a sensitive file type is covered by deny for some operations but relies on hooks for others, note this as weaker protection — hook failures (see T2.3 check 4-5) would leave those operations unprotected
+
 Scoring:
-- Both present → **PASS**
-- settings.json exists but deny is incomplete → **PARTIAL** — list what's missing
+- Core patterns present (`.env`, `secrets/`) AND no operation coverage gaps → **PASS**
+- Core patterns present but operation coverage gaps on extended file types (e.g., `*.pem` only has Read deny) → **PARTIAL** — list which file types and operations lack deny coverage
+- settings.json exists but deny is incomplete (missing `.env` or `secrets/`) → **PARTIAL** — list what's missing
 - settings.json exists but no deny patterns at all → **MINIMAL**
 - No settings.json → **FAIL** — "Create .claude/settings.json with deny patterns"
 
@@ -57,11 +63,15 @@ If `.claude/settings.json` has a `hooks` section:
 5. **Silent failure detection:** Flag patterns where command errors are suppressed in a way that masks complete hook failure:
    - Variable assignment with `2>/dev/null` (e.g., `VAR=$(cmd 2>/dev/null)`) — if `cmd` fails, `VAR` is empty and subsequent conditions silently never trigger
    - Piped commands where intermediate failures are hidden (e.g., `cmd1 | cmd2` without `set -o pipefail`)
+6. **Event type appropriateness:** Check if safety-critical operations use the correct hook event type:
+   - If CLAUDE.md contains safety rules with strong language ("never", "must not", "forbidden", "do not", "금지") AND corresponding hooks exist as `PostToolUse` → flag as inappropriate — PostToolUse only warns after the action is already complete; safety-critical operations should use `PreToolUse` with `exit 2` to prevent the action
+   - If `PostToolUse` hooks contain blocking-intent keywords in their command or statusMessage (e.g., "BLOCK", "PREVENT", "FORBID", "DANGER") → flag as contradictory — the hook intends to prevent but can only react
 
 Scoring:
 - All hooks well-configured, no portability issues → **PASS**
 - Minor issues (missing statusMessage on some hooks) → **PARTIAL**
 - Portability issues found (non-portable commands in hook) → **PARTIAL** — list specific patterns with portable alternatives
+- Safety-critical operations using PostToolUse instead of PreToolUse → **PARTIAL** — "Consider moving safety-critical hook to PreToolUse with exit 2 for prevention instead of post-hoc warning"
 - Serious issues (wrong exit codes, no matchers, silent failure patterns masking protection logic) → **MINIMAL** — list specific issues
 - No hooks section → **SKIP**
 
