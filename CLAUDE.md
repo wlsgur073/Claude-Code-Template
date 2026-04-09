@@ -6,7 +6,7 @@ This is a documentation and template repository — it contains no application c
 ## Repository Structure
 
 - `.claude-plugin/` — Marketplace manifest (makes this repo a plugin marketplace)
-- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/create/SKILL.md` (`/claude-code-template:create`), `skills/audit/SKILL.md` (`/claude-code-template:audit`), `skills/secure/SKILL.md` (`/claude-code-template:secure`), `skills/optimize/SKILL.md` (`/claude-code-template:optimize`), `skills/generate/SKILL.md` (deprecated redirect to `/create`), `references/security-patterns.md` (shared), `references/learning-system.md` (shared), and `hooks/hooks.json`
+- `plugin/` — Plugin package containing `.claude-plugin/plugin.json`, `skills/create/SKILL.md` (`/claude-code-template:create`), `skills/audit/SKILL.md` (`/claude-code-template:audit`), `skills/secure/SKILL.md` (`/claude-code-template:secure`), `skills/optimize/SKILL.md` (`/claude-code-template:optimize`), `references/security-patterns.md` (shared), `references/learning-system.md` (shared), and `hooks/hooks.json`
 - `CHANGELOG.md` — Version history in Keep a Changelog format
 - `templates/starter/` — Minimal filled example for TaskFlow (5-section CLAUDE.md + basic settings.json)
 - `templates/advanced/` — Full filled example for TaskFlow (rules, hooks, agents, skills, MCP)

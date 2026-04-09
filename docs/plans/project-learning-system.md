@@ -579,8 +579,9 @@ CSA (Context-Signal-Action) pattern.
   acknowledge the previous decline and explain what changed.
 
 **Rule 3 — Stagnation Detection**
-- Context: Last 3+ audit entries in changelog
-- Signal: The same PENDING recommendation appears 3+ consecutive times,
+- Context: Last 3+ entries in changelog (any skill, not audit-only)
+- Signal: The same PENDING recommendation appears in 3+ entries consecutively
+  (non-audit entries that don't mention the item do not break the chain),
   OR "Applied: (none)" appears 3 consecutive times
 - Action: Change approach. Ask the user: "This recommendation has been
   pending for 3 sessions. Would you like to: (a) Apply it now,
@@ -645,7 +646,8 @@ Every skill's Phase 0 gains this block before its existing logic:
 2. Read additional latest files as needed by this skill:
    - `/secure`: also read `local/latest-audit.md` (for T2 issue references)
    - `/optimize`: also read `local/latest-audit.md` and `local/latest-secure.md`
-   - `/create`, `/audit`: no additional files needed
+   - `/create`: also read `local/latest-secure.md` and `local/latest-optimize.md` (to avoid overwriting other skills' changes)
+   - `/audit`: no additional files needed
 3. If no latest file found: check parent directory
    (`.claude/.plugin-cache/claude-code-template/`) for legacy
    `*-{skill}.md` files. If found, read the most recent one.
@@ -735,8 +737,8 @@ After (14:15:00 run merged):
 | ------- | ----------------- | --------------------- |
 | `/audit` | Reads **full** changelog (not just Recent) for trend analysis. Always performs full profile regeneration in final phase | `latest-audit.md` includes score (user-facing snapshot) |
 | `/create` | Checks profile to **skip** the "existing vs new project" question if profile exists | Records declined features explicitly in changelog entry |
-| `/secure` | Reads profile's Configuration State to identify security gaps | Updates profile's Hooks/Rules counts after applying changes |
-| `/optimize` | Reads profile + changelog to avoid re-suggesting previously DECLINED items | Updates profile's Configuration State after each optimization |
+| `/secure` | Reads profile's Configuration State to identify security gaps | Updates profile's Hooks/Rules counts; marks addressed audit recommendations as RESOLVED |
+| `/optimize` | Reads profile + changelog to avoid re-suggesting previously DECLINED items | Updates profile's Configuration State; marks addressed audit recommendations as RESOLVED |
 
 ---
 
