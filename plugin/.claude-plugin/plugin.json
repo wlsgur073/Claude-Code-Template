@@ -1,7 +1,7 @@
 {
   "name": "guardians-of-the-claude",
-  "version": "2.9.0",
-  "description": "Guided Claude Code setup — creates, audits, secures, and optimizes your CLAUDE.md, settings.json, rules, hooks, agents, and skills",
+  "version": "2.9.3",
+  "description": "Meta-system for Claude Code configuration. 2-minute guided setup for beginners; audit, secure, optimize, and cross-skill learning for power users.",
   "author": {
     "name": "wlsgur073"
   },

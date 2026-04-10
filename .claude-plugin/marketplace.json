@@ -12,7 +12,7 @@
     {
       "name": "guardians-of-the-claude",
       "source": "./plugin",
-      "description": "Guided Claude Code setup — generates CLAUDE.md, settings, rules, hooks, agents, and skills for any project",
+      "description": "Meta-system for Claude Code configuration. Start with a 2-minute guided setup, grow into audit/secure/optimize with cross-skill learning.",
       "author": {
         "name": "wlsgur073"
       },

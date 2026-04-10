@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.9.0-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.9.3-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
@@ -14,20 +14,20 @@
   <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語</a>
 </p>
 
-Starter templates and guides for configuring Claude Code. Install the
-plugin, run `/guardians-of-the-claude:create`, and Claude generates all
-configuration files through a guided interview.
+A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, progressive depth.
 
-**Audience:** Developers new to Claude Code who want a working configuration from day one.
+**For beginners:** 2-minute setup — Claude asks a few questions and generates all configuration files for you.
+
+**For power users:** 4 chained skills (`/create` → `/audit` → `/secure`/`/optimize`) backed by cross-skill memory, profile drift detection, and a decision journal.
 
 ## Philosophy
 
 1. **Verify, don't trust** — Include test, lint, and build commands so Claude checks its own work. This is the single highest-leverage configuration you can make.
 2. **Less is more** — Shorter instructions produce better adherence. Each guide stays short enough to read in one sitting.
 3. **Specific over vague** — `npm test` not "make sure it works." Every command must be copy-pasteable.
-4. **Start simple, grow later** — Two files get you started. Add rules, hooks, agents, and skills when you actually need them.
+4. **Progressive depth** — Day 1 is a 2-minute setup. Day 30 adds audit and hardening. Day 100 unlocks cross-skill memory and automated drift detection. The tool grows with you — you never pay for complexity you don't need.
 
-## Quick Start
+## Day 1 — 2-Minute Quickstart
 
 1. **Add the marketplace and install the plugin** in Claude Code:
 
@@ -73,6 +73,32 @@ configuration files through a guided interview.
 > **Tip:** Run `/init` in your project first — Claude auto-generates a starter
 > CLAUDE.md. Then run `/guardians-of-the-claude:create` choosing "Existing project"
 > to fill gaps `/init` misses.
+
+**You can stop here.** The configuration works on its own. The Day 30 and Day 100+ sections below describe what happens next if you want more.
+
+## Day 30 — Audit, Harden, Optimize
+
+After your project has real code and real usage, three more skills help you maintain configuration health:
+
+| Skill | When to run | What it does |
+| ----- | ----------- | ------------ |
+| `/guardians-of-the-claude:audit` | After significant project changes | Scores your current Claude Code config (0-100), identifies drift, recommends next steps |
+| `/guardians-of-the-claude:secure` | After audit finds security gaps | Adds deny patterns, security rules, file protection hooks |
+| `/guardians-of-the-claude:optimize` | After audit finds quality gaps | Splits bloated CLAUDE.md into rules/, adds agent diversity, MCP recommendations |
+
+**Typical flow:** `/create` → (weeks of development) → `/audit` → `/secure` or `/optimize` → `/audit` to re-verify.
+
+## Day 100+ — Meta-System Engagement
+
+After multiple skill runs, the plugin activates its **meta-system layer** — persistent learning that adapts to your project over time:
+
+- **Project profile** — Auto-detected tech stack, structure, and configuration state (`project-profile.md`)
+- **Decision journal** — Every skill run appends to a compacted changelog so context is preserved across sessions (`config-changelog.md`)
+- **Cross-skill memory** — `/optimize` knows what `/secure` already did; `/audit` knows what was previously declined
+- **Profile drift detection** — If your project switches package managers or upgrades a framework major version, the plugin notices and re-evaluates recommendations
+- **Stagnation awareness** — If the same recommendation is ignored 3 times, the plugin asks whether to mark it as declined
+
+**You never need to read about this to use the plugin.** It runs automatically. See [learning-system.md](plugin/references/learning-system.md) if you want to understand the internals.
 
 ## What's Inside
 
