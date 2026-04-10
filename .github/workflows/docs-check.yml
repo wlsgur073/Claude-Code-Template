@@ -1,0 +1,127 @@
+name: docs-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    name: Link check (lychee)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+      - name: Run lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --base .
+            --verbose
+            --no-progress
+            --cache
+            --max-cache-age 1d
+            --exclude-path docs/superpowers
+            'README.md'
+            'docs/**/*.md'
+            'plugin/**/*.md'
+            'CHANGELOG.md'
+            'templates/**/*.md'
+          fail: ${{ github.event_name == 'schedule' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  frontmatter-parity:
+    name: Frontmatter version parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml==6.0.2
+
+      - name: Check frontmatter parity
+        run: python .github/scripts/check-frontmatter-parity.py
+
+  json-schema:
+    name: JSON schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0 requests==2.32.3
+
+      - name: Validate JSON schemas
+        run: python .github/scripts/check-json-schemas.py
+
+  i18n-parity:
+    name: i18n structural parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check i18n parity
+        run: python .github/scripts/check-i18n-parity.py
+
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: error
+          ignore_paths: >-
+            .git
+            docs/superpowers
+            node_modules
+
+  encoding-check:
+    name: Encoding corruption check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for U+FFFD replacement characters
+        run: |
+          set -e
+          MATCHES=$(find . -type f \
+            \( -name '*.md' -o -name '*.json' -o -name '*.sh' -o -name '*.yml' -o -name '*.yaml' \) \
+            -not -path './.git/*' \
+            -not -path './docs/superpowers/*' \
+            -not -path './node_modules/*' \
+            -exec grep -lP '\xef\xbf\xbd' {} + 2>/dev/null || true)
+          if [ -n "$MATCHES" ]; then
+            echo "::error::Encoding corruption (U+FFFD) found in:"
+            echo "$MATCHES" | sed 's/^/  /'
+            exit 1
+          fi
+          echo "OK: no encoding corruption found."

@@ -63,5 +63,5 @@
   "env": {
     "NODE_ENV": "development"
   },
-  "enabledPlugins": []
+  "enabledPlugins": {}
 }

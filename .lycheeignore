@@ -1,0 +1,5 @@
+# URL patterns to exclude from link checking.
+# One regex pattern per line. Lines starting with # are comments.
+#
+# Add patterns here only when link check produces confirmed false positives
+# (e.g., sites that block bots, rate-limited APIs, transient 5xx).
