@@ -37,8 +37,14 @@ fi
 # Case 3: Profile exists — check for staleness
 # Manifests AND lock files both trigger: a lock-file-only change (e.g., pnpm
 # update) often adds or bumps transitive deps without touching package.json.
+# Modern monorepo tools (pnpm/yarn/npm workspaces, Cargo workspaces) already
+# keep a single root lockfile, so the JS/Rust lockfiles above cover most
+# workspace drift. The extra monorepo config files below catch workspace
+# layout changes (new package added, turborepo pipeline edit, nx target add)
+# that don't touch a lockfile on their own.
 STALE="false"
 for f in package.json package-lock.json pnpm-lock.yaml yarn.lock \
+         pnpm-workspace.yaml lerna.json nx.json turbo.json rush.json \
          tsconfig.json \
          pyproject.toml poetry.lock uv.lock requirements.txt \
          go.mod go.sum \
