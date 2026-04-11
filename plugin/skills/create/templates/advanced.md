@@ -274,6 +274,7 @@ tools:
   - Bash
   - Grep
   - Glob
+# sonnet: balanced speed/quality for implementation tasks (see the model selection table below)
 model: "sonnet"
 color: "blue"
 ---
