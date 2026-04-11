@@ -57,6 +57,12 @@
             "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.sh\"",
             "timeout": 5,
             "statusMessage": "Checking for migration keywords"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PROJECT_DIR}/scripts/validate-prompt.ps1\"",
+            "timeout": 5,
+            "statusMessage": "Checking for migration keywords"
           }
         ]
       }

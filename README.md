@@ -30,7 +30,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 ## Day 1 — 2-Minute Quickstart
 
 > **Prerequisites:** Claude Code installed (`claude --version`).
-> **On Windows**, the SessionStart hook now ships a PowerShell entry alongside the bash one, so **PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL** both work — no extra setup needed for the hook itself. **Advanced templates (`templates/advanced/scripts/*.sh`) still require a bash-compatible shell.**
+> **On Windows**, both the plugin's SessionStart hook and the advanced template's `UserPromptSubmit` hook now ship parallel bash + PowerShell entries, so **PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL** work end-to-end — no extra setup needed for either layer.
 
 1. **Add the marketplace and install the plugin** in Claude Code:
 

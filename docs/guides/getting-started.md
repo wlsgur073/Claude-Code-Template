@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.3
+version: 1.2.4
 ---
 
 # Getting Started
@@ -12,7 +12,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
-- **On Windows**: the plugin's SessionStart hook now ships both a bash script and a PowerShell script (`plugin/hooks/session-start.ps1`), so PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL both work. Advanced-template helper scripts (`templates/advanced/scripts/*.sh`) still require a bash-compatible shell
+- **On Windows**: the plugin's SessionStart hook ships both a bash and a PowerShell script (`plugin/hooks/session-start.ps1`), and the advanced template's `validate-prompt` hook does the same (`templates/advanced/scripts/validate-prompt.ps1` alongside the `.sh`). PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL works end-to-end — no extra shell setup needed
 
 ## Step 1: Choose Your Setup Method
 
@@ -56,7 +56,9 @@ If `/init` already created a CLAUDE.md, merge the template sections into it. The
 
 ## Step 3: Fill in Your CLAUDE.md
 
-Open your CLAUDE.md and work through each section. `/create` generates the six canonical sections below; keep the same structure if you are writing the file by hand so `/audit` can grade it against the same rubric:
+If you used `/guardians-of-the-claude:create` in Step 1, skip this step -- the six canonical sections are already generated. Run `/memory` to confirm your CLAUDE.md is loaded, then jump to Step 4.
+
+If you are writing CLAUDE.md by hand, work through the sections below. Keep the same structure so `/audit` can grade it against the same rubric:
 
 1. **Project Overview** -- One or two sentences: what the project does, language and framework.
 2. **Build & Run** -- Exact commands to install dependencies and run the project.
