@@ -65,7 +65,7 @@ Apply the scoring model in this order:
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
 9. **Determine Grade** and **Maturity Level**
 
-Read `references/output-format.md` and present results using the defined format. Include LAV Findings if any LAV items scored 0 or below. Include conditional suggestions from check files. Generate the Insights & Recommendations section based on audit findings — prioritize improvements by score impact and provide educational context.
+Read `references/output-format.md` and present results using the defined action-first format: Quality Gate and Score first, then the `★ Most impactful` line and `Top 3 Priorities` block (with a `Next step` line pointing at `/secure` or `/optimize`), then the `---` separator and the Score Breakdown / Formula, then Detailed Findings, LAV Findings (if any item scored 0 or below), All Suggestions (from check files' conditional output), and finally the Maturity path. Prioritize Top 3 items by weighted score impact and explain the practical benefit of each.
 
 **If previous audit results exist (from Phase 0):** Add a comparison line at the end:
 > "Since your last audit (DATE): score changed from X → Y. [If /secure or /optimize ran since the last audit, list them.] Resolved: [issues]. Still open: [issues]."

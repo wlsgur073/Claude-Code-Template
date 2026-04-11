@@ -7,6 +7,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **`/audit` output format restructured to action-first** (`plugin/skills/audit/references/output-format.md`, `plugin/skills/audit/SKILL.md`): Quality Gate and Score now appear at the top, immediately followed by the `★ Most impactful` line, `Top 3 Priorities` list, and `Next step` recommendation. The Score Breakdown, Formula, Detailed Findings, LAV Findings, and All Suggestions move below a `---` separator. Users see "what to fix" before the score math, reducing time-to-action without losing transparency. Replaces the previous bottom-of-output "Insights & Recommendations" block.
+- `plugin/hooks/session-start.sh`: SessionStart staleness check expanded to include common lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`, `poetry.lock`, `uv.lock`, `Cargo.lock`, `Gemfile.lock`, `go.sum`), monorepo workspace configs (`pnpm-workspace.yaml`, `lerna.json`, `nx.json`, `turbo.json`, `rush.json`), and `.mcp.json`. Lockfile-only dependency bumps and workspace-layout edits now trigger a re-audit hint.
+- `.github/workflows/docs-check.yml`: `link-check` split into `link-check-internal` (offline, `fail: true`, PR gate — guards internal markdown cross-references on every push/PR) and `link-check-external` (schedule-only, full network check). `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` env set at workflow level to bridge the June 2026 Node 20 action runtime deprecation without blind action major bumps.
+- Windows/bash prerequisite promoted from statusline footnote to the Day 1 install block across `README.md`, `docs/i18n/ko-KR/README.md`, `docs/i18n/ja-JP/README.md`, `docs/guides/getting-started.md`, and `docs/i18n/ko-KR/guides/getting-started.md`. Without Git Bash or WSL, the plugin's SessionStart hook silently exits on bare Windows shells.
+- `docs/guides/getting-started.md` + ko-KR mirror: fixed dead `#quick-start` anchor → `#day-1--2-minute-quickstart` (actual GitHub auto-anchor for the `## Day 1 — 2-Minute Quickstart` heading); frontmatter version bumped `1.2.1` → `1.2.2`.
+- `statusline.sh`: truncated display path now uses `~/.../parent/current` for home-relative paths and `.../parent/current` for absolute paths. Previously prepended `~/**/` unconditionally, misrepresenting non-home locations.
+- `docs/CONTRIBUTING.md`: corrected the "no tests" claim — CI runs Python structural checks (frontmatter parity, i18n parity, JSON schema), shellcheck, link checking, and an LLM-output eval framework in `test/`.
+
+### Fixed
+
+- `docs/i18n/ko-KR/guides/mcp-guide.md`: frontmatter version synced `1.0.2` → `1.0.3` to restore EN/ko-KR parity broken by an earlier commit that bumped EN without mirroring.
+- `docs/i18n/ko-KR/guides/getting-started.md`: `[templates/README.md](../../../templates/README.md)` corrected to `../../../../templates/README.md`. The three-dot form resolved to `docs/templates/README.md`, which does not exist.
+- `docs/i18n/ko-KR/templates/README.md`: `[docs/ROADMAP.md](../../../docs/ROADMAP.md)` corrected to `../../../ROADMAP.md`. The previous path double-counted the `docs/` segment, resolving to `docs/docs/ROADMAP.md`.
+- `.github/workflows/docs-check.yml`: removed `--base .` from lychee args — v0.23.0 rejects relative base paths, and the exit code 2 was previously swallowed by `fail: ${{ github.event_name == 'schedule' }}`.
+
+### Notes
+
+- The latent-bug cascade caught during this batch is a textbook "tightening a gate reveals the layers beneath" sequence: (1) the `fail: false` lychee gate was hiding a `--base .` argument error, (2) removing `--base .` revealed two pre-existing dead relative paths in the ko-KR translations, (3) both dead paths had existed since translation and were never caught because lychee had never actually run successfully. Each layer looked "green" until the layer above it was fixed.
+- Addresses two rounds of Codex audit findings (F1–F6 across both passes). F2 (monorepo drift) is partially addressed via workspace-config freshness; deeper nested-package walking is intentionally deferred — most modern monorepos keep a single root lockfile, which is already covered.
+
 ## [2.9.4] - 2026-04-10
 
 ### Changed
