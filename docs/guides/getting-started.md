@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.2
+version: 1.2.3
 ---
 
 # Getting Started
@@ -12,7 +12,7 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
-- **On Windows**: a bash-compatible shell (Git Bash or WSL) — the plugin's SessionStart hook runs under bash and will silently exit on bare Windows shells
+- **On Windows**: the plugin's SessionStart hook now ships both a bash script and a PowerShell script (`plugin/hooks/session-start.ps1`), so PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL both work. Advanced-template helper scripts (`templates/advanced/scripts/*.sh`) still require a bash-compatible shell
 
 ## Step 1: Choose Your Setup Method
 
@@ -56,18 +56,16 @@ If `/init` already created a CLAUDE.md, merge the template sections into it. The
 
 ## Step 3: Fill in Your CLAUDE.md
 
-Open your CLAUDE.md and work through each section. The HTML comments in the scaffold tell you what to write:
+Open your CLAUDE.md and work through each section. `/create` generates the six canonical sections below; keep the same structure if you are writing the file by hand so `/audit` can grade it against the same rubric:
 
-1. **Project Overview** -- One or two sentences: what does this project do, what language/framework?
-2. **Build & Run** -- The exact commands to build and run your project.
-3. **Testing** -- How to run tests. Include verification commands Claude can use to check its own work.
+1. **Project Overview** -- One or two sentences: what the project does, language and framework.
+2. **Build & Run** -- Exact commands to install dependencies and run the project.
+3. **Testing** -- Test commands Claude can use to verify its own work.
 4. **Code Style & Conventions** -- Only rules that differ from language defaults. Be specific.
-5. **Workflow** -- Branch naming, commit conventions, pre-development checklist.
-6. **Project Structure** -- Key directories and their purposes.
-7. **Important Context** -- Non-obvious things: required services, auth patterns, environment quirks.
-8. **References** -- Link to detailed docs with `@import` syntax.
+5. **Development Approach** -- How Claude should handle ambiguous requests (analyze assumptions, ask targeted questions, confirm the approach before coding). `/create` seeds a 4-line default here.
+6. **Important Context** -- Non-obvious things: required services, auth patterns, environment quirks.
 
-For detailed guidance on what to include and what to leave out, see the [include/exclude table in the CLAUDE.md Guide](claude-md-guide.md#what-to-include-vs-exclude).
+Projects that outgrow the baseline can add `Workflow`, `Project Structure`, `References`, or the `Available Skills`/`Available Agents` tables — see [`templates/advanced/CLAUDE.md`](../../templates/advanced/CLAUDE.md) for a filled example. For what to include vs. leave out in each section, see the [include/exclude table in the CLAUDE.md Guide](claude-md-guide.md#what-to-include-vs-exclude).
 
 ## Step 4: Set Up Rules (Optional)
 

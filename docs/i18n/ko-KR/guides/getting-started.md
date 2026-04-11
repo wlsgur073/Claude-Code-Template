@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-version: 1.2.2
+version: 1.2.3
 ---
 
 # 시작하기
@@ -12,7 +12,7 @@ version: 1.2.2
 
 - Claude Code가 설치되어 있고 정상 동작하는 상태 (`claude --version`으로 확인)
 - 설정을 적용할 프로젝트
-- **Windows 사용자**: bash 호환 쉘(Git Bash 또는 WSL)이 필요합니다 — 플러그인 SessionStart 훅이 bash에서 실행되므로 순수 Windows 쉘에서는 조용히 종료됩니다
+- **Windows 사용자**: 플러그인 SessionStart 훅은 이제 bash 스크립트와 PowerShell 스크립트(`plugin/hooks/session-start.ps1`)를 함께 제공하므로, PowerShell 5.1+ (Windows 10+ 기본 탑재) 또는 Git Bash/WSL 중 어느 쪽이든 동작합니다. Advanced 템플릿 헬퍼 스크립트(`templates/advanced/scripts/*.sh`)는 여전히 bash 호환 쉘이 필요합니다
 
 ## Step 1: 설정 방법 선택
 
@@ -56,18 +56,16 @@ claude
 
 ## Step 3: CLAUDE.md 작성
 
-CLAUDE.md를 열고 각 섹션을 채워 나가세요. 스캐폴드의 HTML 주석이 무엇을 작성해야 하는지 안내합니다:
+CLAUDE.md를 열고 각 섹션을 채워 나가세요. `/create`는 아래 6개의 canonical 섹션을 생성합니다. 수동으로 작성하는 경우에도 동일한 구조를 유지하면 `/audit`가 동일한 루브릭으로 채점할 수 있습니다:
 
-1. **Project Overview** -- 한두 문장으로: 이 프로젝트가 무엇을 하는지, 어떤 언어/프레임워크를 사용하는지.
-2. **Build & Run** -- 프로젝트를 빌드하고 실행하는 정확한 명령어.
-3. **Testing** -- 테스트 실행 방법. Claude가 자신의 작업을 검증할 수 있는 확인 명령어를 포함하세요.
-4. **Code Style & Conventions** -- 언어 기본값과 다른 규칙만 작성하세요. 구체적으로 작성하세요.
-5. **Workflow** -- 브랜치 네이밍, 커밋 컨벤션, 개발 전 체크리스트.
-6. **Project Structure** -- 주요 디렉토리와 각각의 용도.
-7. **Important Context** -- 명확하지 않은 것들: 필수 서비스, 인증 패턴, 환경 관련 특이사항.
-8. **References** -- `@import` 구문으로 상세 문서 링크.
+1. **Project Overview** -- 한두 문장으로: 프로젝트가 무엇을 하는지, 언어와 프레임워크.
+2. **Build & Run** -- 의존성 설치와 실행에 필요한 정확한 명령어.
+3. **Testing** -- Claude가 자신의 작업을 검증할 수 있는 테스트 명령어.
+4. **Code Style & Conventions** -- 언어 기본값과 다른 규칙만. 구체적으로.
+5. **Development Approach** -- 모호한 요청을 Claude가 어떻게 다룰지 (가정 분석 → 질문 → 접근 확인 후 구현). `/create`가 4줄 기본값을 시드합니다.
+6. **Important Context** -- 명확하지 않은 것들: 필수 서비스, 인증 패턴, 환경 특이사항.
 
-무엇을 포함하고 무엇을 제외할지에 대한 자세한 가이드는 [CLAUDE.md 가이드의 포함/제외 표](claude-md-guide.md#포함할-것과-제외할-것)를 참고하세요.
+기준선을 넘어 확장이 필요해지면 `Workflow`, `Project Structure`, `References`, `Available Skills`/`Available Agents` 표를 추가할 수 있습니다 — 완성 예시는 [`templates/advanced/CLAUDE.md`](../../../../templates/advanced/CLAUDE.md)를 참고하세요. 각 섹션에 무엇을 포함하고 제외할지는 [CLAUDE.md 가이드의 포함/제외 표](claude-md-guide.md#포함할-것과-제외할-것)를 참고하세요.
 
 ## Step 4: Rules 설정 (선택)
 

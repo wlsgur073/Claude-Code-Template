@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語</a>
+  <b>English</b> | <a href="docs/i18n/ko-KR/README.md">한국어</a> | <a href="docs/i18n/ja-JP/README.md">日本語 (WIP — README only)</a>
 </p>
 
 A meta-system for Claude Code configuration. Start with a 2-minute guided setup, then grow into audit, security hardening, and optimization workflows as your project evolves. Same tool, progressive depth.
@@ -30,7 +30,7 @@ A meta-system for Claude Code configuration. Start with a 2-minute guided setup,
 ## Day 1 — 2-Minute Quickstart
 
 > **Prerequisites:** Claude Code installed (`claude --version`).
-> **On Windows**, use **Git Bash** or **WSL** — the plugin's SessionStart hook and advanced templates run under bash. Without a bash-compatible shell, hooks silently exit and you lose the auto-guidance features (install-time check, staleness detection, re-audit prompts).
+> **On Windows**, the SessionStart hook now ships a PowerShell entry alongside the bash one, so **PowerShell 5.1+ (pre-installed on Windows 10+) or Git Bash/WSL** both work — no extra setup needed for the hook itself. **Advanced templates (`templates/advanced/scripts/*.sh`) still require a bash-compatible shell.**
 
 1. **Add the marketplace and install the plugin** in Claude Code:
 
@@ -112,8 +112,9 @@ Guardians-of-the-Claude/
 │   ├── .claude-plugin/
 │   │   └── plugin.json
 │   ├── hooks/
-│   │   ├── hooks.json       ← SessionStart hook
-│   │   └── session-start.sh
+│   │   ├── hooks.json       ← SessionStart hook (bash + powershell entries)
+│   │   ├── session-start.sh ← bash state check (Linux/macOS/Git Bash/WSL)
+│   │   └── session-start.ps1 ← PowerShell port (Windows 10+)
 │   ├── references/
 │   │   ├── security-patterns.md  ← Shared security templates (used by /create and /secure)
 │   │   └── learning-system.md   ← Shared learning system reference (used by all skills)

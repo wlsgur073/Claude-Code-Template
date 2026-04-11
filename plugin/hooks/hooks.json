@@ -1,5 +1,5 @@
 {
-  "description": "Checks project state on session start — suggests /create if no config, /audit if no profile, or re-audit if profile is stale",
+  "description": "Read-only project state check on session start — suggests /create if no config, /audit if no profile, or re-audit if profile is stale. Ships two command entries (bash + powershell) so bare Windows shells without Git Bash or WSL still get the hint; the entry whose interpreter is missing exits with ENOENT and is silently skipped.",
   "hooks": {
     "SessionStart": [
       {
@@ -7,6 +7,12 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
+            "timeout": 5,
+            "statusMessage": "Checking for Claude Code configuration"
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.ps1\"",
             "timeout": 5,
             "statusMessage": "Checking for Claude Code configuration"
           }
