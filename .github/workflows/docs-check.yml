@@ -12,21 +12,12 @@ on:
 permissions:
   contents: read
 
-# Bridge the Node.js 20 -> 24 action runtime transition (June 2026 default,
-# September 2026 removal) without bumping action major versions blindly.
-# The env var forces the current action set (checkout@v4, setup-python@v5,
-# cache@v4) to run on Node 24 at runtime. When Node 24 becomes the default,
-# this env var can be removed; if any action drops v5-style compatibility,
-# the bump can be done deliberately per-action.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   link-check-internal:
     name: Link check (internal, PR gate)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run lychee (offline — internal links only)
         uses: lycheeverse/lychee-action@v2
@@ -49,10 +40,10 @@ jobs:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Restore lychee cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .lycheecache
           key: cache-lychee-${{ github.sha }}
@@ -79,9 +70,9 @@ jobs:
     name: Frontmatter version parity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -95,9 +86,9 @@ jobs:
     name: JSON schema validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -111,9 +102,9 @@ jobs:
     name: i18n structural parity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -124,7 +115,7 @@ jobs:
     name: shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@master
@@ -139,7 +130,7 @@ jobs:
     name: Encoding corruption check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check for U+FFFD replacement characters
         run: |
