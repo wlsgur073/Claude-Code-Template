@@ -49,6 +49,12 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - `python .github/scripts/check-json-schemas.py` — validates `plugin.json`, `marketplace.json`, `settings.json` schemas
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 
+### Release Process
+
+- **SemVer:** patch (z) for fixes and platform-compat work (e.g., adding a `.ps1` companion to an existing `.sh` hook — no new user-callable surface); minor (y) only when adding user-callable surface (new skill, new SKILL.md frontmatter field, new template variant, new `/audit` flag); major (x) for breaking contract changes
+- **GitHub Release title:** version only (`vX.Y.Z`) — no subtitle or theme. **Body:** copy the matching `CHANGELOG.md` section verbatim (`### Added`/`### Fixed`/`### Changed`/`### Notes`), no Highlights/Summary/curation. Past releases set the pattern: `gh release view <prev> --json name,body`
+- **`gh release` with markdown body:** HEREDOC breaks on backticks and special chars in markdown — always write notes to a temp file and pass with `-F <file>`, then delete the file. Full sequence: stage specific files → commit → `git tag vX.Y.Z` → push commits → push tag → `gh release create vX.Y.Z --title "vX.Y.Z" -F notes.md`
+
 ## Plugin Development Rules
 
 - Skills go in `plugin/skills/<name>/SKILL.md` — do NOT use `commands/` (legacy)

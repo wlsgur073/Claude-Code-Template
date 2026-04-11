@@ -7,6 +7,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.9.7] - 2026-04-11
+
+### Added
+
+- `docs/i18n/ja-JP/guides/` (9 files): full Japanese translation of all guides — `getting-started.md`, `claude-md-guide.md`, `rules-guide.md`, `settings-guide.md`, `directory-structure-guide.md`, `effective-usage-guide.md`, `advanced-features-guide.md`, `mcp-guide.md`, `recommended-plugins-guide.md`. Translated directly from EN sources (not via the ko-KR mirror) to avoid two-stage translation loss. Frontmatter `version` fields kept in lockstep with EN. Natural Japanese tech-doc conventions applied: です/ます polite form throughout, standard tech katakana loanwords (フック / プラグイン / スキル / エージェント / リポジトリ / コミット / フロントマター), code identifiers preserved as ASCII (`CLAUDE.md`, `/init`, `npm test`, `Tool(specifier)`), idiom-level 意訳 for English metaphors that resist literal translation (e.g., "kitchen sink session" → 「何でも放り込んだセッション」, "trust-then-verify gap" → 「信頼すれども検証せず」, "rule of thumb" → 「目安」).
+
+### Changed
+
+- `CLAUDE.md`: new `### Release Process` subsection under Contribution Rules, documenting (1) the project's SemVer policy — patch (z) for fixes and platform-compat work, minor (y) only when adding user-callable surface, major (x) for breaking contract changes; (2) the GitHub Release format convention — title is the version only (`vX.Y.Z`), body is the matching `CHANGELOG.md` section copied verbatim, no Highlights/Summary/curation; (3) the `gh release` HEREDOC pitfall — markdown bodies with backticks break HEREDOC parsing, so always pass notes via temp file with `-F <file>`. CLAUDE.md grew from 58 → 64 lines (still well under the 200-line cap). Authored after 2.9.6 was tagged but before 2.9.7, so it ships in this release.
+- `README.md` + `docs/i18n/ko-KR/README.md`: language switcher no longer marks `日本語` as `(WIP — README only)` / `(WIP — README 전용)`. Japanese support now covers the README plus all 9 guides; only example templates under `templates/` remain in English (deferred to a follow-up release).
+- `docs/i18n/ja-JP/README.md`: documentation table replaces the "ガイドの日本語翻訳は準備中です" notice with localized link text and updates 11 guide link paths from `../../guides/...` (English) to `guides/...` (now-translated Japanese). Directory description cells now read `日本語翻訳（README、ガイド）` instead of `日本語README（ガイド翻訳は準備中）`.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.9.6` → `2.9.7`.
+- `README.md`: version badge updated `2.9.6` → `2.9.7`.
+
+### Notes
+
+- Per the SemVer policy newly documented in `CLAUDE.md` in this release, expanding documentation translations is **patch-level work** — no new user-callable surface (no skills, flags, frontmatter fields, or template variants added). The same content is simply now available in a new language.
+- Translation methodology: each guide was translated directly from the EN source rather than from the ko-KR mirror, to avoid two-stage translation loss. ko-KR was consulted only as a structural reference for link path conventions (relative `guides/...` form).
+- Self-review pass before release caught and fixed two issues: (1) `directory-structure-guide.md` had a redundant subject in the auto-memory definition (`Claude が将来のセッションのために` — duplicating `Claude` already established in the prior sentence); (2) `getting-started.md` Step 3 cross-link text said `含める/含めない` while the anchor target heading said `含めるものと除外するもの` — now consistent on both ends.
+- Phase 2 (template translation) is deferred to a later release. Templates are mostly code/config rather than prose, so the translation surface there is small but non-zero (`templates/README.md`, `templates/starter/CLAUDE.md`, `templates/advanced/CLAUDE.md`, advanced rules and skill SKILL.md files). The i18n parity script (`check-i18n-parity.py`) currently checks only ko-KR pairs, so leaving `docs/i18n/ja-JP/templates/` partially populated does not break CI.
+- Change Propagation Checklist followed: EN README → ko-KR + ja-JP README, plugin.json version → README badge, CHANGELOG.
+
 ## [2.9.6] - 2026-04-11
 
 ### Added

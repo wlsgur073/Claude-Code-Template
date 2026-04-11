@@ -123,7 +123,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← ガイド
 │   ├── i18n/ko-KR/          ← 韓国語翻訳（ガイド、テンプレート）
-│   ├── i18n/ja-JP/          ← 日本語README（ガイド翻訳は準備中）
+│   ├── i18n/ja-JP/          ← 日本語翻訳（README、ガイド）
 │   ├── plans/               ← 設計・計画ドキュメント
 │   └── *.md                 ← コミュニティファイルとプロジェクトロードマップ
 └── CHANGELOG.md             ← バージョン履歴（Keep a Changelog形式）
@@ -135,13 +135,13 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | 上級実例 — rules, hooks, agents, skills |
 | `docs/guides/` | 独立ガイド — それぞれ単独で読める |
 | `docs/i18n/ko-KR/` | 韓国語翻訳（ガイド、テンプレート） |
-| `docs/i18n/ja-JP/` | 日本語README（ガイド翻訳は準備中） |
+| `docs/i18n/ja-JP/` | 日本語翻訳（README、ガイド） |
 | `docs/plans/` | 設計・計画ドキュメント |
 | `docs/*.md` | コミュニティファイルとプロジェクト[ロードマップ](../../ROADMAP.md) |
 
 ## Claude Codeメモリの仕組み
 
-Claude Codeは階層型メモリシステムで動作します：CLAUDE.md（ユーザーの指示）、`.claude/rules/`（モジュール式ルールファイル）、自動メモリ（Claudeが自身で書くメモ）、プラグインキャッシュ（プラグインが管理する状態）。詳細は[ディレクトリ構造ガイド](../../guides/directory-structure-guide.md)を参照してください。
+Claude Codeは階層型メモリシステムで動作します：CLAUDE.md（ユーザーの指示）、`.claude/rules/`（モジュール式ルールファイル）、自動メモリ（Claudeが自身で書くメモ）、プラグインキャッシュ（プラグインが管理する状態）。詳細は[ディレクトリ構造ガイド](guides/directory-structure-guide.md)を参照してください。
 
 > **最重要原則：** Claudeが自分の作業を検証できるようにしてください —
 > CLAUDE.mdにテスト、リント、ビルドコマンドを含めましょう。
@@ -151,23 +151,21 @@ Claude Codeは階層型メモリシステムで動作します：CLAUDE.md（ユ
 
 まずここから始めて、自分のレベルに合ったパスを進んでください:
 
-> **注意:** ガイドの日本語翻訳は準備中です。以下のリンクは英語版を参照します。
-
 | ステップ | ガイド | 対象 |
 | ------- | ----- | ---- |
-| 1 | [Getting Started](../../guides/getting-started.md) | 全員 — セットアップガイド |
-| 2 | [CLAUDE.md Guide](../../guides/claude-md-guide.md) | 全員 — 効果的な指示の書き方 |
-| 3 | [Settings Guide](../../guides/settings-guide.md) | 全員 — 権限と環境設定 |
-| 4 | [Rules Guide](../../guides/rules-guide.md) | CLAUDE.mdが約100行を超えた時 |
-| 5 | [Directory Structure](../../guides/directory-structure-guide.md) | `.claude/`の構造を理解したい時 |
-| 6 | [Effective Usage](../../guides/effective-usage-guide.md) | Claude Codeを1日使った後 |
-| 7 | [Advanced Features](../../guides/advanced-features-guide.md) | hooks、agents、skillsが必要な時 |
-| 8 | [MCP Integration](../../guides/mcp-guide.md) | 外部ツールを接続したい時 |
-| 9 | [Recommended Plugins](../../guides/recommended-plugins-guide.md) | Claude Codeを拡張したい時 |
+| 1 | [はじめに](guides/getting-started.md) | 全員 — セットアップガイド |
+| 2 | [CLAUDE.md ガイド](guides/claude-md-guide.md) | 全員 — 効果的な指示の書き方 |
+| 3 | [Settings ガイド](guides/settings-guide.md) | 全員 — 権限と環境設定 |
+| 4 | [Rules ガイド](guides/rules-guide.md) | CLAUDE.mdが約100行を超えた時 |
+| 5 | [ディレクトリ構造](guides/directory-structure-guide.md) | `.claude/`の構造を理解したい時 |
+| 6 | [効果的な使い方](guides/effective-usage-guide.md) | Claude Codeを1日使った後 |
+| 7 | [Advanced Features](guides/advanced-features-guide.md) | hooks、agents、skillsが必要な時 |
+| 8 | [MCP Integration](guides/mcp-guide.md) | 外部ツールを接続したい時 |
+| 9 | [おすすめプラグイン](guides/recommended-plugins-guide.md) | Claude Codeを拡張したい時 |
 
 ## 推奨プラグイン
 
-Claude Codeは公式プラグインで機能を拡張できます。カテゴリ別の詳細リストは**[推奨プラグインガイド](../../guides/recommended-plugins-guide.md)**を参照してください。
+Claude Codeは公式プラグインで機能を拡張できます。カテゴリ別の詳細リストは**[おすすめプラグインガイド](guides/recommended-plugins-guide.md)**を参照してください。
 
 Claude Codeで`/plugin`を実行してプラグインを検索するか、[プラグインドキュメント](https://code.claude.com/docs/en/discover-plugins)を参照してください。
 
