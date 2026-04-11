@@ -1,7 +1,7 @@
 ---
 title: "Getting Started"
 description: "Step-by-step guide to set up Claude Code configuration for your project"
-version: 1.2.1
+version: 1.2.2
 ---
 
 # Getting Started
@@ -12,13 +12,14 @@ This guide walks you through setting up Claude Code configuration for your proje
 
 - Claude Code installed and working (run `claude --version` to confirm)
 - A project you want to configure
+- **On Windows**: a bash-compatible shell (Git Bash or WSL) — the plugin's SessionStart hook runs under bash and will silently exit on bare Windows shells
 
 ## Step 1: Choose Your Setup Method
 
 | Option | What it does | Best for |
 | ------ | ------------ | -------- |
 | `/init` | Analyzes code, generates basic CLAUDE.md | Quick start -- good for many projects |
-| `/guardians-of-the-claude:create` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Quick Start](../../README.md#quick-start)) |
+| `/guardians-of-the-claude:create` | Guided interview → CLAUDE.md + settings + rules + optional features | Comprehensive setup ([Day 1 — 2-Minute Quickstart](../../README.md#day-1--2-minute-quickstart)) |
 
 **`/init`** is the [officially recommended first step](https://code.claude.com/docs/en/best-practices) -- Claude analyzes your codebase and auto-generates a CLAUDE.md:
 

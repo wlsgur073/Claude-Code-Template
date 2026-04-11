@@ -1,7 +1,7 @@
 ---
 title: "시작하기"
 description: "프로젝트에 Claude Code 설정을 구성하는 단계별 가이드"
-version: 1.2.1
+version: 1.2.2
 ---
 
 # 시작하기
@@ -12,13 +12,14 @@ version: 1.2.1
 
 - Claude Code가 설치되어 있고 정상 동작하는 상태 (`claude --version`으로 확인)
 - 설정을 적용할 프로젝트
+- **Windows 사용자**: bash 호환 쉘(Git Bash 또는 WSL)이 필요합니다 — 플러그인 SessionStart 훅이 bash에서 실행되므로 순수 Windows 쉘에서는 조용히 종료됩니다
 
 ## Step 1: 설정 방법 선택
 
 | 옵션 | 하는 일 | 적합한 경우 |
 | ---- | ------ | ---------- |
 | `/init` | 코드 분석 후 기본 CLAUDE.md 생성 | 빠른 시작 — 대부분의 프로젝트에 적합 |
-| `/guardians-of-the-claude:create` | 대화형 인터뷰 → CLAUDE.md + 설정 + 규칙 + 선택적 기능 | 종합적인 설정 ([빠른 시작](../README.md#빠른-시작)) |
+| `/guardians-of-the-claude:create` | 대화형 인터뷰 → CLAUDE.md + 설정 + 규칙 + 선택적 기능 | 종합적인 설정 ([Day 1 빠른 시작](../README.md#day-1--2분-빠른-시작)) |
 
 **`/init`**은 [공식 권장 첫 단계](https://code.claude.com/docs/en/best-practices)입니다 -- Claude가 코드베이스를 분석하고 CLAUDE.md를 자동 생성합니다:
 
