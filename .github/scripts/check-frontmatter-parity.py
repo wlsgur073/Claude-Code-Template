@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Check that EN and ko-KR guide frontmatter version fields match.
+"""Check that EN and i18n guide frontmatter version fields match.
 
 Compares each file in docs/guides/ against its counterpart in
-docs/i18n/ko-KR/guides/. Fails if any version field differs or if
-a ko-KR counterpart is missing.
+docs/i18n/ko-KR/guides/ and docs/i18n/ja-JP/guides/. Fails if any
+version field differs or if a counterpart is missing.
 
 Exit codes:
     0 - all versions match
@@ -18,7 +18,11 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 EN_GUIDES = ROOT / "docs" / "guides"
-KO_GUIDES = ROOT / "docs" / "i18n" / "ko-KR" / "guides"
+
+I18N_GUIDES: list[tuple[str, Path]] = [
+    ("ko-KR", ROOT / "docs" / "i18n" / "ko-KR" / "guides"),
+    ("ja-JP", ROOT / "docs" / "i18n" / "ja-JP" / "guides"),
+]
 
 
 def extract_frontmatter(path: Path) -> dict | None:
@@ -42,29 +46,34 @@ def main() -> int:
     checked = 0
 
     for en_file in sorted(EN_GUIDES.glob("*.md")):
-        ko_file = KO_GUIDES / en_file.name
-        if not ko_file.exists():
-            errors.append(f"[missing ko-KR] {en_file.relative_to(ROOT)}")
-            continue
-
         en_fm = extract_frontmatter(en_file)
-        ko_fm = extract_frontmatter(ko_file)
-
         if en_fm is None:
             errors.append(f"[no frontmatter] {en_file.relative_to(ROOT)}")
             continue
-        if ko_fm is None:
-            errors.append(f"[no frontmatter] {ko_file.relative_to(ROOT)}")
-            continue
-
         en_ver = en_fm.get("version")
-        ko_ver = ko_fm.get("version")
-        if en_ver != ko_ver:
-            errors.append(
-                f"[version mismatch] {en_file.name}: "
-                f"EN={en_ver} vs ko-KR={ko_ver}"
-            )
-        checked += 1
+
+        for locale, locale_dir in I18N_GUIDES:
+            i18n_file = locale_dir / en_file.name
+            if not i18n_file.exists():
+                errors.append(
+                    f"[missing {locale}] {en_file.relative_to(ROOT)}"
+                )
+                continue
+
+            i18n_fm = extract_frontmatter(i18n_file)
+            if i18n_fm is None:
+                errors.append(
+                    f"[no frontmatter] {i18n_file.relative_to(ROOT)}"
+                )
+                continue
+
+            i18n_ver = i18n_fm.get("version")
+            if en_ver != i18n_ver:
+                errors.append(
+                    f"[version mismatch] {en_file.name}: "
+                    f"EN={en_ver} vs {locale}={i18n_ver}"
+                )
+            checked += 1
 
     if errors:
         print("Frontmatter parity errors:")

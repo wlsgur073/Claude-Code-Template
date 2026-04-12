@@ -36,6 +36,11 @@ RULES: list[tuple[str, str | None, list[str] | None]] = [
         CLAUDE_CODE_SETTINGS_SCHEMA_URL,
         None,
     ),
+    (
+        "docs/i18n/ja-JP/templates/*/.claude/settings.json",
+        CLAUDE_CODE_SETTINGS_SCHEMA_URL,
+        None,
+    ),
     # Plugin manifest
     ("plugin/.claude-plugin/plugin.json", None, ["name", "version"]),
     # Marketplace manifest
@@ -43,6 +48,7 @@ RULES: list[tuple[str, str | None, list[str] | None]] = [
     # MCP configuration
     ("templates/*/.mcp.json", None, ["mcpServers"]),
     ("docs/i18n/ko-KR/templates/*/.mcp.json", None, ["mcpServers"]),
+    ("docs/i18n/ja-JP/templates/*/.mcp.json", None, ["mcpServers"]),
 ]
 
 

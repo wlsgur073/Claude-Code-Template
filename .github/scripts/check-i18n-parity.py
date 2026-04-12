@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Check bidirectional file parity between EN and ko-KR directories.
+"""Check bidirectional file parity between EN and i18n directories.
 
-For each configured (EN, ko-KR) directory pair, ensures every file in
-EN has a ko-KR counterpart and vice versa. Reports both missing files
-(EN present, ko-KR absent) and orphan files (ko-KR present, EN absent).
+For each configured (EN, i18n) directory pair, ensures every file in
+EN has an i18n counterpart and vice versa. Reports both missing files
+(EN present, i18n absent) and orphan files (i18n present, EN absent).
 
 Exit codes:
     0 - all directories are in parity
@@ -25,6 +25,14 @@ PAIRS: list[tuple[Path, Path]] = [
         ROOT / "templates",
         ROOT / "docs" / "i18n" / "ko-KR" / "templates",
     ),
+    (
+        ROOT / "docs" / "guides",
+        ROOT / "docs" / "i18n" / "ja-JP" / "guides",
+    ),
+    (
+        ROOT / "templates",
+        ROOT / "docs" / "i18n" / "ja-JP" / "templates",
+    ),
 ]
 
 
@@ -43,26 +51,30 @@ def main() -> int:
     all_errors: list[str] = []
     total_checked = 0
 
-    for en_root, ko_root in PAIRS:
+    for en_root, i18n_root in PAIRS:
         if not en_root.exists():
             all_errors.append(
                 f"[missing directory] {en_root.relative_to(ROOT)}"
             )
             continue
 
+        # Derive locale label from i18n path (e.g. "ko-KR", "ja-JP")
+        i18n_rel = i18n_root.relative_to(ROOT)
+        locale = i18n_rel.parts[2] if len(i18n_rel.parts) > 2 else str(i18n_rel)
+
         en_files = list_relative_files(en_root)
-        ko_files = list_relative_files(ko_root)
+        i18n_files = list_relative_files(i18n_root)
 
-        missing_in_ko = en_files - ko_files
-        orphan_in_ko = ko_files - en_files
+        missing = en_files - i18n_files
+        orphan = i18n_files - en_files
 
-        for f in sorted(missing_in_ko):
+        for f in sorted(missing):
             all_errors.append(
-                f"[missing in ko-KR] {(en_root / f).relative_to(ROOT)}"
+                f"[missing in {locale}] {(en_root / f).relative_to(ROOT)}"
             )
-        for f in sorted(orphan_in_ko):
+        for f in sorted(orphan):
             all_errors.append(
-                f"[orphan in ko-KR] {(ko_root / f).relative_to(ROOT)}"
+                f"[orphan in {locale}] {(i18n_root / f).relative_to(ROOT)}"
             )
 
         total_checked += len(en_files)
