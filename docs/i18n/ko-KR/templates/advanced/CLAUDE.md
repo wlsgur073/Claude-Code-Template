@@ -1,5 +1,5 @@
 ---
-title: "TaskFlow CLAUDE.md"
+title: "TaskFlow CLAUDE.md (Advanced)"
 description: "Node.js/Express REST API 프로젝트를 위한 루트 CLAUDE.md 예시"
 version: 1.1.0
 ---
