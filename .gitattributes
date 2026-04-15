@@ -3,3 +3,8 @@
 # PowerShell scripts pinned to LF for byte-identical cross-platform storage
 # (PS 5.1 and PS 7 both accept LF-terminated .ps1 files without issue)
 *.ps1 text eol=lf
+# CI smoke fixtures + golden snapshots must be LF for byte-identical diff
+# across platforms (verifier writes with newline="\n"; any CRLF drift breaks
+# the golden diff on Windows checkouts).
+ci/fixtures/** text eol=lf
+ci/golden/** text eol=lf

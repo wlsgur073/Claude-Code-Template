@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "metadata": {
+    "generated_by": "guardians-of-the-claude",
+    "last_updated": "2026-04-14T00:00:00Z",
+    "source_files_checked": ["package.json", "packages/api/package.json", "packages/web/package.json"]
+  },
+  "runtime_and_language": {
+    "runtime": "Node.js",
+    "language": null,
+    "module_system": null
+  },
+  "framework_and_libraries": {
+    "framework": "Next.js 15 (web) / Express 4 (api)",
+    "ui": "React 19",
+    "styling": null
+  },
+  "package_management": {
+    "manager": "pnpm",
+    "lock_file": null
+  },
+  "testing": {
+    "unit": null,
+    "e2e": null
+  },
+  "build_and_dev": {
+    "bundler": null,
+    "linter": null,
+    "formatter": null
+  },
+  "project_structure": {
+    "type": "monorepo",
+    "source_convention": "packages/",
+    "key_directories": ["packages/api/", "packages/web/"]
+  },
+  "claude_code_configuration_state": {
+    "claude_md": { "exists": true, "section_count": 5 },
+    "settings_json": { "exists": false, "has_permissions": false },
+    "rules_count": 0,
+    "agents_count": 0,
+    "hooks_count": 0,
+    "mcp_servers_count": 0
+  }
+}

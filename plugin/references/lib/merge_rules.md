@@ -1,7 +1,7 @@
 ---
 title: Per-Skill Merge Rules
 description: Canonical merge rules for profile.json, recommendations.json, and config-changelog.md. Each skill's Final Phase references this file instead of duplicating the rules inline.
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Per-Skill Merge Rules
@@ -47,6 +47,8 @@ Merge by canonical `id` (key). Never rewrite the whole array.
 **If a key does not exist in current**: add as a new entry. The key must pass registry CI lint — it must be a canonical registry key or a registered alias. (Note: aliases are input-only; when persisting, always normalize to the canonical key.)
 
 **Entries not touched by this skill**: preserve exactly as-is. Never delete an entry unless this skill is explicitly marking it STALE per Learning Rule R3.
+
+**`metadata.last_updated`**: refreshed to the Final Phase's pinned-UTC timestamp on every atomic write, regardless of whether any recommendation entry changed. This keeps the payload's `metadata.last_updated` consistent with the file's mtime (since Task 4's Final Phase atomically writes all four canonical files). Individual entry timestamps (`first_seen`, `last_seen`) follow separate rules per entry.
 
 ---
 

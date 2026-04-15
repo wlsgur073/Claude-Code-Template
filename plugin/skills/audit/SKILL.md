@@ -48,7 +48,7 @@ Keep the candidate only if its package root contains at least one of these manif
 
 **Never walk ancestors** looking for a manifest — always use the immediate package root as defined in Layer 3. "Any ancestor up to repo root" would over-match on any repo whose root already has a `package.json` or equivalent.
 
-After filtering, limit displayed results to 20 files; if more remain, append `(+N more not shown)` in the output. For each reported file, record its repository-relative path and line count. **Do not score these files in this version** — this phase is disclosure only. If the filtered result is empty, do not render the "Additional CLAUDE.md Files" section in the output at all.
+After filtering, limit displayed results to 20 files; if more remain, append `(+N more not shown)` in the output. For each reported file, record its repository-relative path and line count. Line count is newline count (`wc -l` semantics) including blank lines. **Do not score these files in this version** — this phase is disclosure only. If the filtered result is empty, do not render the "Additional CLAUDE.md Files" section in the output at all.
 
 Per-package scoring is planned for a future audit release (see `docs/ROADMAP.md` "Audit v4 Phase 2" entry).
 
