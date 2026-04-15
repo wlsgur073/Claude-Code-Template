@@ -52,6 +52,95 @@ RULES: list[tuple[str, str | None, list[str] | None]] = [
 ]
 
 
+# Local schema validation: (schema_path, example_path) relative to ROOT
+LOCAL_SCHEMAS: list[tuple[str, str]] = [
+    (
+        "plugin/references/schemas/profile.schema.json",
+        "plugin/references/schemas/examples/profile.example.json",
+    ),
+    (
+        "plugin/references/schemas/recommendations.schema.json",
+        "plugin/references/schemas/examples/recommendations.example.json",
+    ),
+]
+
+# Negative fixtures: (schema_path, negative_example_path) — each MUST be rejected
+NEGATIVE_LOCAL_SCHEMAS: list[tuple[str, str]] = [
+    (
+        "plugin/references/schemas/profile.schema.json",
+        "plugin/references/schemas/examples/negative/profile.missing-required.example.json",
+    ),
+    (
+        "plugin/references/schemas/profile.schema.json",
+        "plugin/references/schemas/examples/negative/profile.wrong-version.example.json",
+    ),
+    (
+        "plugin/references/schemas/recommendations.schema.json",
+        "plugin/references/schemas/examples/negative/recommendations.invalid-id-format.example.json",
+    ),
+    (
+        "plugin/references/schemas/recommendations.schema.json",
+        "plugin/references/schemas/examples/negative/recommendations.resolved-without-by.example.json",
+    ),
+]
+
+
+def validate_local_schemas(errors: list[str]) -> int:
+    """Validate positive example files against their local schemas.
+
+    Returns the count of files checked (for the total counter).
+    """
+    checked = 0
+    for schema_path, example_path in LOCAL_SCHEMAS:
+        s_rel = schema_path
+        e_rel = example_path
+        try:
+            schema = json.loads((ROOT / schema_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[schema load error] {s_rel}: {exc}")
+            continue
+        try:
+            example = json.loads((ROOT / example_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[example load error] {e_rel}: {exc}")
+            continue
+        try:
+            jsonschema.validate(example, schema)
+        except jsonschema.ValidationError as exc:
+            errors.append(f"[schema violation] {e_rel} against {s_rel}: {exc.message}")
+            continue
+        checked += 1
+    return checked
+
+
+def validate_negative_fixtures(errors: list[str]) -> None:
+    """Assert that each negative fixture is REJECTED by its schema.
+
+    A fixture that passes validation is a schema regression — reported as an error.
+    """
+    for schema_path, fixture_path in NEGATIVE_LOCAL_SCHEMAS:
+        s_rel = schema_path
+        f_rel = fixture_path
+        try:
+            schema = json.loads((ROOT / schema_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[schema load error] {s_rel}: {exc}")
+            continue
+        try:
+            fixture = json.loads((ROOT / fixture_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"[fixture load error] {f_rel}: {exc}")
+            continue
+        try:
+            jsonschema.validate(fixture, schema)
+            # If we reach here, the fixture was NOT rejected — schema regression
+            errors.append(
+                f"[schema regression] {f_rel} was accepted by {s_rel} but must be rejected"
+            )
+        except jsonschema.ValidationError:
+            pass  # expected: fixture correctly rejected
+
+
 def fetch_schema(url: str) -> dict | None:
     """Fetch schema with graceful degradation. Returns None on failure."""
     try:
@@ -104,6 +193,9 @@ def main() -> int:
                         errors.append(f"[missing field] {rel}: '{field}'")
 
             total_checked += 1
+
+    total_checked += validate_local_schemas(errors)
+    validate_negative_fixtures(errors)
 
     if errors:
         print("JSON schema errors:")
