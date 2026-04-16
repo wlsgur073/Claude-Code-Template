@@ -33,7 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `config-changelog.md` remains MD canonical (unchanged structure) but writes are now whole-file read-modify-write (atomic temp+rename) to support same-day entry updates without `O_APPEND` reliance.
 - Recommendation `id` model: stable kebab-case key (no skill prefix) + separate `issued_by` field. Cross-skill resolution via canonical key is natural; legacy `audit-*` prefixed ids are accepted on input via registry aliases but never persisted forward (Lint 3 enforces this).
 - `plugin/references/learning-system.md` cumulative bump from `1.x` to `2.2.0` (5 new sections — State Rendering, Schema Evolution Policy, Recommendation ID Registry, Per-Skill Merge Rules, Migration Notice — plus bootstrap exception clarification across two follow-up bumps).
-- All 4 skills' frontmatter `version` bumped one minor each (Phase 0 Step 0.5 + Final Phase Step 1 changes).
 - `plugin/.claude-plugin/plugin.json`: version bumped `2.10.1` → `2.11.0`.
 - `README.md`: version badge updated `2.10.1` → `2.11.0`; new `v2.11 Migration` and `CI smoke lane (transitional bridge)` sections inserted after Day 100+.
 
@@ -45,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - If parsing fails, failing files are preserved under `legacy-backup/`; skill continues with empty state (deny-and-continue). PENDING counts and DECLINED history are NOT auto-restored — see README `v2.11 Migration` section for manual restoration.
 - `state-summary.md` replaces separate `project-profile.md` + `latest-*.md` files as the read-only human-readable view. Derived from current JSON + `config-changelog.md` on every skill run.
 - **Forward-only migration:** once canonical JSON exists in `local/`, there is no automated path back to MD-primary state. Rollback requires manual restoration from `local/legacy-backup/<ISO-8601-UTC>/` and pinning v2.10.x.
-- **Stateless mode:** if `local/` is unwritable (privacy-sensitive projects, read-only mounts, user-disabled), the skill prints a one-time warning (`local/ not writable; stateless run — learning disabled`) and continues to its main work. No JSON state written, no recommendations persisted, no `state-summary.md` generated.
+- **Unwritable `local/` handling:** when `local/` cannot be read, Step 0.5 prints a one-time warning (`local/ not writable`) and skips state load. Full Final Phase persistence-bypass (skipping all JSON writes when `local/` is unwritable) is declared in the Step 0.5 contract but is NOT yet implemented in v2.11.0; privacy-sensitive projects that require zero state writes should pin v2.10.x until a future minor.
 
 ### Notes
 

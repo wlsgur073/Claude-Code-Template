@@ -105,7 +105,7 @@ v2.10.x를 사용하셨다면, 상태(state) 형식이 별도의 Markdown 파일
 
 **마이그레이션 실패 보고:** https://github.com/wlsgur073/Guardians-of-the-Claude/issues 에 경고 출력과 (가능하면) 파싱 실패 파일의 redacted 스니펫을 첨부해 주세요. 자동 수집되는 텔레메트리는 없습니다.
 
-**Stateless 모드** (개인정보 민감 프로젝트): `local/`이 쓰기 불가, 읽기 전용 또는 의도적으로 부재인 경우 스킬이 이를 감지하고 stateless 모드로 실행됩니다(JSON 영속화 없음, 권장사항 저장 없음, `state-summary.md` 생성 없음). 일회성 경고가 출력되며 스킬의 주요 출력은 정상적으로 완료됩니다. Stateless 모드에서는 Learning Rules가 비활성화됩니다.
+**`local/` 쓰기 불가 처리**: `local/`을 읽을 수 없을 때 Step 0.5가 일회성 경고(`local/ not writable`)를 출력하고 state 로딩을 건너뜁니다. `local/`이 쓰기 불가일 때 모든 JSON 쓰기를 건너뛰는 완전한 Final Phase persistence-bypass는 Step 0.5 contract에 선언되어 있지만 v2.11.0에서는 아직 구현되지 않았습니다 — state 쓰기 자체가 발생해서는 안 되는 개인정보 민감 프로젝트는 향후 minor release까지 v2.10.x를 고정해 사용하시기 바랍니다.
 
 ## CI smoke 레인 (전환기 브릿지)
 
@@ -145,7 +145,7 @@ Guardians-of-the-Claude/
 ├── docs/
 │   ├── guides/              ← 가이드
 │   ├── i18n/ko-KR/          ← 한국어 번역 (가이드, 템플릿)
-│   ├── i18n/ja-JP/          ← 일본어 번역 (가이드; 템플릿 번역은 후속)
+│   ├── i18n/ja-JP/          ← 일본어 번역 (README, 가이드, 부분 템플릿)
 │   ├── plans/               ← 설계 및 계획 문서
 │   └── *.md                 ← 커뮤니티 문서 및 프로젝트 로드맵
 └── CHANGELOG.md             ← 버전 이력 (Keep a Changelog 형식)
@@ -157,7 +157,7 @@ Guardians-of-the-Claude/
 | `templates/advanced/` | 고급 실전 예시 — rules, hooks, agents, skills |
 | `docs/guides/` | 독립 가이드 — 각각 따로 읽을 수 있음 |
 | `docs/i18n/ko-KR/` | 한국어 번역 (가이드, 템플릿) |
-| `docs/i18n/ja-JP/` | 일본어 번역 (가이드; 템플릿 번역은 후속) |
+| `docs/i18n/ja-JP/` | 일본어 번역 (README, 가이드, 부분 템플릿) |
 | `docs/plans/` | 설계 및 계획 문서 |
 | `docs/*.md` | 커뮤니티 문서 및 프로젝트 [로드맵](../../ROADMAP.md) |
 

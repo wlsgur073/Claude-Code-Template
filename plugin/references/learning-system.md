@@ -410,7 +410,7 @@ Skills write `profile.json` + `recommendations.json` as **canonical state**. The
 ## Migration Notice (printed once after legacy→JSON conversion)
 
 > ℹ️ Legacy state files converted to JSON.
-> - `profile.md` + `latest-*.md` → `profile.json` + `recommendations.json`
+> - `project-profile.md` + `latest-*.md` → `profile.json` + `recommendations.json`
 > - Human-readable summary: `local/state-summary.md` (read-only, auto-regenerated)
 > - Originals preserved under `local/legacy-backup/{ISO-8601-UTC}/`
 
