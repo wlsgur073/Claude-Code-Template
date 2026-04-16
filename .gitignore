@@ -24,5 +24,9 @@ docs/superpowers/
 # Node (if contributors install anything for tooling)
 node_modules/
 
+# Python (CI scripts cache)
+__pycache__/
+*.pyc
+
 # Obsidian
 .obsidian/
