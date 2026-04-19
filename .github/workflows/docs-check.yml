@@ -2,7 +2,7 @@ name: docs-check
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'v*']
   pull_request:
     branches: [main]
   schedule:
@@ -179,3 +179,26 @@ jobs:
             exit 1
           fi
           echo "OK: no encoding corruption found."
+
+  preflight-schema:
+    name: Preflight schema probe (Phase 2a T0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0
+
+      - name: Run preflight schema probe
+        run: |
+          python ci/scripts/preflight-schema.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::Preflight probe skipped — profile.schema.v1.1.0.json not yet committed (pre-T1 state). This is expected until T1 merges."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
