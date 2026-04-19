@@ -252,7 +252,7 @@ After compaction (~4 lines):
 
 ## Legacy Project Profile Format (pre-v2.11.0)
 
-> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.json`. This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
+> **Note**: Current canonical format is `profile.json` — see `plugin/references/schemas/profile.schema.base.json` (shape) and `profile.schema.v1.0.0.json` / `profile.schema.v1.1.0.json` (versioned validators). This legacy MD format is still parsed by Phase 0.5 migration (Task 3) to convert existing installations.
 
 Frontmatter:
 
@@ -426,17 +426,19 @@ Fallback variant when partial parse failure occurs:
 
 ## Schema Evolution Policy
 
-`profile.schema.json` and `recommendations.schema.json` follow SemVer:
+Profile and recommendation schemas follow SemVer:
 
 - **Patch (z)**: clarifications, docs, no structural change.
-- **Minor (y)**: add optional fields. The plugin's parser/validator continues to accept JSON files from the previous minor (N-1). Validity is parser-relative, not schema-file-relative — each per-version schema file remains a single-version validator (pinned by `"schema_version": { "const": "x.y.z" }`).
+- **Minor (y)**: add optional fields. The parser/validator accepts N-1 minor — each per-version schema file is a single-version validator (pinned by `"schema_version": { "const": "x.y.z" }`).
 - **Major (x)**: remove or rename a field, or change its type.
 
-Migration parser MUST support the current minor AND the previous minor (N-1). A major bump triggers a one-time migration rewrite.
+Migration parser MUST support the current minor AND the previous minor (N-1). A major bump triggers a one-time migration rewrite. The `schema_version` field in the JSON payload tracks payload version, independent from `plugin.json` version.
 
-The `schema_version` field in the JSON payload tracks the payload's schema version, independent from `plugin.json` version.
+**Base + versioned-wrapper architecture (v2.12.0, profile schema)**: `profile.schema.base.json` holds the shared property shape via `$defs` without closing the schema. Versioned wrappers (`profile.schema.v1.0.0.json`, `profile.schema.v1.1.0.json`, etc.) compose the base via `$ref` and close with `unevaluatedProperties: false` at every scope the wrapper extends. The canonical specification is `phase-2a-contracts.md §2.1–§2.4`.
 
-**Versioned dispatch (behavioral contract)**: When v1.1.0 ships, a sibling schema file `recommendations.schema.v1.1.0.json` is added beside the v1.0.0 file. The plugin's parser/validator reads each instance's `schema_version`, selects the matching versioned schema, and validates. Migration logic lives in the same imperative code path. Schema-level `oneOf` aggregation is **not** the canonical mechanism (it gets noisy and brittle as versions accumulate); an aggregate schema may exist later as editor-tooling convenience only. The dispatcher's file location is TBD at v1.1.0 — only the contract is fixed now.
+**Why `unevaluatedProperties` not `additionalProperties`**: `additionalProperties: false` placed in a base schema evaluates within the base's own scope — it rejects fields added by versioned wrappers (those fields look "additional" to the base). `unevaluatedProperties: false` at wrapper scope counts all declarations reached through `allOf`/`$ref` composition as "evaluated," so wrapper-added fields pass while truly unknown fields are rejected. This keyword requires JSON Schema draft 2019-09 or later; wrappers declare `"$schema": "https://json-schema.org/draft/2020-12/schema"` explicitly. Pre-2019-09 validators silently ignore `unevaluatedProperties`, leaving the schema appearing strict but not enforcing — the T0 preflight probe (`ci/scripts/preflight-schema.py`) verifies draft 2020-12 enforcement before T1 schema commits.
+
+**Versioned dispatch**: the parser/validator reads each instance's `schema_version` literal, selects the matching `profile.schema.v<version>.json` wrapper, and validates. Unknown versions fail with a diagnostic naming the literal and the candidate path tried. Schema-level `oneOf` aggregation is not the canonical mechanism.
 
 **Aliases enable id renames across schema versions**: see `recommendation-registry.json` (`aliases[]` field) — a recommendation key can be renamed in a later schema version while the old key continues to resolve transparently to the new entry. ID stability is **not** assumed; aliases are the migration mechanism.
 

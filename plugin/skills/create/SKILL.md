@@ -111,4 +111,8 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   Profile merge under the state-mutation lock: `/create` owns the project-structure sections (`runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`) and `claude_code_configuration_state.claude_md`. It must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for entity classes it added (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). Sections owned exclusively by `/secure` (`settings_json`) must be preserved from the re-read `current_profile`.
 
+  **A1 merge rule amendments** (Phase 2a, `phase-2a-contracts.md §3.1`):
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6). See §3.1 Row 1, §3.4, §6.1, §6.2.
+  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/create` emits the bullet only when the resolved model differs from the immediately previous changelog entry's model value (delta-emit); otherwise the bullet is omitted entirely — NOT `- Model: (none)`. Final Phase only. Stateless mode: no-op. See §3.1 Row 3, §2.5 Addition A, §6.2.
+
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference.

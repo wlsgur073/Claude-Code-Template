@@ -107,4 +107,9 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
+  **A1 merge rule amendments** (Phase 2a, `phase-2a-contracts.md §3.1`):
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6). See §3.1 Row 1, §3.4, §6.1, §6.2.
+  - **Row 2 — `claude_code_configuration_state.scoring_model_ack`**: `/audit` exclusive writer; full-object replacement; Final Phase only. Stateless mode: no-op per DEC-11. See §3.1 Row 2, §5.1, §6.1, §6.2.
+  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/audit` always emits the bullet (reverse-scan simplicity). Final Phase only. Stateless mode: no-op. See §3.1 Row 3, §2.5 Addition A, §6.2.
+
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.
