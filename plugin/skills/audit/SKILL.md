@@ -72,18 +72,17 @@ This phase cross-references CLAUDE.md claims against actual project state. Use t
 
 ## Phase 4: Summary
 
-Read `references/scoring-model.md` for the complete scoring formula, then calculate results.
+Read `../../references/scoring-model.md` for the complete scoring formula, then calculate results.
 
 Apply the scoring model in this order:
 
 1. **Score each item** using the 4-level scale (PASS=1.0, PARTIAL=0.6, MINIMAL=0.3, FAIL=0.0, SKIP=excluded)
-2. **Calculate Foundation Gate** — `FG_raw = weighted average of non-SKIP T1 items`, `FG = 0.15 + 0.85 × FG_raw`
+2. **Calculate T1 Score** — `T1_Score = weighted average of non-SKIP T1 items` (used for Maturity Level Level 1 condition)
 3. **Calculate Detail Score** — `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
 4. **Calculate Synergy Bonus** — check qualifying pairs
-5. **Calculate LAV** — sum of L1–L6 scores from Phase 3.5
-6. **Apply Quality Cap** — if LAV < 0, cap = 90 + LAV; otherwise cap = 100
-7. **Calculate Final** — `min(max(FG × DS + SB + LAV, 0), cap)`
-7.5. **Check false-reassurance condition** — if `Final` falls within the **Grade A range** defined in `references/scoring-model.md` (currently `Final >= 80`) AND `L5 (Conciseness) == −3`, prepare the warning line defined in `references/output-format.md`. **Use the exact line shown in the Standard Output sample there — copy verbatim, do not paraphrase.** Condition, placement, and rationale are specified in output-format.md's "Score-line warning" section. This is **informational** and does NOT change the score. If the condition is not met, do not render the warning line at all.
+5. **Calculate LAV components** — L1, L2, L3, L4, L5, L6 individually from Phase 3.5
+6. **Calculate cap tier** — per DEC-1: `cap = 60` if L5 = −3 AND no other negative-minimum Li at its minimum; `cap = 50` if L5 = −3 AND at least one other Li at its negative minimum (L1 = −3, L2 = −2, or L4 = −1); `cap = 100` otherwise
+7. **Calculate Final** — `min(DS × (1 + LAV_nonL5 / 50) + SB, cap)` where `LAV_nonL5 = L1 + L2 + L3 + L4 + L6` (L5 routed via cap tier per step 6)
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
 9. **Determine Grade** and **Maturity Level**
 
