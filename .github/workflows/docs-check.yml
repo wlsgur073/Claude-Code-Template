@@ -202,3 +202,23 @@ jobs:
             exit 0
           fi
           exit "$EXIT_CODE"
+
+  scoring-formula-simulation:
+    name: Scoring formula 5-sample simulation (Phase 2a T2a)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run 5-sample simulation
+        run: |
+          python ci/scripts/check-scoring-formula.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::5-sample simulation skipped — plugin/references/scoring-model.md not yet committed (pre-T2a state)."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
