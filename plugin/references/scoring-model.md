@@ -55,10 +55,12 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 | Directory references | 0.20 | Configuration accuracy |
 | CLAUDE.md length | 0.10 | Maintainability signal |
 | Command availability | 0.20 | Tool chain integrity |
-| Rules path validation | 0.10 | Rule targeting accuracy |
-| Agent configuration quality | 0.15 | Agent effectiveness |
-| MCP configuration | 0.15 | External tool integration |
+| Rules path validation¹ | 0.10 | Rule targeting accuracy |
+| Agent configuration quality¹ | 0.15 | Agent effectiveness |
+| MCP configuration¹ | 0.15 | External tool integration |
 | Environment variable documentation | 0.10 | Setup completeness |
+
+¹ Count sourced from `profile.claude_code_configuration_state.*_count` fields; co-owned across `/audit` + `/secure` + `/create` per `plugin/references/lib/merge_rules.md` §profile.json. `/secure` count co-ownership established in T7(C2) commit `4499893`.
 
 ## Item Scoring (4-Level Scale)
 
@@ -108,6 +110,31 @@ The `/audit` skill determines this at runtime by inspecting the project, not fro
 ```
 
 (Note: the v2.12.0 LAV item-aware multiplier replaces the v2.10.0 Foundation-Gated Multiplicative formula. FG is no longer a multiplier on DS — DEC-1 acceptance verified by 5-sample simulation under `ci/scripts/check-scoring-formula.py`. See `phase-2a-contracts.md §3.3` for the contract-level invariants.)
+
+## LAV Axis Summary
+
+| Axis | Range | Nature | Included in `LAV_nonL5` |
+|---|---|---|---|
+| L1 — Structure Accuracy | −3 / 0 / +2 | Accuracy | Yes |
+| L2 — Command Reliability | −2 / 0 / +2 | Reliability | Yes |
+| L3 — Patterns / Gotchas documentation | 0 / +1 / +3 | Documentation quality | Yes |
+| L4 — Structural Quality | −1 / 0 / +1 | Structural quality | Yes |
+| L5 — Content Conciseness | −3 / 0 / +1 | Conciseness | **No** — routed via cap tier per DEC-1 |
+| L6 — Actionability | 0 / +1 | Actionability | Yes |
+
+`LAV_nonL5` sum range: **−6 to +9** (excluding L5). Full axis definitions + scoring guidelines in `plugin/skills/audit/references/checks/lav.md` line 23-28 (ranges) and line 34-62 (per-axis guidance).
+
+### LAV/T3 Boundary Rule
+
+LAV axes evaluate holistic accuracy that cannot be mechanically verified. When a T3 mechanical item already detects a deficiency, the paired LAV axis scores **0** for that specific issue — preventing double-penalty (lav.md line 7-15).
+
+| Mechanical item | Paired LAV axis | Non-overlapping LAV scope |
+|---|---|---|
+| T3.1 Directory references | L1 Structure Accuracy | Wrong architecture descriptions, outdated component relationships |
+| T3.3 Command availability | L2 Command Reliability | Undocumented prerequisite steps, wrong command flags, missing workflow context |
+| T3.7 Environment variable docs | L2 Command Reliability | (same axis, different evidence surface) |
+
+Mechanical and LAV layers are complementary, not redundant.
 
 ## Synergy Bonus
 
