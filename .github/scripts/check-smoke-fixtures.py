@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -322,6 +323,82 @@ def _strip_frontmatter(text: str) -> tuple[dict, str]:
         else:
             fm[key] = val
     return fm, body
+
+
+def _extract_frontmatter_version(frontmatter: dict) -> str:
+    """Return the version literal from a parsed frontmatter dict.
+
+    Accepts the dict returned by _strip_frontmatter. Raises ValueError if the
+    'version' key is absent. Strips surrounding quotes for robustness.
+    """
+    raw = frontmatter.get("version")
+    if raw is None:
+        raise ValueError("config-changelog.md frontmatter missing 'version' field")
+    # Strip surrounding quotes in case _strip_frontmatter preserved them.
+    return raw.strip("'\"")
+
+
+def _parse_compacted_history_anchors(body: str) -> list[dict]:
+    """Parse per-skill anchor blocks from the ## Compacted History section.
+
+    Forward-compat READ only (T4c handles emission). If the section is absent
+    or contains no anchors, returns []. Tolerant parser: any line matching
+    '- skill: /X' inside ## Compacted History is treated as an anchor header;
+    sibling 'last_entry_date:', 'last_model:', 'last_capability_fingerprint:'
+    lines are consumed as anchor fields.
+
+    Per plan D3 (coordination note): learning-system.md does not yet specify
+    the rendered anchor syntax, so minimal pattern-match is used.
+
+    Returns list of dicts with keys: skill, last_entry_date, last_model,
+    last_capability_fingerprint.
+    """
+    lines = body.splitlines()
+    # Find ## Compacted History section
+    in_section = False
+    anchors: list[dict] = []
+    current_anchor: dict | None = None
+    for line in lines:
+        stripped = line.strip()
+        if stripped == "## Compacted History":
+            in_section = True
+            continue
+        if in_section and stripped.startswith("## "):
+            # Next heading — end of Compacted History section
+            break
+        if not in_section:
+            continue
+        # Match anchor header: '- skill: /audit'
+        skill_match = re.match(r"^-\s+skill:\s+(/\S+)", line)
+        if skill_match:
+            if current_anchor is not None:
+                anchors.append(current_anchor)
+            current_anchor = {
+                "skill": skill_match.group(1),
+                "last_entry_date": None,
+                "last_model": None,
+                "last_capability_fingerprint": None,
+            }
+            continue
+        if current_anchor is not None:
+            # Consume sibling fields (indented or same-level)
+            date_match = re.match(r"^\s+last_entry_date:\s*(.+)$", line)
+            if date_match:
+                current_anchor["last_entry_date"] = date_match.group(1).strip().strip("'\"") or None
+                continue
+            model_match = re.match(r"^\s+last_model:\s*(.*)$", line)
+            if model_match:
+                val = model_match.group(1).strip().strip("'\"")
+                current_anchor["last_model"] = val if val and val.lower() != "null" else None
+                continue
+            fp_match = re.match(r"^\s+last_capability_fingerprint:\s*(.*)$", line)
+            if fp_match:
+                val = fp_match.group(1).strip()
+                current_anchor["last_capability_fingerprint"] = None if val.lower() == "null" else (val or None)
+                continue
+    if current_anchor is not None:
+        anchors.append(current_anchor)
+    return anchors
 
 
 def _value_or_null(value: str) -> str | None:
@@ -704,7 +781,9 @@ def _render_recent_skill_results(changelog_text: str | None) -> str:
     out = ["## Recent Skill Results", ""]
     if not changelog_text:
         return "\n".join(out) + "\n"
-    entries = _parse_changelog_entries(changelog_text)
+    parsed = _parse_changelog_entries(changelog_text)
+    entries = parsed["entries"]
+    # anchors unused by _render_skill_results; ignored here
     # Preserve first-occurrence order of each skill, but use its LAST entry.
     order: list[str] = []
     latest_per_skill: dict[str, dict] = {}
@@ -723,9 +802,32 @@ def _render_recent_skill_results(changelog_text: str | None) -> str:
     return text
 
 
-def _parse_changelog_entries(text: str) -> list[dict]:
-    """Extract Recent Activity entries as [{date, skill, applied, detected, recommendations}]."""
-    _, body = _strip_frontmatter(text)
+def _parse_changelog_entries(text: str) -> dict:
+    """Parse config-changelog.md and return {entries, anchors}.
+
+    Return shape (v1.1.0+):
+        {
+            "entries": list[dict],   # Recent Activity entries
+            "anchors": list[dict],   # Compacted History per-skill anchors (may be [])
+        }
+
+    Each entry dict: {date, skill, detected, applied, recommendations,
+                      bullet_model: str | None}
+
+    Frontmatter dispatch (per §2.5 Addition A + DEC-10):
+      - version "1.0.0" → bullet_model = None for all entries (omit→null)
+      - version "1.1.0" → recognize "- Model:" per entry; None on absent
+      - unknown version → raises ValueError (no silent fallback)
+
+    Caller must destructure: entries = result["entries"]
+    """
+    fm, body = _strip_frontmatter(text)
+    version = _extract_frontmatter_version(fm)
+    if version not in ("1.0.0", "1.1.0"):
+        raise ValueError(
+            f"Unknown config-changelog.md frontmatter version: {version!r}. "
+            f"Parser supports '1.0.0' or '1.1.0' only. See §2.5 schema-evolution policy."
+        )
     # Find ## Recent Activity
     lines = body.splitlines()
     start = None
@@ -734,7 +836,8 @@ def _parse_changelog_entries(text: str) -> list[dict]:
             start = idx + 1
             break
     if start is None:
-        return []
+        anchors = _parse_compacted_history_anchors(body)
+        return {"entries": [], "anchors": anchors}
     entries: list[dict] = []
     current: dict | None = None
     for raw in lines[start:]:
@@ -753,6 +856,7 @@ def _parse_changelog_entries(text: str) -> list[dict]:
                 "detected": None,
                 "applied": None,
                 "recommendations": [],
+                "bullet_model": None,  # §2.5 Addition A + §3.2 line 432
             }
             continue
         if current is None:
@@ -763,11 +867,18 @@ def _parse_changelog_entries(text: str) -> list[dict]:
             current["applied"] = line[len("- Applied:") :].strip()
         elif line.startswith("- Recommendations:"):
             current["recommendations_inline"] = line[len("- Recommendations:") :].strip()
+        elif version == "1.1.0" and line.startswith("- Model:"):
+            value = line[len("- Model:"):].strip()
+            # Per DEC-8 line 244: "- Model: (none)" literal is forbidden for
+            # writers; defense-in-depth coerces it + empty value → None so the
+            # placeholder never leaks as a string into downstream consumers.
+            current["bullet_model"] = value if (value and value != "(none)") else None
         elif line.startswith("  - "):
             current["recommendations"].append(line[4:].strip())
     if current is not None:
         entries.append(current)
-    return entries
+    anchors = _parse_compacted_history_anchors(body)
+    return {"entries": entries, "anchors": anchors}
 
 
 def _entry_summary_line(entry: dict) -> str:

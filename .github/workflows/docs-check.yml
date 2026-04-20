@@ -222,3 +222,39 @@ jobs:
             exit 0
           fi
           exit "$EXIT_CODE"
+
+  scoring-model-lav-linkage:
+    name: Scoring model LAV-axis linkage (Phase 2a T2b)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run LAV linkage structural assertions
+        run: |
+          python ci/scripts/check-scoring-model-lav-linkage.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::LAV linkage check skipped — plugin/references/scoring-model.md not yet committed (pre-T2a state)."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
+
+  changelog-parser-check:
+    name: Changelog parser v1.1.0 check (Phase 2a T4a)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jsonschema==4.23.0
+
+      - name: Changelog parser check
+        run: python ci/scripts/check-changelog-parser.py
