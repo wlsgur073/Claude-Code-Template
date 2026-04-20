@@ -271,3 +271,23 @@ jobs:
 
       - name: Check sample list preconditions
         run: python ci/scripts/check-sample-list-preconditions.py
+
+  audit-goldens-check:
+    name: Audit goldens formula + bucket check (Phase 2a T2c-main)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check audit goldens
+        run: |
+          python ci/scripts/check-audit-goldens.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::audit-goldens check skipped — ci/fixtures/audit-goldens/ not yet committed (pre-T2c-main state)."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
