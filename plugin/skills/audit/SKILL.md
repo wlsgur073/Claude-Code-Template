@@ -138,4 +138,42 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
       - **Step 5 (atomic write inclusion)**: the new changelog entry's first bullet under the `### {YYYY-MM-DD} — /audit` heading is `- Model: {full-resolved-id}` where `{full-resolved-id}` is `profile.claude_code_configuration_state.model` at Final Phase write time (the value set by `§3.4` Write Point 2). Place the bullet immediately after the heading, before `- Detected:`, per `§2.5 Addition A` entry format.
       - **Stateless mode**: no-op per DEC-11 — bullet write is skipped when `local/` is unwritable because the changelog file itself is not written per Phase 1 Global Invariant #6. See `§6.1`, `§6.2`.
 
+- **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable (Phase 1 Global Invariant #6 / `§6.1`):
+  - SKIP Step 2 `scoring_model_ack` re-read.
+  - SKIP Step 3 ack delta computation + scoring-model-change banner trigger (DEC-11 line 298: persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
+  - RETAIN `§4.1` drift advisory derivation — current-state transient, no file write (DEC-11 line 299 + contracts:882).
+  - Proceed to Phase 1 Global Invariant #6 degradation warning; no JSON state writes, no changelog write.
+
+  Non-stateless path continues below.
+
+- **Step 2 additions (re-read under lock, `/audit`-specific fields):**
+  - Re-read `profile.claude_code_configuration_state.model` for drift derivation (`§4.1` baseline input).
+  - Re-read `profile.claude_code_configuration_state.scoring_model_ack` for banner trigger decision (`§5.1` Surface 2).
+
+- **Step 3 additions (compute deltas):**
+  - **`§3.4` Write Point 2** — set `profile.claude_code_configuration_state.model = <resolver output>` per `phase-2a-contracts.md §3.4`; merge under A1 Row 1 last-write-wins.
+  - **`§5.1` Surface 2 scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with `§4.1` drift advisory copy "Model drift since last /audit"): apply DEC-4 trigger rule per `phase-2a-contracts.md:725-734`:
+
+    ```
+    if ack.version != current_scoring_contract_id OR ack.seen_count < 2:
+        schedule banner render;
+        ack.version = current_scoring_contract_id;
+        ack.seen_count = min(ack.seen_count + 1, 2)
+    else:
+        silent
+    ```
+
+    **DEC-11 stateless skip**: when `local/` is unwritable (`§6.1`), the banner trigger is fully skipped — no ack read, no ack mutation, no banner render — per DEC-11 line 298 rationale (avoid double-warning after stateless degradation notice).
+  - **`§4.1` drift advisory derivation** — per `phase-2a-contracts.md §4.1`:
+    1. `current_fp = normalize_model_id(profile.claude_code_configuration_state.model)` (`§3.5`).
+    2. `baseline_anchor = DEC-6 scan order` (Recent Activity → Compacted History buckets reverse-chronological → first `/audit` anchor → `null` if exhausted).
+    3. `baseline_present = baseline_anchor is not null`; `baseline_fp = normalize_model_id(baseline_anchor.last_model)` when present.
+    4. State via silence evaluation order (contracts:669-672): `normalization_null` / `missing_baseline` / `match` / `drift`.
+    5. Render trigger: only `drift` state renders at the `/audit` terminal sink (see `references/output-format.md` drift block); other states are silent at terminal. Advisory is **transient** — NOT added to `recommendations.json` (A2 compliance per `phase-2a-contracts.md §1.4` decoupling).
+    6. **Stateless mode**: drift advisory retained per DEC-11 line 299 + contracts:882 — current-state derived, no persistence write. Baseline derivation still reads from any in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence.
+
+- **Step 5 additions (atomic write):**
+  - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive per `§3.4`).
+  - Write updated `scoring_model_ack` when banner fired (A1 Row 2 full-object replacement).
+
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

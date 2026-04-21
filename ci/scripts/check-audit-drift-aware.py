@@ -160,6 +160,41 @@ def check_a3_install_integrity() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# A4: Final Phase triggers — Write Point 2 + banner + drift advisory
+# ---------------------------------------------------------------------------
+
+
+def check_a4_final_phase_triggers() -> list[str]:
+    """Verify Phase 5 declares Write Point 2 + banner + drift advisory triggers."""
+    failures = []
+    skill_md = (
+        REPO_ROOT / "plugin" / "skills" / "audit" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+
+    phase_5_match = re.search(
+        r"## Phase 5:.*?(?=\n## |\Z)",
+        skill_md,
+        flags=re.DOTALL,
+    )
+    if not phase_5_match:
+        failures.append("A4: Phase 5 section not found in /audit SKILL.md")
+        return failures
+    phase_5 = phase_5_match.group(0)
+
+    required = [
+        ("Write Point 2", "A4: Phase 5 missing Write Point 2 reference"),
+        ("scoring-model-change banner", "A4: Phase 5 missing scoring-model-change banner reference"),
+        ("drift advisory", "A4: Phase 5 missing drift advisory trigger"),
+        ("stateless", "A4: Phase 5 missing stateless mode guard"),
+        ("transient", "A4: Phase 5 does not mark drift advisory as transient"),
+    ]
+    for marker, msg in required:
+        if marker not in phase_5:
+            failures.append(msg)
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
@@ -167,6 +202,7 @@ CHECKS = [
     ("A1 drift state machine", check_a1_state_machine),
     ("A2 Step 0.5 Write Point 1", check_a2_write_point_1),
     ("A3 Install-integrity pre-Phase-0", check_a3_install_integrity),
+    ("A4 Phase 5 Final triggers", check_a4_final_phase_triggers),
 ]
 
 
