@@ -195,6 +195,60 @@ def check_a4_final_phase_triggers() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# A5: output-format.md drift block position (between Score and Most impactful)
+# ---------------------------------------------------------------------------
+
+
+def check_a5_drift_block_position() -> list[str]:
+    """Verify drift block example appears between Score line and Most impactful."""
+    failures = []
+    of_md = (
+        REPO_ROOT / "plugin" / "skills" / "audit" / "references" / "output-format.md"
+    ).read_text(encoding="utf-8")
+
+    drift_header = "Model drift since last /audit"
+    if drift_header not in of_md:
+        failures.append(f"A5: '{drift_header}' marker not found in output-format.md")
+        return failures
+
+    score_idx = of_md.find("Score:")
+    most_impactful_idx = of_md.find("Most impactful")
+    drift_idx = of_md.find(drift_header)
+    if score_idx == -1 or most_impactful_idx == -1:
+        failures.append("A5: cannot locate Score or Most impactful anchors")
+        return failures
+    if not (score_idx < drift_idx < most_impactful_idx):
+        failures.append(
+            f"A5: drift block position wrong (Score={score_idx}, Drift={drift_idx}, MostImpactful={most_impactful_idx})"
+        )
+    return failures
+
+
+# ---------------------------------------------------------------------------
+# A6: output-format.md drift block format (changed-axes-only + baseline + no severity + conditional)
+# ---------------------------------------------------------------------------
+
+
+def check_a6_drift_block_format() -> list[str]:
+    """Verify drift block description includes 4 format requirements."""
+    failures = []
+    of_md = (
+        REPO_ROOT / "plugin" / "skills" / "audit" / "references" / "output-format.md"
+    ).read_text(encoding="utf-8")
+
+    required = [
+        ("changed axes only", "A6: drift block format must specify changed-axes only"),
+        ("baseline", "A6: drift block format must mention baseline source annotation"),
+        ("No severity label", "A6: drift block must document no-severity-label rule"),
+        ("conditional", "A6: drift block must be documented as conditional"),
+    ]
+    for marker, msg in required:
+        if marker.lower() not in of_md.lower():
+            failures.append(msg)
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
@@ -203,6 +257,8 @@ CHECKS = [
     ("A2 Step 0.5 Write Point 1", check_a2_write_point_1),
     ("A3 Install-integrity pre-Phase-0", check_a3_install_integrity),
     ("A4 Phase 5 Final triggers", check_a4_final_phase_triggers),
+    ("A5 Drift block position", check_a5_drift_block_position),
+    ("A6 Drift block format", check_a6_drift_block_format),
 ]
 
 

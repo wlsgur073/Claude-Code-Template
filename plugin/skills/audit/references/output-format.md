@@ -11,6 +11,10 @@ Configuration Audit Results
 Quality Gate: READY    (CLAUDE.md OK, test command OK)
 Score: 60/100 (Grade: B)  |  Maturity: Level 3 — Optimized
 
+⚠ Model drift since last /audit (baseline: /audit 2026-04-15, claude-opus-4-6):
+  family_tier:          opus  →  sonnet
+  context_window_class: 200k  →  1M
+
 ★ Most impactful: [Highest-impact change and why it matters]
 
 Top 3 Priorities
@@ -69,6 +73,18 @@ Still open: L5 conciseness flag, no MCP configuration, agent model diversity.
 > "Since your last audit (DATE): score changed from X → Y. [Skills applied since last audit: /secure, /optimize.] Resolved: [issues]. Still open: [issues]."
 
 **Top 3 Priorities section:** Always appears near the top of the output, directly after the Score line, whenever any non-PASS results exist. This is the primary action block — the user sees "what to do next" before seeing the math. This section replaces the old bottom-of-output "Insights & Recommendations" block; the same content, surfaced earlier.
+
+**Drift Advisory Block:** Between the Score line and the `★ Most impactful` line, a **conditional** block renders when the `§4.1` drift state is `drift` (per `phase-2a-contracts.md §4.1`). Silent in all other states (`match`, `missing_baseline`, `normalization_null`).
+
+Format rules:
+
+- **Header line:** `⚠ Model drift since last /audit (baseline: {scan_source}, {baseline_model_id}):` where `{scan_source}` is the DEC-6 **scan-winner provenance** — `/audit YYYY-MM-DD` when the scan-winner is a Recent Activity `- Model:` bullet (use that entry's `date`); `/audit compacted-bucket YYYY-MM` when the scan-winner is a Compacted History anchor (use anchor's `last_entry_date` per `§3.2`). `{baseline_model_id}` is the scan-winner's raw `last_model` / `- Model:` value.
+- **Axis lines:** render **changed axes only** — compare `baseline_fp` and `current_fp` axis-by-axis; emit one line per differing axis. Values are **user-facing** — `opus` / `sonnet` / `haiku`, `200k` / `1M`, `none` / `extended_any`, `manual` / `compaction_capable` — NOT internal enum tokens (like `opus_tier` / `1m_class`). Alignment: axis name left-justified to 22 columns, then `baseline → current`.
+- **No severity label** (no `minor`, `major`, `critical`, or equivalent tier). DEC-6 does not define severity levels; adding one would exceed design authority.
+- The block is transient terminal output only — **NOT** added to `recommendations.json` (A2 compliance; cross-ref `phase-2a-contracts.md §1.4` decoupling).
+- **Label distinction**: "Model drift" in this block MUST differ lexically from the `§5.1` Surface 2 banner copy ("Scoring contract changed"). Both can co-render in the same `/audit` run when a scoring-contract bump AND a fingerprint drift occur simultaneously — distinct labels prevent operators from conflating two different actions.
+
+Position rationale: drift surfaces as interpretive context for a possibly-changed Score, but must not displace the action-first "Top 3 Priorities" block. Between Score and `★ Most impactful` is the widest unobstructed slot.
 
 Generation rules:
 
