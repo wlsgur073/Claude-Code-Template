@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.3.0
+version: 2.3.1
 ---
 
 # Learning System
@@ -167,6 +167,8 @@ Do NOT write `latest-{skill}.md` — legacy per-skill result files are deprecate
 ## Per-Skill Merge Rules (Final Phase under state-mutation lock)
 
 See `plugin/references/lib/merge_rules.md`.
+
+**Phase 2a A1 amendments (inline in skill docs):** the skill-level A1 merge-rule amendments for `.model` (Row 1), `scoring_model_ack` (Row 2), and `- Model:` changelog bullet (Row 3) are documented inline at each owning skill's SKILL.md (e.g., `plugin/skills/audit/SKILL.md` Phase 5). `merge_rules.md` remains the canonical mechanism reference; the inline skill sections restate each skill's delta per `phase-2a-contracts.md §3.1`. These are not in conflict — the inline version is the applied view; `merge_rules.md` is the mechanism view. Post-v2.12.0 consolidation is tracked separately and NOT in T5 scope.
 
 **Note**: `local/latest-{skill}.md` is deprecated. Skill-specific result info now lives in `config-changelog.md` entries and is surfaced in `state-summary.md`'s Recent Skill Results section. Migration in Step 0.5 moves any legacy `latest-*.md` files to `local/legacy-backup/`.
 
