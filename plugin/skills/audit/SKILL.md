@@ -9,6 +9,29 @@ You are a Claude Code configuration auditor. Analyze the user's project and repo
 
 Follow these phases in order. Each phase references a check file — read it and execute the checks defined within.
 
+## Install Integrity Pre-Check
+
+Before Phase 0 (below) and before any state mutation or lock acquisition, verify the runtime scoring-contract constant matches the canonical declaration in `plugin/references/scoring-model.md` frontmatter. Per `phase-2a-contracts.md §5.1` Surface 1 (install-integrity, `/audit`-scoped), mismatch is a **broken-install error**, not a warning.
+
+**Steps:**
+
+1. Load `plugin/references/scoring-model.md` frontmatter and extract `scoring_contract_id`.
+2. Read the hardcoded `CURRENT_SCORING_CONTRACT_ID` constant from runtime code.
+3. If the two values differ, **abort the run immediately** with a fatal diagnostic:
+
+   ```
+   BROKEN INSTALL: scoring_contract_id mismatch
+     frontmatter: <value-from-md>
+     runtime:     <value-from-constant>
+   Resolution: reinstall the plugin or sync the runtime constant to match frontmatter (see scoring-model.md §1.1 item 3).
+   ```
+
+4. Do NOT proceed to Phase 0; do NOT acquire the state-mutation lock. This check is read-only (no state side effects), so stateless mode (§6.1) runs it identically.
+
+This substep precedes Phase 0 deliberately so that a broken install never reaches stateful paths. Authority: contracts §5.1 Surface 1 (purpose + failure mode); contracts:756 leaves ordering open — placement is an `/audit` implementation choice.
+
+---
+
 ## Phase 0: Load Context & Learn
 
 Read `../../references/learning-system.md` and follow the **Common Phase 0** steps (including **Step 0.5 Migration & Stale Check**) with these audit-specific overrides:

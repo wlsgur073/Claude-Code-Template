@@ -130,12 +130,43 @@ def check_a2_write_point_1() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# A3: Install-integrity pre-Phase-0 substep in /audit SKILL.md
+# ---------------------------------------------------------------------------
+
+
+def check_a3_install_integrity() -> list[str]:
+    """Verify /audit SKILL.md declares an install-integrity check before Phase 0."""
+    failures = []
+    skill_md = (
+        REPO_ROOT / "plugin" / "skills" / "audit" / "SKILL.md"
+    ).read_text(encoding="utf-8")
+
+    phase_0_idx = skill_md.find("## Phase 0")
+    if phase_0_idx == -1:
+        failures.append("A3: Phase 0 heading not found in /audit SKILL.md")
+        return failures
+
+    pre_phase_0 = skill_md[:phase_0_idx]
+
+    required_markers = [
+        ("install-integrity", "A3: no 'install-integrity' mention before Phase 0"),
+        ("scoring_contract_id", "A3: no 'scoring_contract_id' mention before Phase 0"),
+        ("abort", "A3: pre-Phase-0 check missing abort-on-mismatch language"),
+    ]
+    for marker, msg in required_markers:
+        if marker not in pre_phase_0:
+            failures.append(msg)
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Driver
 # ---------------------------------------------------------------------------
 
 CHECKS = [
     ("A1 drift state machine", check_a1_state_machine),
     ("A2 Step 0.5 Write Point 1", check_a2_write_point_1),
+    ("A3 Install-integrity pre-Phase-0", check_a3_install_integrity),
 ]
 
 
