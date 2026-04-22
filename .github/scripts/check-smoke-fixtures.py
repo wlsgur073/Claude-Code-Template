@@ -689,6 +689,200 @@ def parse_latest_md(text: str, skill: str, pinned_utc: str, registry_by_key: dic
 
 
 # ---------------------------------------------------------------------------
+# Drift State Derivation (see learning-system.md, section "Drift Advisory Derivation")
+# ---------------------------------------------------------------------------
+
+
+def _scan_baseline_anchor(changelog_text: str | None) -> tuple[bool, str | None]:
+    """Reverse-chronological scan for /audit baseline anchor.
+
+    Returns (baseline_present, baseline_last_model). baseline_last_model is
+    None when the first reached /audit anchor has a delta-omitted bullet
+    (first-anchor-wins: do not skip past null).
+    """
+    if not changelog_text:
+        return (False, None)
+
+    # Split on H2 sections; pick each by name since document order varies
+    # (Compacted History may appear before or after Recent Activity).
+    sections = re.split(r"^## ", changelog_text, flags=re.MULTILINE)
+    recent_activity = next(
+        (s for s in sections if s.lstrip().startswith("Recent Activity")),
+        None,
+    )
+
+    # Recent Activity: most-recent entry wins; sort H3 entries by date descending.
+    if recent_activity:
+        entries = re.findall(
+            r"^### (\d{4}-\d{2}-\d{2})\s+[—-]\s+/(audit|create|secure|optimize)\b[^\n]*\n(.*?)(?=^### |\Z)",
+            recent_activity,
+            flags=re.MULTILINE | re.DOTALL,
+        )
+        entries.sort(key=lambda t: t[0], reverse=True)
+        for _date, skill, body in entries:
+            if skill != "audit":
+                continue
+            m = re.search(r"^- Model:\s*(.+?)\s*$", body, flags=re.MULTILINE)
+            if m:
+                model = m.group(1).strip()
+                return (True, None if model.lower() == "null" else model)
+
+    # Compacted History: delegate to the authoritative multi-line anchor parser
+    # (shares null-normalization and document-order semantics).
+    anchors = _parse_compacted_history_anchors(changelog_text)
+    for anchor in anchors:
+        if anchor.get("skill") == "/audit":
+            # First-anchor-wins: return even on null last_model (do not skip).
+            return (True, anchor.get("last_model"))
+
+    return (False, None)
+
+
+def _drift_state(
+    current_fp: dict | None,
+    baseline_present: bool,
+    baseline_fp: dict | None,
+) -> str:
+    """Silence evaluation order. Returns one of:
+    normalization_null, missing_baseline, match, drift.
+    """
+    # Silence evaluation order (short-circuit).
+    if current_fp is None or (baseline_present and baseline_fp is None):
+        return "normalization_null"
+    if not baseline_present:
+        return "missing_baseline"
+    if current_fp == baseline_fp:
+        return "match"
+    return "drift"
+
+
+def _test_scan_order() -> list[str]:
+    """L2 unit test: pure function assertions for _scan_baseline_anchor
+    + _drift_state. Returns list of failure messages (empty = PASS).
+    """
+    failures: list[str] = []
+
+    # Fixture 1: Recent Activity has /audit entry with bullet (em-dash header).
+    ra_hit = """
+## Recent Activity
+
+### 2026-04-22 — /audit
+- Model: claude-opus-4-7
+- Applied: ...
+"""
+    present, model = _scan_baseline_anchor(ra_hit)
+    if not (present and model == "claude-opus-4-7"):
+        failures.append(f"scan RA hit: got ({present}, {model})")
+
+    # Fixture 2: Recent Activity exhausted, Compacted History has /audit anchor
+    # (multi-line YAML-ish form per _parse_compacted_history_anchors).
+    ch_hit = """
+## Recent Activity
+
+### 2026-04-22 — /create
+- Applied: ...
+
+## Compacted History
+
+### 2026-Q1
+
+- skill: /audit
+  last_entry_date: 2026-03-15
+  last_model: claude-sonnet-4-6
+  last_capability_fingerprint: null
+"""
+    present, model = _scan_baseline_anchor(ch_hit)
+    if not (present and model == "claude-sonnet-4-6"):
+        failures.append(f"scan CH hit: got ({present}, {model})")
+
+    # Fixture 3: First /audit anchor reached has null model (first-anchor-wins).
+    # Second bucket has non-null; test must confirm we do NOT skip past the null.
+    ch_null = """
+## Recent Activity
+
+## Compacted History
+
+### 2026-Q1
+
+- skill: /audit
+  last_entry_date: 2026-03-10
+  last_model: null
+  last_capability_fingerprint: null
+
+### 2025-Q4
+
+- skill: /audit
+  last_entry_date: 2025-12-01
+  last_model: claude-opus-4-5
+  last_capability_fingerprint: null
+"""
+    present, model = _scan_baseline_anchor(ch_null)
+    if not (present and model is None):
+        failures.append(f"scan first-anchor-wins null: got ({present}, {model})")
+
+    # Fixture 4: All buckets exhausted, no /audit anchor anywhere.
+    no_audit = """
+## Recent Activity
+
+### 2026-04-22 — /create
+- Applied: ...
+
+## Compacted History
+"""
+    present, model = _scan_baseline_anchor(no_audit)
+    if not (present is False and model is None):
+        failures.append(f"scan empty: got ({present}, {model})")
+
+    # Fixture 4b: None changelog.
+    present, model = _scan_baseline_anchor(None)
+    if not (present is False and model is None):
+        failures.append(f"scan None: got ({present}, {model})")
+
+    # Fixture 4c: empty-string changelog.
+    present, model = _scan_baseline_anchor("")
+    if not (present is False and model is None):
+        failures.append(f"scan empty-string: got ({present}, {model})")
+
+    # Fixture 4d: Recent Activity /audit without - Model: bullet (delta-omit).
+    # Scan must skip past the bulletless entry and fall through to Compacted History.
+    ra_delta_omit = """
+## Recent Activity
+
+### 2026-04-22 — /audit
+- Applied: ...
+
+## Compacted History
+
+### 2025-Q4
+
+- skill: /audit
+  last_entry_date: 2025-12-01
+  last_model: claude-haiku-4-5
+  last_capability_fingerprint: null
+"""
+    present, model = _scan_baseline_anchor(ra_delta_omit)
+    if not (present and model == "claude-haiku-4-5"):
+        failures.append(f"scan delta-omit RA fallback to CH: got ({present}, {model})")
+
+    # Fixture 5-8: _drift_state silence order.
+    fp_opus = {"family_tier": "opus", "context_window_class": "200k",
+               "reasoning_class": "extended_any", "context_management_class": "compaction_capable"}
+    fp_sonnet = {"family_tier": "sonnet", "context_window_class": "200k",
+                 "reasoning_class": "extended_any", "context_management_class": "compaction_capable"}
+
+    if _drift_state(fp_opus, True, fp_opus) != "match":
+        failures.append("drift_state match")
+    if _drift_state(fp_opus, True, fp_sonnet) != "drift":
+        failures.append("drift_state drift")
+    if _drift_state(None, True, fp_opus) != "normalization_null":
+        failures.append("drift_state current-null")
+    if _drift_state(fp_opus, False, None) != "missing_baseline":
+        failures.append("drift_state missing")
+
+    return failures
+
+
+# ---------------------------------------------------------------------------
 # Rendering (learning-system.md §State Rendering)
 # ---------------------------------------------------------------------------
 
@@ -2076,6 +2270,15 @@ def main() -> int:
     if "SMOKE_PINNED_UTC" not in os.environ:
         print("[FATAL] SMOKE_PINNED_UTC env var is required", file=sys.stderr)
         return 2
+
+    # Pure-function unit tests gate the fixture loop: if helpers are wrong,
+    # integration fixtures can't possibly pass, and isolated failures are
+    # easier to diagnose than fixture-level byte diffs.
+    unit_failures = _test_scan_order()
+    if unit_failures:
+        for f in unit_failures:
+            print(f"[FAIL] _test_scan_order: {f}", file=sys.stderr)
+        return 1
 
     # Local lane: iterate LOCAL_FIXTURES_DIR case subdirs.
     # Shared verifier, shared semantic assertions — no duplicated logic.
