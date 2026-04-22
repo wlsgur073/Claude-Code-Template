@@ -7,6 +7,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.11.1] - 2026-04-22
+
+### Fixed
+
+- `docs/i18n/ja-JP/templates/advanced/CLAUDE.md`: **restored 74 U+FFFD replacement characters across 20 lines.** The file contained valid UTF-8 byte sequences (`EF BF BD`) that rendered as corruption placeholders (`�`), breaking 18 Japanese sentences. Root cause was likely an earlier edit pass that saved the file while replacement characters were visible in the editor, committing them as file content. Reconstruction used `docs/i18n/ja-JP/templates/starter/CLAUDE.md` as byte-exact source for the shared prefix/convention text; the advanced-only line 68 zenkaku closing paren `）` was inferred from the line's parenthetical structure. Verification: full-repo U+FFFD scan = 0 hits post-fix.
+- `docs/i18n/ja-JP/templates/README.md` line 3: "架空" kanji restored (3 U+FFFD chars where the file previously read `架___のプロジェクト`). Same class of corruption as the advanced/CLAUDE.md case.
+- `CLAUDE.md` line 11 and `plugin/skills/create/templates/starter.md` line 3: **`5-section` → `6-section`** propagation gap corrected. The spec at `plugin/skills/create/templates/starter.md` line 69 explicitly generates "`CLAUDE.md` with 6 sections", the actual filled example `templates/starter/CLAUDE.md` frontmatter describes itself as "Minimal 6-section example", and the user-facing guide `docs/guides/getting-started.md` line 59 promises "the six canonical sections". Only these two files still said "5-section"; the other 5 references in the repo already agreed on 6. `ci/fixtures/migration/**/project-profile.md` and `ci/golden/migration/**/project-profile.md` intentionally retain "5 sections" since those fixtures represent pre-migration legacy state being migrated away from.
+- `docs/i18n/ko-KR/guides/recommended-plugins-guide.md` line 17: restored missing content in the code-review plugin description. EN source reads "Multi-agent PR review with confidence scoring to filter false positives. Catches real issues, skips noise"; ko-KR had only "멀티 에이전트 PR 리뷰. 신뢰도 기반 스코어링으로 오탐 필터링" (the second clause dropped). Restored via 의역 to "멀티 에이전트 PR 리뷰. 신뢰도 기반 스코어링으로 노이즈를 걸러내고 실제 이슈만 포착" — preserves the EN catches/skips rhythm while matching the nominalized-ending style of other rows in the same table (e.g., `code-simplifier`: "기존 동작은 그대로 유지").
+
+### Changed
+
+- `docs/i18n/ko-KR/guides/effective-usage-guide.md` line 98: anti-pattern heading "주방 싱크대 세션" (literal 直訳 of "Kitchen Sink Session") localized to "잡다한 세션" (의역). Aligns with ja-JP's existing 意訳 approach (`何でも放り込んだセッション`, established in 2.9.7). The slightly evaluative tone of "잡다한" is intentional for an anti-pattern section — heading signal matches section purpose. Body content unchanged.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.11.0` → `2.11.1`.
+- `README.md`: version badge updated `2.11.0` → `2.11.1`.
+
+### Notes
+
+- **No frontmatter `version:` bumps on the four affected i18n guides/templates** — all fixes restore parity with the EN source rather than introducing new content. CI `check-frontmatter-parity.py` and `check-i18n-parity.py` still report 18 guide pairs OK + 58 files across 4 pairs bidirectional parity.
+- **SemVer rationale.** Pure documentation and i18n correction. No skill behavior changes, no new user-callable surface, no new frontmatter fields, no scoring-model math changes. Patch-level per the `CLAUDE.md` Release Process policy ("patch (z) for fixes and platform-compat work").
+- **UTF-8 corruption detection gap.** The `check-frontmatter-parity.py` and `check-i18n-parity.py` scripts pass on files with U+FFFD replacement characters stored as valid UTF-8 bytes — they check file count and version field parity, not byte-level content integrity. A lightweight scanner (e.g. `grep -l $'\xef\xbf\xbd'` or a Python `text.count(chr(0xFFFD))` walker) would catch this class of corruption; addition to CI is a candidate for a future patch (not in this release per minimum-scope principle).
+- **Audit methodology that surfaced these issues.** A four-phase cross-file audit (programmatic sweeps for versions/cross-refs/command IDs/heading parity → parallel Explore subagents comparing EN against ko-KR and ja-JP → verification pass filtering LLM false positives → wave-based fixes) surfaced 6 verified issues out of 8 raw agent claims (3 of the 8 were hallucinated line numbers or misread diffs; discarded after direct file verification). The methodology is reproducible and worth re-running before future releases if translation drift is suspected.
+- **Change Propagation Checklist followed:** `plugin.json`, `README.md` badge, `CHANGELOG.md` entry. Fix scopes touched: `docs/i18n/ja-JP/templates/**` (2 files), `docs/i18n/ko-KR/guides/**` (2 files), `CLAUDE.md`, `plugin/skills/create/templates/starter.md`. No `security-patterns.md`, no scoring model, no JSON schemas, no shell-script surface touched.
+- **Validation.** Local CI-equivalent scripts passed — `check-frontmatter-parity.py` (18 guide pairs OK), `check-i18n-parity.py` (58 files across 4 pairs OK), `check-json-schemas.py` (14 JSON files OK). Full-repo U+FFFD scan = 0 hits post-fix.
+
 ## [2.11.0] - 2026-04-16
 
 ### Added
