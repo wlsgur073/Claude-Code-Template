@@ -95,7 +95,7 @@ from src/api/middleware.ts. Follow the pattern in src/api/users.ts.
 
 ## 흔한 실패 패턴
 
-### 1. 주방 싱크대 세션
+### 1. 잡다한 세션
 
 하나의 세션에서 관련 없는 작업을 섞는 것. 작업 A의 컨텍스트가 작업 B를 혼란스럽게 합니다.
 
