@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- `docs/i18n/ko-KR/README.md` line 20 (Philosophy section, "Progressive depth" bullet): "해제됩니다" corrected to "활성화됩니다" to remove the semantic inversion risk. Stand-alone "해제" in Korean tech prose leans toward "dismiss / cancel / disable" rather than "unlock"; the EN source ("Day 100 unlocks cross-skill memory and automated drift detection") describes feature *enablement*, and the ja-JP mirror already uses "有効化されます" (activated). Aligns ko-KR wording with both EN intent and ja-JP phrasing.
+
 ## [2.11.1] - 2026-04-22
 
 ### Fixed
