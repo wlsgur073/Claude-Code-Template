@@ -164,13 +164,11 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
     ```
 
     **DEC-11 stateless skip**: when `local/` is unwritable (`§6.1`), the banner trigger is fully skipped — no ack read, no ack mutation, no banner render — per DEC-11 line 298 rationale (avoid double-warning after stateless degradation notice).
-  - **`§4.1` drift advisory derivation** — per `phase-2a-contracts.md §4.1`:
-    1. `current_fp = normalize_model_id(profile.claude_code_configuration_state.model)` (`§3.5`).
-    2. `baseline_anchor = DEC-6 scan order` (Recent Activity → Compacted History buckets reverse-chronological → first `/audit` anchor → `null` if exhausted).
-    3. `baseline_present = baseline_anchor is not null`; `baseline_fp = normalize_model_id(baseline_anchor.last_model)` when present.
-    4. State via silence evaluation order (contracts:669-672): `normalization_null` / `missing_baseline` / `match` / `drift`.
-    5. Render trigger: only `drift` state renders at the `/audit` terminal sink (see `references/output-format.md` drift block); other states are silent at terminal. Advisory is **transient** — NOT added to `recommendations.json` (A2 compliance per `phase-2a-contracts.md §1.4` decoupling).
-    6. **Stateless mode**: drift advisory retained per DEC-11 line 299 + contracts:882 — current-state derived, no persistence write. Baseline derivation still reads from any in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence.
+  - **Drift advisory — terminal render trigger** (derivation lives in shared `plugin/references/learning-system.md §Drift Advisory Derivation`; this block specifies only the `/audit` terminal render):
+    1. On `drift` state returned from the shared derivation, render the terminal drift block per `references/output-format.md` (between Score line and ★ Most impactful; changed-axes-only + baseline annotation + no severity label).
+    2. On `match` / `missing_baseline` / `normalization_null` states: terminal is silent (symmetric with state-summary header silence).
+    3. Advisory is **transient** — NOT added to `recommendations.json` per A2 compliance (see `plugin/references/learning-system.md §Drift Advisory Derivation` Transience clause).
+    4. **Stateless mode**: drift advisory retained — current-state derived from in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence. `/audit` terminal render proceeds even without `local/` persistence; `state-summary.md` is not written in stateless mode (Final Phase Step 1 fully skipped).
 
 - **Step 5 additions (atomic write):**
   - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive per `§3.4`).
