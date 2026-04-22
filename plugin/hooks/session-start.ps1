@@ -13,7 +13,7 @@ $ErrorActionPreference = 'Stop'
 # BOM-less .ps1 source files with the system ANSI codepage.
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$ProfilePath = ".claude/.plugin-cache/guardians-of-the-claude/local/project-profile.md"
+$ProfilePath = ".claude/.plugin-cache/guardians-of-the-claude/local/profile.json"
 
 # Case 1: No Claude Code configuration at all
 if (-not (Test-Path "CLAUDE.md") -and -not (Test-Path ".claude/settings.json")) {
