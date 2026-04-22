@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/project-profile.md"
+PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/profile.json"
 
 # Case 1: No Claude Code configuration at all
 if [ ! -f "CLAUDE.md" ] && [ ! -f ".claude/settings.json" ]; then

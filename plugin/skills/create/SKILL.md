@@ -23,7 +23,7 @@ After completing Common Phase 0:
 
 ## Phase 0.5: Determine Path
 
-**If project-profile.md was loaded in Phase 0:** The project type is already known. Use the profile's "Project Structure" section to determine if this is an existing project. If CLAUDE.md and settings.json are listed in the profile's "Claude Code Configuration State", route directly to the Incremental path (Phase 2A-Incremental) without asking. Otherwise, skip to the "existing vs new" question below.
+**If `profile.json` was loaded in Phase 0:** The project type is already known. Use the profile's `project_structure` field to determine if this is an existing project. If the profile's `claude_code_configuration_state` indicates `claude_md` and `settings_json` are present, route directly to the Incremental path (Phase 2A-Incremental) without asking. Otherwise, skip to the "existing vs new" question below.
 
 First, silently check if Claude Code configuration already exists:
 

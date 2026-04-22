@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.11.1-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-2.11.2-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Skills-4_Commands-orange.svg" alt="4 Skills">
@@ -95,7 +95,7 @@ After your project has real code and real usage, three more skills help you main
 
 After multiple skill runs, the plugin activates its **meta-system layer** — persistent learning that adapts to your project over time:
 
-- **Project profile** — Auto-detected tech stack, structure, and configuration state (`project-profile.md`)
+- **Project profile** — Auto-detected tech stack, structure, and configuration state (`profile.json`, with `state-summary.md` as the human-readable view)
 - **Decision journal** — Every skill run appends to a compacted changelog so context is preserved across sessions (`config-changelog.md`)
 - **Cross-skill memory** — `/optimize` knows what `/secure` already did; `/audit` knows what was previously declined
 - **Profile drift detection** — If your project switches package managers or upgrades a framework major version, the plugin notices and re-evaluates recommendations
