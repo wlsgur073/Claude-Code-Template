@@ -1,8 +1,9 @@
 # CI Smoke Lane
 
 Canonical smoke fixtures + golden snapshots for CI regression testing of
-Guardians-of-the-Claude. Scope and policy per Phase 0 spec
-(`docs/superpowers/v3-roadmap/phase-0-design.md` §4).
+Guardians-of-the-Claude. Scope and policy are set per the Phase 0 spec
+(maintainer-local; contributors should open an issue or ask in GitHub
+Discussions if the underlying rationale is unclear).
 
 ## Structure
 
@@ -27,7 +28,7 @@ Until this lane is fully automated + covers all release gates, the wider
 evaluation stays in local gitignored `test/` (maintainer-only). Bridge
 exit condition: **before v3.0 or before second maintainer — whichever
 comes first — smoke lane must cover all release-gate checks**. See
-phase-0-design.md §4.5.
+phase-0-design.md §4.5 (maintainer-local).
 
 ## Running locally
 

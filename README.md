@@ -204,7 +204,7 @@ Browse available plugins with `/plugin` in Claude Code, or see [Plugin docs](htt
 Customize the Claude Code status bar to show model, context usage, cost, duration, and git branch at a glance:
 
 ```text
-[Opus 4.6 (1M context)] 📁 my-project
+[Opus 4.7 (1M context)] 📁 my-project
  🌿 feature/auth | ████████░░ 80% | $1.25 | ⏱️ 3m 42s
 ```
 
