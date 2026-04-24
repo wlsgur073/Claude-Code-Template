@@ -1532,6 +1532,8 @@ PROFILE_KEY_ORDER = [
 ]
 
 CCS_KEY_ORDER = [
+    "model",
+    "scoring_model_ack",
     "claude_md",
     "settings_json",
     "rules_count",
@@ -1579,7 +1581,7 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
     if current is None:
         current = _empty_profile(delta.get("metadata", {}).get("last_updated", ""))
     merged = json.loads(json.dumps(current))  # deep copy via JSON
-    merged["schema_version"] = "1.0.0"
+    merged["schema_version"] = "1.1.0"
     delta_meta = delta.get("metadata", {})
     existing_meta = merged.setdefault("metadata", {})
     existing_meta["generated_by"] = "guardians-of-the-claude"
@@ -1678,7 +1680,7 @@ def _changelog_with_entry(current_text: str | None, entry_md: str, entry_count_d
             "---\n"
             "title: Configuration Changelog\n"
             "description: Decision journal for Claude Code configuration changes\n"
-            "version: 1.0.0\n"
+            "version: 1.1.0\n"
             "compacted_at: never\n"
             "entry_count: 0\n"
             "---\n\n"
@@ -1705,6 +1707,29 @@ def _changelog_with_entry(current_text: str | None, entry_md: str, entry_count_d
     # Ensure trailing newline after append.
     new_text = new_text.rstrip("\n") + "\n\n" + entry_md.rstrip("\n") + "\n"
     return new_text
+
+
+def parse_last_changelog_entry_model(changelog_text: str | None) -> str | None:
+    """Return model string from the most recent Recent Activity entry's
+    `- Model:` bullet, or None when no bullet exists (pre-v1.1.0 entry OR
+    delta-omitted v1.1.0 entry OR empty changelog)."""
+    if not changelog_text:
+        return None
+    lines = changelog_text.splitlines()
+    last_heading_idx = -1
+    for idx in range(len(lines) - 1, -1, -1):
+        if lines[idx].startswith("### ") and " — /" in lines[idx]:
+            last_heading_idx = idx
+            break
+    if last_heading_idx == -1:
+        return None
+    for idx in range(last_heading_idx + 1, len(lines)):
+        line = lines[idx]
+        if line.startswith("### "):
+            break
+        if line.startswith("- Model: "):
+            return line[len("- Model: "):].strip()
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -1874,6 +1899,7 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     if ctx.fixture_name == "beginner-path":
         entry = (
             f"### {date} — /audit\n"
+            f"- Model: {state.profile['claude_code_configuration_state']['model']}\n"
             f"- Detected: (none)\n"
             f"- Profile updated: (none)\n"
             f"- Applied: (none)\n"
@@ -1885,6 +1911,7 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
         # warm-start appends a new entry for 2026-04-14 /audit with 2x pending.
         entry = (
             f"### {date} — /audit\n"
+            f"- Model: {state.profile['claude_code_configuration_state']['model']}\n"
             f"- Detected: (none)\n"
             f"- Profile updated: (none)\n"
             f"- Applied: (none)\n"
@@ -1896,6 +1923,7 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     elif ctx.fixture_name == "monorepo":
         entry = (
             f"### {date} — /audit\n"
+            f"- Model: {state.profile['claude_code_configuration_state']['model']}\n"
             f"- Detected: monorepo layout (2 workspaces)\n"
             f"- Profile updated: generated\n"
             f"- Applied: (none)\n"
@@ -1964,6 +1992,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 0,
                 "hooks_count": 0,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     if name == "warm-start":
@@ -2001,6 +2034,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 1,
                 "hooks_count": 2,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     if name == "monorepo":
@@ -2038,6 +2076,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 0,
                 "hooks_count": 0,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     # beginner-path: /audit after /create leaves profile unchanged (same detection).
@@ -2072,6 +2115,11 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "agents_count": 0,
                 "hooks_count": 0,
                 "mcp_servers_count": 0,
+                "model": "claude-opus-4-7",
+                "scoring_model_ack": {
+                    "version": "audit-score-v4.0.0",
+                    "seen_count": 0,
+                },
             },
         }
     raise KeyError(f"no audit detection preset for fixture {name!r}")
@@ -2092,8 +2140,16 @@ def handle_secure(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     state.recommendations = merge_recommendations(
         state.recommendations, [], ctx.pinned_utc
     )
+    current_model = state.profile.get("claude_code_configuration_state", {}).get("model")
+    previous_model = parse_last_changelog_entry_model(state.changelog)
+    model_bullet = (
+        f"- Model: {current_model}\n"
+        if current_model is not None and current_model != previous_model
+        else ""
+    )
     entry = (
         f"### {date} — /secure\n"
+        f"{model_bullet}"
         f"- Detected: fixture-driven\n"
         f"- Profile updated: claude_code_configuration_state\n"
         f"- Applied: (fixture-specific)\n"
@@ -2124,8 +2180,16 @@ def handle_optimize(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
     state.recommendations = merge_recommendations(
         state.recommendations, [], ctx.pinned_utc
     )
+    current_model = state.profile.get("claude_code_configuration_state", {}).get("model")
+    previous_model = parse_last_changelog_entry_model(state.changelog)
+    model_bullet = (
+        f"- Model: {current_model}\n"
+        if current_model is not None and current_model != previous_model
+        else ""
+    )
     entry = (
         f"### {date} — /optimize\n"
+        f"{model_bullet}"
         f"- Detected: fixture-driven\n"
         f"- Profile updated: counts\n"
         f"- Applied: (fixture-specific)\n"
@@ -2188,23 +2252,36 @@ def _load_schema(name: str) -> dict:
 
 def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     failures = []
-    # Phase 1 smoke fixtures produce schema_version "1.0.0" profile instances.
-    # profile.schema.json was factored into base + versioned wrappers in v2.12.0 (T1).
-    # Use the v1.0.0 wrapper with a referencing registry so $ref resolves correctly.
+    # Dispatch profile schema wrapper by declared `schema_version`.
+    # profile.schema.json was factored into base + versioned wrappers in v2.12.0.
+    # v2.12.1 adds v1.1.0 dispatch alongside the legacy v1.0.0 path.
     from referencing import Registry, Resource  # noqa: PLC0415
     base_schema = _load_schema("profile.schema.base.json")
     registry = Registry().with_resources(
         [("profile.schema.base.json", Resource.from_contents(base_schema))]
     )
-    profile_schema = _load_schema("profile.schema.v1.0.0.json")
+
+    version_to_wrapper = {
+        "1.0.0": "profile.schema.v1.0.0.json",
+        "1.1.0": "profile.schema.v1.1.0.json",
+    }
+
     recs_schema = _load_schema("recommendations.schema.json")
     if state.profile is None:
         failures.append("profile.json was not written")
     else:
-        try:
-            jsonschema.Draft202012Validator(profile_schema, registry=registry).validate(state.profile)
-        except jsonschema.ValidationError as e:
-            failures.append(f"profile.json schema invalid: {e.message}")
+        declared_version = state.profile.get("schema_version")
+        if declared_version not in version_to_wrapper:
+            failures.append(
+                f"profile.json schema_version '{declared_version}' not dispatchable; "
+                f"expected one of {sorted(version_to_wrapper)}"
+            )
+        else:
+            profile_schema = _load_schema(version_to_wrapper[declared_version])
+            try:
+                jsonschema.Draft202012Validator(profile_schema, registry=registry).validate(state.profile)
+            except jsonschema.ValidationError as e:
+                failures.append(f"profile.json schema invalid ({declared_version}): {e.message}")
     if state.recommendations is None:
         failures.append("recommendations.json was not written")
     else:
