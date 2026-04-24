@@ -1,7 +1,7 @@
 ---
 title: Learning System
 description: Shared state management reference for /create, /audit, /secure, /optimize
-version: 2.3.2
+version: 2.3.3
 ---
 
 # Learning System
@@ -359,7 +359,7 @@ Frontmatter:
 ---
 title: Configuration Changelog
 description: Decision journal for Claude Code configuration changes
-version: 1.0.0
+version: 1.1.0
 compacted_at: {YYYY-MM-DD or "never"}
 entry_count: {N}
 ---
@@ -369,6 +369,7 @@ Two sections: `## Compacted History` and `## Recent Activity`. Entry format:
 
 ```markdown
 ### {YYYY-MM-DD} — /{skill-name}
+- Model: {resolved model id; delta-omit for non-/audit skills if unchanged}
 - Detected: {changes or (none)}
 - Profile updated: {sections or (none)}
 - Applied: {changes or (none)}
