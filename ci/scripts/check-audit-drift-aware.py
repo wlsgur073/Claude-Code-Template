@@ -3,9 +3,9 @@
 
 Covers 6 assertions:
   A1 drift advisory state machine simulation (5 fixtures)
-  A2 baseline Write Point 1 in learning-system.md
+  A2 .model field in Step 0.5 profile.json write set (learning-system.md)
   A3 install-integrity pre-Phase-0 substep in /audit SKILL.md
-  A4 baseline Write Point 2 + Surface 2 banner + drift trigger in Final Phase
+  A4 Final Phase triggers (model write + scoring-model-change banner + drift advisory)
   A5 output-format.md drift block position (between Score and ★ Most impactful)
   A6 output-format.md drift block format (changed-axes-only + baseline annotation + no severity)
 """
@@ -101,7 +101,7 @@ def check_a1_state_machine() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# A2: Step 0.5 Write Point 1 — .model field emission in profile.json write set
+# A2: Step 0.5 — .model field emission in profile.json write set
 # ---------------------------------------------------------------------------
 
 
@@ -160,12 +160,12 @@ def check_a3_install_integrity() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# A4: Final Phase triggers — Write Point 2 + banner + drift advisory
+# A4: Final Phase triggers — model write + banner + drift advisory
 # ---------------------------------------------------------------------------
 
 
 def check_a4_final_phase_triggers() -> list[str]:
-    """Verify Phase 5 declares Write Point 2 + banner + drift advisory triggers."""
+    """Verify Phase 5 declares model write + banner + drift advisory triggers."""
     failures = []
     skill_md = (
         REPO_ROOT / "plugin" / "skills" / "audit" / "SKILL.md"
@@ -182,7 +182,7 @@ def check_a4_final_phase_triggers() -> list[str]:
     phase_5 = phase_5_match.group(0)
 
     required = [
-        ("Write Point 2", "A4: Phase 5 missing Write Point 2 reference"),
+        ("Final Phase model write", "A4: Phase 5 missing Final Phase model write trigger"),
         ("scoring-model-change banner", "A4: Phase 5 missing scoring-model-change banner reference"),
         ("drift advisory", "A4: Phase 5 missing drift advisory trigger"),
         ("stateless", "A4: Phase 5 missing stateless mode guard"),
@@ -254,7 +254,7 @@ def check_a6_drift_block_format() -> list[str]:
 
 CHECKS = [
     ("A1 drift state machine", check_a1_state_machine),
-    ("A2 Step 0.5 Write Point 1", check_a2_write_point_1),
+    ("A2 Step 0.5 .model write set", check_a2_write_point_1),
     ("A3 Install-integrity pre-Phase-0", check_a3_install_integrity),
     ("A4 Phase 5 Final triggers", check_a4_final_phase_triggers),
     ("A5 Drift block position", check_a5_drift_block_position),

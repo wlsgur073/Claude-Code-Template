@@ -11,7 +11,7 @@ Follow these phases in order. Each phase references a check file — read it and
 
 ## Install Integrity Pre-Check
 
-Before Phase 0 (below) and before any state mutation or lock acquisition, verify the runtime scoring-contract constant matches the canonical declaration in `plugin/references/scoring-model.md` frontmatter. Per `phase-2a-contracts.md §5.1` Surface 1 (install-integrity, `/audit`-scoped), mismatch is a **broken-install error**, not a warning.
+Before Phase 0 (below) and before any state mutation or lock acquisition, verify the runtime scoring-contract constant matches the canonical declaration in `plugin/references/scoring-model.md` frontmatter. Mismatch is a **broken-install error** (install-integrity check, `/audit`-scoped), not a warning.
 
 **Steps:**
 
@@ -23,12 +23,12 @@ Before Phase 0 (below) and before any state mutation or lock acquisition, verify
    BROKEN INSTALL: scoring_contract_id mismatch
      frontmatter: <value-from-md>
      runtime:     <value-from-constant>
-   Resolution: reinstall the plugin or sync the runtime constant to match frontmatter (see scoring-model.md §1.1 item 3).
+   Resolution: reinstall the plugin or sync the runtime constant to match frontmatter.
    ```
 
-4. Do NOT proceed to Phase 0; do NOT acquire the state-mutation lock. This check is read-only (no state side effects), so stateless mode (§6.1) runs it identically.
+4. Do NOT proceed to Phase 0; do NOT acquire the state-mutation lock. This check is read-only (no state side effects), so stateless mode runs it identically.
 
-This substep precedes Phase 0 deliberately so that a broken install never reaches stateful paths. Authority: contracts §5.1 Surface 1 (purpose + failure mode); contracts:756 leaves ordering open — placement is an `/audit` implementation choice.
+This substep precedes Phase 0 deliberately so that a broken install never reaches stateful paths. Placement before Phase 0 is an `/audit` implementation choice — the install-integrity contract specifies purpose and failure mode but leaves ordering open.
 
 ---
 
@@ -104,7 +104,7 @@ Apply the scoring model in this order:
 3. **Calculate Detail Score** — `DS = (T2_weighted × 0.60 + T3_weighted × 0.40) × 100`
 4. **Calculate Synergy Bonus** — check qualifying pairs
 5. **Calculate LAV components** — L1, L2, L3, L4, L5, L6 individually from Phase 3.5
-6. **Calculate cap tier** — per DEC-1: `cap = 60` if L5 = −3 AND no other negative-minimum Li at its minimum; `cap = 50` if L5 = −3 AND at least one other Li at its negative minimum (L1 = −3, L2 = −2, or L4 = −1); `cap = 100` otherwise
+6. **Calculate cap tier** — `cap = 60` if L5 = −3 AND no other negative-minimum Li at its minimum; `cap = 50` if L5 = −3 AND at least one other Li at its negative minimum (L1 = −3, L2 = −2, or L4 = −1); `cap = 100` otherwise
 7. **Calculate Final** — `min(DS × (1 + LAV_nonL5 / 50) + SB, cap)` where `LAV_nonL5 = L1 + L2 + L3 + L4 + L6` (L5 routed via cap tier per step 6)
 8. **Check Quality Gate** — CLAUDE.md exists AND test command present; test condition waived if SKIP
 9. **Determine Grade** and **Maturity Level**
@@ -129,30 +129,26 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   Profile merge under the state-mutation lock: `/audit` is the authoritative full refresh (Layer 3 of stale prevention). Always regenerate all `/audit`-owned sections — `runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`, and `claude_code_configuration_state.claude_md` — from detected state, regardless of whether changes were detected. Other sections (e.g., `claude_code_configuration_state.settings_json` owned by `/secure`) must be preserved from the re-read `current_profile` (see `plugin/references/lib/merge_rules.md` §profile.json merge rules).
 
-  **A1 merge rule amendments** (Phase 2a, `phase-2a-contracts.md §3.1`):
-  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6). See §3.1 Row 1, §3.4, §6.1, §6.2.
-  - **Row 2 — `claude_code_configuration_state.scoring_model_ack`**: `/audit` exclusive writer; full-object replacement; Final Phase only. Stateless mode: no-op per DEC-11. See §3.1 Row 2, §5.1, §6.1, §6.2.
-  - **Row 3 — `config-changelog.md` entry `- Model:` bullet** (DEC-8 hybrid writer; `phase-2a-contracts.md §3.1 Row 3` pseudocode authority; `§6.2` Step 2/3/5 slot assignments):
-      - **Step 2 (re-read under lock — per §6.2 line 918 "previous-bullet re-read: all skills")**: after re-reading `current_changelog` per Common Final Phase Step 2, parse the immediately previous `###` entry (most-recent entry in Recent Activity, regardless of which skill wrote it) and extract its `- Model:` line's value. If the entry has no bullet (pre-v2.12.0 legacy OR non-/audit delta-omit path), the value is `null` per `§2.5 Addition A` omit→null rule. For `/audit` this Step 2 re-read is informational — Phase 1 baseline already performs the changelog re-read (`learning-system.md:148`), and /audit does not branch on the re-read value at Step 3.
-      - **Step 3 (compute emit_bullet — /audit always-emit)**: `emit_bullet = True` unconditionally per DEC-8 writer policy (`design.md:255`) and `§3.1 Row 3 line 378` (reverse-scan simplicity — `§4.1 DEC-6` baseline derivation terminates at the first `/audit` entry; always-emit guarantees non-null `last_model` at that terminator without skipping null bullets).
-      - **Step 5 (atomic write inclusion)**: the new changelog entry's first bullet under the `### {YYYY-MM-DD} — /audit` heading is `- Model: {full-resolved-id}` where `{full-resolved-id}` is `profile.claude_code_configuration_state.model` at Final Phase write time (the value set by `§3.4` Write Point 2). Place the bullet immediately after the heading, before `- Detected:`, per `§2.5 Addition A` entry format.
-      - **Stateless mode**: no-op per DEC-11 — bullet write is skipped when `local/` is unwritable because the changelog file itself is not written per Phase 1 Global Invariant #6. See `§6.1`, `§6.2`.
+  **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
+  - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
+  - **Row 2 — `claude_code_configuration_state.scoring_model_ack`**: `/audit` exclusive writer; full-object replacement; Final Phase only. Stateless mode: no-op.
+  - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/audit` always-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill's branch is the always-emit terminator (Phase 1 baseline already re-reads `current_changelog`, and `/audit` does not branch on the re-read value).
 
-- **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable (Phase 1 Global Invariant #6 / `§6.1`):
+- **Stateless guard (Phase 5 top-level branch)**: if `local/` is unwritable (Phase 1 Global Invariant #6):
   - SKIP Step 2 `scoring_model_ack` re-read.
-  - SKIP Step 3 ack delta computation + scoring-model-change banner trigger (DEC-11 line 298: persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
-  - RETAIN `§4.1` drift advisory derivation — current-state transient, no file write (DEC-11 line 299 + contracts:882).
+  - SKIP Step 3 ack delta computation + scoring-model-change banner trigger (persistence-backed banner fully skipped to avoid double-warning after stateless degradation notice).
+  - RETAIN drift advisory derivation — current-state transient, no file write.
   - Proceed to Phase 1 Global Invariant #6 degradation warning; no JSON state writes, no changelog write.
 
   Non-stateless path continues below.
 
 - **Step 2 additions (re-read under lock, `/audit`-specific fields):**
-  - Re-read `profile.claude_code_configuration_state.model` for drift derivation (`§4.1` baseline input).
-  - Re-read `profile.claude_code_configuration_state.scoring_model_ack` for banner trigger decision (`§5.1` Surface 2).
+  - Re-read `profile.claude_code_configuration_state.model` for drift advisory baseline input.
+  - Re-read `profile.claude_code_configuration_state.scoring_model_ack` for scoring-contract-change banner trigger decision.
 
 - **Step 3 additions (compute deltas):**
-  - **`§3.4` Write Point 2** — set `profile.claude_code_configuration_state.model = <resolver output>` per `phase-2a-contracts.md §3.4`; merge under A1 Row 1 last-write-wins.
-  - **`§5.1` Surface 2 scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with `§4.1` drift advisory copy "Model drift since last /audit"): apply DEC-4 trigger rule per `phase-2a-contracts.md:725-734`:
+  - **Final Phase model write** — set `profile.claude_code_configuration_state.model = <resolver output>`; merge under A1 Row 1 last-write-wins.
+  - **Scoring-model-change banner** (copy: "Scoring contract changed" — must NOT collide with the drift advisory copy "Model drift since last /audit"): apply the trigger rule:
 
     ```
     if ack.version != current_scoring_contract_id OR ack.seen_count < 2:
@@ -163,15 +159,15 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
         silent
     ```
 
-    **DEC-11 stateless skip**: when `local/` is unwritable (`§6.1`), the banner trigger is fully skipped — no ack read, no ack mutation, no banner render — per DEC-11 line 298 rationale (avoid double-warning after stateless degradation notice).
-  - **Drift advisory — terminal render trigger** (derivation lives in shared `plugin/references/learning-system.md §Drift Advisory Derivation`; this block specifies only the `/audit` terminal render):
+    **Stateless skip**: when `local/` is unwritable, the banner trigger is fully skipped — no ack read, no ack mutation, no banner render — to avoid double-warning after stateless degradation notice.
+  - **Drift advisory — terminal render trigger** (derivation lives in shared `plugin/references/learning-system.md § Drift Advisory Derivation`; this block specifies only the `/audit` terminal render):
     1. On `drift` state returned from the shared derivation, render the terminal drift block per `references/output-format.md` (between Score line and ★ Most impactful; changed-axes-only + baseline annotation + no severity label).
     2. On `match` / `missing_baseline` / `normalization_null` states: terminal is silent (symmetric with state-summary header silence).
-    3. Advisory is **transient** — NOT added to `recommendations.json` per A2 compliance (see `plugin/references/learning-system.md §Drift Advisory Derivation` Transience clause).
+    3. Advisory is **transient** — NOT added to `recommendations.json` (see `plugin/references/learning-system.md § Drift Advisory Derivation` Transience clause).
     4. **Stateless mode**: drift advisory retained — current-state derived from in-memory changelog snapshot; when no baseline is available, advisory resolves to `missing_baseline` silence. `/audit` terminal render proceeds even without `local/` persistence; `state-summary.md` is not written in stateless mode (Final Phase Step 1 fully skipped).
 
 - **Step 5 additions (atomic write):**
-  - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive per `§3.4`).
+  - Write `.model` into `profile.json` (part of `profile.json` file set; no new lock primitive).
   - Write updated `scoring_model_ack` when banner fired (A1 Row 2 full-object replacement).
 
 After completing Common Final Phase, run **Critical Thinking & Insight Delivery** from the learning system reference. Apply Socratic verification to audit recommendations before presenting them.

@@ -168,9 +168,32 @@ Do NOT write `latest-{skill}.md` — legacy per-skill result files are deprecate
 
 See `plugin/references/lib/merge_rules.md`.
 
-**A1 merge-rule amendments (inline in skill docs):** the skill-level A1 merge-rule amendments for `.model` (Row 1), `scoring_model_ack` (Row 2), and `- Model:` changelog bullet (Row 3) are documented inline at each owning skill's SKILL.md (e.g., `plugin/skills/audit/SKILL.md` Phase 5). `merge_rules.md` remains the canonical mechanism reference; the inline skill sections restate each skill's delta. These are not in conflict — the inline version is the applied view; `merge_rules.md` is the mechanism view.
+**Inline summaries in skill docs**: each owning skill's SKILL.md (e.g., `plugin/skills/audit/SKILL.md` Phase 5) carries an applied-view summary of its `claude_code_configuration_state.{model, scoring_model_ack}` and `- Model:` bullet behavior. `merge_rules.md` is the mechanism reference; the section below describes the changelog `- Model:` hybrid writer behavior shared across skills.
 
 **Note**: `local/latest-{skill}.md` is deprecated. Skill-specific result info now lives in `config-changelog.md` entries and is surfaced in `state-summary.md`'s Recent Skill Results section. Migration in Step 0.5 moves any legacy `latest-*.md` files to `local/legacy-backup/`.
+
+---
+
+## Model Bullet Emission (config-changelog.md)
+
+The `- Model:` bullet captures the resolved Claude model ID at the top of each changelog entry. Hybrid writer policy shared by all four skills:
+
+**Step 2 (re-read under lock)** — after re-reading `current_changelog`, parse the immediately previous `###` entry (most-recent entry in Recent Activity, **regardless of which skill wrote it**) and extract its `- Model:` line value as `previous_model`. Absent bullet (pre-v2.12.0 legacy OR delta-omit path) maps to `previous_model = null`.
+
+**Step 3 (compute `emit_bullet`)** — skill-specific branch:
+
+- **`/audit` always-emit**: `emit_bullet = True` unconditionally. `/audit` is the baseline anchor for drift derivation; always-emitting guarantees the reverse-scan terminator carries non-null `last_model`.
+- **`/create`, `/secure`, `/optimize` delta-emit**: `emit_bullet = (current_model != previous_model)` with null-safe equality. `current_model` is `profile.claude_code_configuration_state.model` at Final Phase write time. Two non-null values compare as string equality; non-null `current_model` against `null` `previous_model` emits.
+
+**Step 5 (atomic write)** — when `emit_bullet == True`, the bullet is the first line under the `### {YYYY-MM-DD} — /{skill}` heading:
+
+```
+- Model: {current_model}
+```
+
+placed immediately before `- Detected:`. When `emit_bullet == False`, the bullet is **omitted entirely** — the literal `- Model: (none)` is forbidden (parser defense in `check-smoke-fixtures.py:870-873`).
+
+**Stateless mode** — when `local/` is unwritable (Phase 1 Global Invariant #6), no changelog write occurs and no model bullet is emitted by any skill.
 
 ---
 
