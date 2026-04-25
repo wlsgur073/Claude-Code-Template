@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.12.2] - 2026-04-25
+
+### Changed
+
+- **`plugin/references/scoring-model.md` internal design labels removed.** Frontmatter description, `## Formula` section heading, formula commentary note, count-source footnote, and the L5 row in the LAV Axis Summary table each carried references to gitignored maintainer-only documents (`DEC-N` decision IDs, a `phase-2a-contracts.md` path, and a `T7(C2) commit \`4499893\`` provenance pin). The cleanup leaves the spec reading correctly in isolation. The scoring formula and `scoring_contract_id` (`audit-score-v4.0.0`) are unchanged. Frontmatter version bumped `1.0.0` → `1.0.1`.
+- **`ci/scripts/check-scoring-model-lav-linkage.py` realigned to the post-cleanup spec.** A3 (count-source footnote) previously pinned the substring `T7(C2) commit \`4499893\``, which would have made the validator verify its own internal-ref violation. `COUNT_SOURCE_SUBSTRINGS` is now a 3-element tuple of durable shipped facts (profile count field name, skill co-ownership clause, `merge_rules.md` path); the assertion fails only when one of these structural elements is missing. A4 (`DS_SB_CAP_HASH`) recomputed for the post-edit `## Formula` block. Residual internal task labels (`T2b`, `D2`) removed from comments, docstrings, and the final PASS log line.
+
 ## [2.12.1] - 2026-04-24
 
 ### Added
