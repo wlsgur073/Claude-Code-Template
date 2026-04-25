@@ -1,6 +1,6 @@
 ---
 title: "Model Drift Rules"
-description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory (DEC-6) via normalize_model_id → fingerprint | null (contracts §3.5)."
+description: "4-axis capability fingerprint + normalization table for Claude model ID detection across Anthropic, Bedrock, and Vertex. Drives /audit drift advisory via normalize_model_id → fingerprint | null."
 version: "1.0.0"
 fingerprint_space_version: "1.0.0"
 ---
@@ -9,21 +9,21 @@ fingerprint_space_version: "1.0.0"
 
 ## Architecture
 
-`normalize_model_id` transforms a raw model ID string (provider-specific format) into a canonical 4-axis fingerprint, or `null` for unrecognized input. The fingerprint feeds the drift advisory state machine (§4.1): a non-null return is compared against the stored baseline fingerprint; `null` drives the state machine to `normalization_null` (one of three silence conditions per DEC-6, suppressing the drift advisory).
+`normalize_model_id` transforms a raw model ID string (provider-specific format) into a canonical 4-axis fingerprint, or `null` for unrecognized input. The fingerprint feeds the drift advisory state machine: a non-null return is compared against the stored baseline fingerprint; `null` drives the state machine to `normalization_null` (one of the silence conditions, suppressing the drift advisory).
 
-**Signature** (per `phase-2a-contracts.md` §3.5):
+**Signature**:
 
 ```
 normalize_model_id(model_id: string) → fingerprint | null
 ```
 
-**Role in drift SM**: this file is the normalization table authority. `phase-2a-contracts.md` §3.5 is the algorithm authority (5 behavior contracts). The two sources do not duplicate each other.
+**Role in drift SM**: this file is the normalization table authority. The algorithm specification carries the 5 behavior contracts (see § Behavior Contracts below). The two sources do not duplicate each other.
 
 **Fingerprint space version**: `1.0.0` — any axis addition or per-axis enumeration extension that alters drift-comparison semantics increments this version independently of the file `version` field.
 
 ## 4-Axis Fingerprint Schema
 
-The fingerprint is a record with exactly 4 axes. Axis naming, ordering, and closed enumeration sets are specified in `phase-2a-contracts.md` §1.3.
+The fingerprint is a record with exactly 4 axes. Axis naming, ordering, and closed enumeration sets are specified by the fingerprint space.
 
 ### family_tier
 
@@ -72,7 +72,7 @@ Classifies how the model handles long-context management.
 
 ## 24-Combo Enumeration
 
-All 24 valid fingerprint combinations from the fingerprint space (3 × 2 × 2 × 2 = 24). Per `phase-2a-contracts.md` §1.3: every fingerprint returned by §3.5 (non-null branch) MUST hold an in-set value at every axis; tuples with out-of-set values return `null` instead.
+All 24 valid fingerprint combinations from the fingerprint space (3 × 2 × 2 × 2 = 24). Every fingerprint returned by `normalize_model_id` (non-null branch) MUST hold an in-set value at every axis; tuples with out-of-set values return `null` instead.
 
 | # | family_tier | context_window_class | reasoning_class | context_management_class |
 |---|---|---|---|---|
@@ -105,7 +105,7 @@ Not all 24 combinations are currently occupied by known model IDs. Unoccupied co
 
 ## Provider Coverage
 
-Three providers are covered in v2.12.0 per `phase-2a-contracts.md` §1.2: **Anthropic**, **Bedrock**, and **Vertex**.
+Three providers are covered: **Anthropic**, **Bedrock**, and **Vertex**.
 
 ### Anthropic
 
@@ -129,7 +129,7 @@ Examples: `claude-opus-4-6@20241022`, `claude-sonnet-4-6@20240901`
 
 Raw pattern → normalized ID → 4-axis fingerprint. Evidence-status column: `observed` / `hypothesized` / `extrapolated` (see Evidence Status Labels). Only `observed` rows are active in v2.12.0.
 
-Matching policy: longest-match when multiple rules overlap (per `phase-2a-contracts.md` §1.2 #3 + §3.5 #4). The `raw_pattern` column uses suffix-wildcard notation: `claude-opus-4-7*` matches `claude-opus-4-7` and any trailing date-less variant (e.g., `-latest`).
+Matching policy: longest-match when multiple rules overlap (per the matching-policy contract below). The `raw_pattern` column uses suffix-wildcard notation: `claude-opus-4-7*` matches `claude-opus-4-7` and any trailing date-less variant (e.g., `-latest`).
 
 | raw_pattern | normalized_id | family_tier | context_window_class | reasoning_class | context_management_class | evidence_status |
 |---|---|---|---|---|---|---|
@@ -153,7 +153,7 @@ Matching policy: longest-match when multiple rules overlap (per `phase-2a-contra
 
 - Bedrock rows (`anthropic.claude-*`) MUST be matched before Anthropic-direct rows (`claude-*`) to prevent the shorter Anthropic pattern from matching a Bedrock prefix. Longest-match ordering in the runner handles this automatically.
 - Vertex rows (`claude-*@*`) MUST be matched before Anthropic-direct rows (`claude-*`) since the `@` suffix distinguishes them. Longest-match ordering handles this.
-- All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior design DEC-2 revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
+- All three `claude-opus-4-6` variants (Anthropic direct, Bedrock, Vertex) normalize to `1M` context as of 2026-04-20. Prior table revisions modeled Bedrock as `200k`; Bedrock has since upgraded Opus 4.6 to 1M per the AWS model card, and the table is aligned to current provider reality.
 - **Sonnet 4.5 transitional state (as of 2026-04-20)**: Anthropic-direct (`claude-sonnet-4-5*`) and Vertex (`claude-sonnet-4-5@*`) currently serve Sonnet 4.5 at `1M` context via beta/preview; Anthropic's 1M beta retires April 30, 2026 per public release notes. Post-retirement, the Anthropic-direct row will drop to `200k` (alongside Bedrock, which is `200k` from launch). A patch release aligned to the retirement date will update the Anthropic (and possibly Vertex) rows. As of 2026-04-20 all three Sonnet 4.5 rows are `observed`; evidence: AWS Claude Sonnet 4.5 model card (Bedrock), Vertex Claude Sonnet 4.5 model card (Vertex GA), Anthropic release notes (1M beta retirement).
 
 ## Evidence Status Labels
@@ -164,34 +164,32 @@ Directly verified against Anthropic, Bedrock, or Vertex public documentation or 
 
 ### hypothesized
 
-Inferred from pattern-matching adjacent observed entries; flagged for future verification against primary sources. **NOT active in v2.12.0** per `phase-2a-design.md` §DEC-2 evidence-hygiene requirement. Rows with this status are excluded from normalization output until promoted to `observed`.
+Inferred from pattern-matching adjacent observed entries; flagged for future verification against primary sources. **NOT active** per the evidence-hygiene requirement. Rows with this status are excluded from normalization output until promoted to `observed`.
 
 ### extrapolated
 
-Extended from adjacent observed patterns with lowest confidence; requires independent primary-source verification before activation. **NOT active in v2.12.0**. Subject to removal if primary sources contradict the extrapolation.
+Extended from adjacent observed patterns with lowest confidence; requires independent primary-source verification before activation. **NOT active**. Subject to removal if primary sources contradict the extrapolation.
 
 ## Non-Covered Providers
 
 ### Microsoft Foundry
 
-Microsoft Foundry was evaluated for inclusion in the v2.12.0 normalization provider set and dropped per design round-5 Q2 / OQ-4 (closure date 2026-04-18). Rationale: Foundry uses operator-chosen deployment names rather than provider-stable model IDs, making normalization infeasible without an additional deployment-naming convention contract. Any Foundry deployment-name input returns `null` from §3.5 fail-safe semantics; the `/audit` drift advisory is suppressed via the `normalization_null` silence condition (DEC-6).
+Microsoft Foundry was evaluated for inclusion in the normalization provider set and dropped during design closure (2026-04-18). Rationale: Foundry uses operator-chosen deployment names rather than provider-stable model IDs, making normalization infeasible without an additional deployment-naming convention contract. Any Foundry deployment-name input returns `null` from the fail-safe semantics; the `/audit` drift advisory is suppressed via the `normalization_null` silence condition.
 
-Authority: `phase-2a-contracts.md` §1.2 line 78 + `phase-2a-design.md` §5 OQ-4 post-closure note.
-
-**Future Foundry patch**: if a Foundry deployment-naming convention emerges (enabling stable model ID inference), a future patch release may add Foundry to the provider set. Such an extension would shift previously-`null` Foundry IDs to `match`/`drift` state — a contract-significant change requiring DEC-4 evaluation.
+**Future Foundry patch**: if a Foundry deployment-naming convention emerges (enabling stable model ID inference), a future patch release may add Foundry to the provider set. Such an extension would shift previously-`null` Foundry IDs to `match`/`drift` state — a contract-significant change requiring contract-extension review.
 
 ### Future / Unknown Providers
 
-Unrecognized provider prefixes and ID formats not matching any in-set provider's pattern family return `null` from §3.5 fail-safe. No advisory is emitted. Pattern families for future providers may be added to this table without altering existing row semantics (additive extension).
+Unrecognized provider prefixes and ID formats not matching any in-set provider's pattern family return `null` from the function's fail-safe. No advisory is emitted. Pattern families for future providers may be added to this table without altering existing row semantics (additive extension).
 
 ## Behavior Contracts
 
-`normalize_model_id` behavior is specified in `phase-2a-contracts.md` §3.5 — 5 contracts:
+`normalize_model_id` behavior is specified by 5 contracts:
 
 1. **Totality** — every string input produces either a fingerprint or `null`; no exceptions, no partial records.
-2. **Canonicalization** — non-null return holds §1.3 canonical axis values only; no raw provider tokens in output.
+2. **Canonicalization** — non-null return holds canonical axis values only; no raw provider tokens in output.
 3. **Fail-safe `null`** — unrecognized patterns, unparseable formats within a matched family, and out-of-fingerprint-space combinations all return `null`.
-4. **Matching policy** — longest-match per §1.2 #3; absent rule → contract #3 first condition.
+4. **Matching policy** — longest-match across overlapping rules; absent rule → contract #3 first condition.
 5. **Determinism / pure** — same input → same output within a scoring-contract version; no I/O, no state, no randomness.
 
-This file provides the normalization table and evidence-status metadata consumed by §3.5's implementation. `phase-2a-contracts.md` §3.5 is the algorithm authority; do not re-specify algorithm logic here.
+This file provides the normalization table and evidence-status metadata consumed by `normalize_model_id`'s implementation. The algorithm specification is the authority; do not re-specify algorithm logic here.
