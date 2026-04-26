@@ -1,7 +1,7 @@
 ---
 title: Per-Skill Merge Rules
 description: Canonical merge rules for profile.json, recommendations.json, and config-changelog.md. Each skill's Final Phase references this file instead of duplicating the rules inline.
-version: 1.2.1
+version: 1.3.0
 ---
 
 # Per-Skill Merge Rules
@@ -24,8 +24,11 @@ Each skill owns specific top-level sections of `profile.json`. It replaces **onl
 | `testing` | `/create`, `/audit` |
 | `build_and_dev` | `/create`, `/audit` |
 | `project_structure` | `/create`, `/audit` |
+| `monorepo_detection` | `/audit` |
 | `metadata` | Any skill (updates `last_updated`, appends to `source_files_checked`) |
 | `claude_code_configuration_state.claude_md` | `/create`, `/audit` |
+| `claude_code_configuration_state.claude_md.subpackages` | `/audit` |
+| `claude_code_configuration_state.claude_md.subpackage_coverage` | `/audit` |
 | `claude_code_configuration_state.settings_json` | `/secure` |
 | `claude_code_configuration_state.rules_count` | Any skill that adds or removes rules |
 | `claude_code_configuration_state.agents_count` | Any skill that adds or removes agents |
@@ -37,6 +40,26 @@ Each skill owns specific top-level sections of `profile.json`. It replaces **onl
 ### Bootstrap exception: first-run `settings_json` initialization
 
 When `current_profile` has no `claude_code_configuration_state.settings_json` at all (e.g., first run on a fresh workspace before `/secure` has executed), `/create` and `/audit` MAY initialize this field with their detection of whether `.claude/settings.json` exists (shape: `{"exists": bool, "has_permissions": bool}`). `/secure` owns all subsequent edits once the field is populated. This is the only ownership exception in the table above.
+
+### project_structure / monorepo_detection consistency precondition (v1.2.0 new)
+
+Any writer that updates `project_structure.type` MUST re-read `current_profile` under the state-mutation lock and produce a profile that validates against the type-consistency invariants in the v1.2.0 wrapper schema.
+
+`/audit` is the only writer that owns `monorepo_detection` and the only writer that may transition monorepo state. On each writable `/audit` run, it MUST recompute detection and write `monorepo_detection` plus `project_structure.type` in the same locked transaction:
+
+- If recomputed `monorepo_detection.detected == true`, set `project_structure.type = "monorepo"`.
+- If recomputed `monorepo_detection.detected == false`, set `project_structure.type = "single_project"`.
+- If detection is unavailable or indeterminate, set `monorepo_detection = null` or `detected = null`; `project_structure.type` may be `null`.
+
+Non-`/audit` writers do not own `monorepo_detection`:
+
+- If `current_profile.monorepo_detection.detected == true`, they MUST preserve `project_structure.type = "monorepo"`.
+- If `current_profile.monorepo_detection.detected == false`, they MUST NOT write `project_structure.type = null` or `"monorepo"`; they may preserve or write `"single_project"`.
+- If `current_profile.monorepo_detection == null` or `.detected == null`, they may write `"single_project"` or `null` according to their analysis, but MUST NOT write `"monorepo"` because they cannot also write `monorepo_detection.detected = true`.
+
+This handles the stale-workspace edge case: when `/audit` re-reads stale current state, recomputes `detected = false` after the user removed the workspace declaration, then writes `detected = false` and `type = "single_project"` in one transaction.
+
+`monorepo_detection`, `claude_md.subpackages`, and `claude_md.subpackage_coverage` are full-replace on each writable `/audit` run: deterministic recomputation of the per-package score snapshot replaces the previous list (no key-merge by `path`, since per-package scores have no historical-trend semantic in this version).
 
 ---
 
