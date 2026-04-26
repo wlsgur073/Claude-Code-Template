@@ -2270,6 +2270,7 @@ def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     version_to_wrapper = {
         "1.0.0": "profile.schema.v1.0.0.json",
         "1.1.0": "profile.schema.v1.1.0.json",
+        "1.2.0": "profile.schema.v1.2.0.json",
     }
 
     recs_schema = _load_schema("recommendations.schema.json")
