@@ -36,7 +36,7 @@
   "claude_code_configuration_state": {
     "model": "claude-opus-4-7",
     "scoring_model_ack": {
-      "version": "audit-score-v4.0.0",
+      "version": "audit-score-v4.1.0",
       "seen_count": 0
     },
     "claude_md": { "exists": true, "section_count": 5 },

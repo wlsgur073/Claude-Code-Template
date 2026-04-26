@@ -2000,7 +2000,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2042,7 +2042,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2084,7 +2084,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },
@@ -2123,7 +2123,7 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "mcp_servers_count": 0,
                 "model": "claude-opus-4-7",
                 "scoring_model_ack": {
-                    "version": "audit-score-v4.0.0",
+                    "version": "audit-score-v4.1.0",
                     "seen_count": 0,
                 },
             },

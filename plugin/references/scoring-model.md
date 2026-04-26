@@ -1,8 +1,8 @@
 ---
 title: "Scoring Model"
 description: "Conservative scoring formula for /audit — LAV item-aware multiplier with cap tier {50, 60, 100}"
-version: "1.0.1"
-scoring_contract_id: "audit-score-v4.0.0"
+version: "1.0.2"
+scoring_contract_id: "audit-score-v4.1.0"
 ---
 
 # Scoring Model
