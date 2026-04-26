@@ -40,7 +40,6 @@ REQUIRED_PROFILE_KEYS = {
     "agents_count",
     "mcp_count",
     "deny_count",
-    "is_monorepo",
     "has_meta_marketplace",
     "has_symlink_claude_md",
 }
@@ -74,8 +73,6 @@ def compute_expected_cap(L1: int, L2: int, L4: int, L5: int) -> int:
 def classify_bucket(profile: dict) -> str:
     """Apply bucket rubric to profile signals. Returns bucket name."""
     # Short-circuits for Outlier bucket
-    if profile["is_monorepo"]:
-        return "Outlier"
     if profile["claude_md_lines"] is not None and profile["claude_md_lines"] > 250:
         return "Outlier"
     if profile["has_meta_marketplace"]:
