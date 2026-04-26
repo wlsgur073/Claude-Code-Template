@@ -1,12 +1,10 @@
 ---
 title: Per-Skill Merge Rules
 description: Canonical merge rules for profile.json, recommendations.json, and config-changelog.md. Each skill's Final Phase references this file instead of duplicating the rules inline.
-version: 1.2.0
+version: 1.2.1
 ---
 
 # Per-Skill Merge Rules
-
-Authoritative source: `docs/superpowers/v3-roadmap/phase-1-contracts.md` §Shared Primitive 4. This file is the skill-facing projection.
 
 These rules govern how each skill's Final Phase applies its changes to canonical state. The Final Phase does **not** blindly overwrite state with the Phase 0 snapshot. Under the state-mutation lock (see `state_io.md §state-mutation-lock`), it re-reads current canonical state and merges this skill's deltas against that current state — protecting against lost updates from parallel shell sessions.
 

@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **Shipped surface boundary cleanup** (3 files): `plugin/references/lib/state_io.md` and `plugin/references/lib/merge_rules.md` (line 9 each) had a redundant authoritative-source pointer to a maintainer-local document not present in the published tree. The pointer is removed; frontmatter description already provides self-contained intent. `docs/ROADMAP.md` lines 53-54 (Audit v4 forward-plan section) rewritten with version-centric phrasing in place of internal workstream labels — public roadmap now reads correctly without referring to maintainer-internal organizational vocabulary. Frontmatter versions bumped: `state_io.md` 1.0.0 → 1.0.1, `merge_rules.md` 1.2.0 → 1.2.1 (content modification per file-version semver).
+
 ## [2.12.3] - 2026-04-26
 
 ### Changed
