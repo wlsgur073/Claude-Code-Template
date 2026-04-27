@@ -92,12 +92,12 @@ Apply `lav.md` L23-L28 ranges and L34-L62 guidelines per subpackage. ALL six axe
 
 | Axis | Range | Subpackage input | Note |
 |---|---|---|---|
-| L1 — Structure Accuracy | -3 / 0 / +2 | sub-pkg CLAUDE.md vs sub-pkg directory tree | Subject to §2 boundary rule (T3.1 paired) |
-| L2 — Command Reliability | -2 / 0 / +2 | sub-pkg CLAUDE.md commands vs sub-pkg manifest/config | Subject to §2 boundary rule (T3.3 / T3.7 paired) |
-| L3 — Patterns/Gotchas | 0 / +1 / +3 | sub-pkg CLAUDE.md project-specific gotchas | No boundary rule |
-| L4 — Structural Quality | -1 / 0 / +1 | sub-pkg CLAUDE.md section organization | No boundary rule |
-| L5 — Conciseness | -3 / 0 / +1 | sub-pkg CLAUDE.md content density (qualitative; NO size-based threshold) | Routed via cap tier (NOT in LAV_nonL5 sum) |
-| L6 — Actionability | 0 / +1 | sub-pkg CLAUDE.md command/path concreteness | No boundary rule |
+| L1 — Structure Accuracy | -3 / 0 / +2 | subpackage CLAUDE.md vs subpackage directory tree | Subject to §2 boundary rule (T3.1 paired) |
+| L2 — Command Reliability | -2 / 0 / +2 | subpackage CLAUDE.md commands vs subpackage manifest/config | Subject to §2 boundary rule (T3.3 / T3.7 paired) |
+| L3 — Patterns/Gotchas | 0 / +1 / +3 | subpackage CLAUDE.md project-specific gotchas | No boundary rule |
+| L4 — Structural Quality | -1 / 0 / +1 | subpackage CLAUDE.md section organization | No boundary rule |
+| L5 — Conciseness | -3 / 0 / +1 | subpackage CLAUDE.md content density (qualitative; NO size-based threshold) | Routed via cap tier (NOT in LAV_nonL5 sum) |
+| L6 — Actionability | 0 / +1 | subpackage CLAUDE.md command/path concreteness | No boundary rule |
 
 `LAV_nonL5 = L1 + L2 + L3 + L4 + L6` (range -6 to +9, excludes L5).
 
@@ -113,14 +113,14 @@ SB is computed from package-local eligible item outcomes only. Two pairs (per `s
 
 Uses package-local **T1.2/T1.3** semantics against the subpackage CLAUDE.md / package root.
 
-- If sub-pkg T1.2 == PASS AND sub-pkg T1.3 == PASS → +2
+- If subpackage T1.2 == PASS AND subpackage T1.3 == PASS → +2
 - If either is SKIP/PARTIAL/MINIMAL/FAIL → 0
 
 ### §4.2 Sensitive file protection + Security rules pair (T2.1/T2.2)
 
 Uses package-local **T2.1/T2.2** semantics against subpackage `.claude/settings.json` and security rules.
 
-- If sub-pkg T2.1 == PASS AND sub-pkg T2.2 == PASS → +3
+- If subpackage T2.1 == PASS AND subpackage T2.2 == PASS → +3
 - If either is SKIP/PARTIAL/MINIMAL/FAIL → 0
 
 ### §4.3 Inheritance rule

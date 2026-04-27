@@ -98,7 +98,7 @@ When workspace declaration parsing returns zero workspace evidence but the proje
 
 ## §3. Detection Algorithm
 
-The algorithm proceeds in five phases. Phase A iterates ecosystems in deterministic order parsing each workspace declaration; all ecosystems are checked (early exit is forbidden because polyglot monorepos may have multiple declarations). Phase B runs regardless of Phase A — heuristic evidence supplements declarations. Phase A.5 includes every disclosed sub-package CLAUDE.md parent directory in the uncapped candidate root set before filtering. Phase C applies the 4-layer filter (Layer 1 root exclusion implicit; Layer 3 defensive sanity check). Phase D sets `detected` from filtered roots, declarations, or high-confidence heuristics. Phase E applies caps and emits the result.
+The algorithm proceeds in five phases. Phase A iterates ecosystems in deterministic order parsing each workspace declaration; all ecosystems are checked (early exit is forbidden because polyglot monorepos may have multiple declarations). Phase B runs regardless of Phase A — heuristic evidence supplements declarations. Phase A.5 includes every disclosed subpackage CLAUDE.md parent directory in the uncapped candidate root set before filtering. Phase C applies the 4-layer filter (Layer 1 root exclusion implicit; Layer 3 defensive sanity check). Phase D sets `detected` from filtered roots, declarations, or high-confidence heuristics. Phase E applies caps and emits the result.
 
 ```
 function detect_monorepo(project_root):
@@ -189,7 +189,7 @@ function detect_monorepo(project_root):
     }
 ```
 
-**Phase 1.5 mapping**: candidate roots are the deduplicated union of three sources — workspace-declaration roots (Phase A), accepted heuristic roots (Phase B), and CLAUDE.md disclosure walk parents (Phase A.5). The uncapped filtered root set (Phase C output) MUST include every disclosed sub-package CLAUDE.md parent that passes Layer 2/3/4. `package_roots_for_scoring[]` is the `scored=50` capped prefix; truncation past the cap MUST be surfaced through `package_root_caps` and `notes`. `package_roots[]` is the display-capped prefix of `package_roots_for_scoring[]`.
+**Phase 1.5 mapping**: candidate roots are the deduplicated union of three sources — workspace-declaration roots (Phase A), accepted heuristic roots (Phase B), and CLAUDE.md disclosure walk parents (Phase A.5). The uncapped filtered root set (Phase C output) MUST include every disclosed subpackage CLAUDE.md parent that passes Layer 2/3/4. `package_roots_for_scoring[]` is the `scored=50` capped prefix; truncation past the cap MUST be surfaced through `package_root_caps` and `notes`. `package_roots[]` is the display-capped prefix of `package_roots_for_scoring[]`.
 
 ## §4. Type Consistency Rules
 
@@ -204,11 +204,11 @@ Schema 1.2.0 enforces these invariants at validation time. Runtime detection alw
 | Cap | Value | Applied To | Rationale |
 |---|---|---|---|
 | `display` | 20 | `package_roots[]` rendered in audit output | Token budget — Phase 1.5 disclosure cap inherited. |
-| `scored` | 50 | `package_roots_for_scoring[]` evaluated by Phase 3.6 LAV | Audit runtime budget — per-package LAV is roughly 5× a single root LAV; 50 sub-packages bound total Phase 3.6 budget within timeout envelope. |
+| `scored` | 50 | `package_roots_for_scoring[]` evaluated by Phase 3.6 LAV | Audit runtime budget — per-package LAV is roughly 5× a single root LAV; 50 subpackages bound total Phase 3.6 budget within timeout envelope. |
 | `unscored_count_in_view` | computed | Reported in audit output as "(+N more not shown)" | Visibility into truncation. |
 | `total_filtered` | computed | Total count after Phase C 4-layer filter, before any cap | Surface absolute size for users with very large monorepos. |
 
-**Interaction**: invariant `display ≤ scored` — scoring rows that are not rendered is permitted; rendering rows outside the scored/display-selected set is not. When `total_filtered > scored`: rendering shows the first 20; the audit emits a Recommendation noting `(total_filtered - scored)` sub-packages were neither shown nor scored. When `display < total_filtered ≤ scored`: rendering shows 20 with `(+N more not shown)`; all `total_filtered` are scored, only the top 20 visible. When `total_filtered ≤ display`: full list, no truncation notice.
+**Interaction**: invariant `display ≤ scored` — scoring rows that are not rendered is permitted; rendering rows outside the scored/display-selected set is not. When `total_filtered > scored`: rendering shows the first 20; the audit emits a Recommendation noting `(total_filtered - scored)` subpackages were neither shown nor scored. When `display < total_filtered ≤ scored`: rendering shows 20 with `(+N more not shown)`; all `total_filtered` are scored, only the top 20 visible. When `total_filtered ≤ display`: full list, no truncation notice.
 
 **Selection order**: when `total_filtered > display`, the first 20 shown are sorted ascending by repo-relative path (deterministic, ecosystem-agnostic). No prioritization heuristic is applied.
 
