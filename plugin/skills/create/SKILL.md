@@ -111,6 +111,16 @@ Read `../../references/learning-system.md` and follow the **Common Final Phase**
 
   Profile merge under the state-mutation lock: `/create` owns the project-structure sections (`runtime_and_language`, `framework_and_libraries`, `package_management`, `testing`, `build_and_dev`, `project_structure`) and `claude_code_configuration_state.claude_md`. It must update `claude_code_configuration_state.{rules_count, agents_count, hooks_count, mcp_servers_count}` for entity classes it added (see `plugin/references/lib/merge_rules.md` §profile.json merge rules). Sections owned exclusively by `/secure` (`settings_json`) must be preserved from the re-read `current_profile`.
 
+  Sections owned exclusively by `/audit` (`monorepo_detection`) must be preserved. Per `plugin/references/lib/merge_rules.md §project_structure / monorepo_detection consistency precondition`:
+
+  | `current_profile.monorepo_detection.detected` | `project_structure.type` rule for `/create` |
+  |---|---|
+  | `true` | preserve `"monorepo"` |
+  | `false` | preserve existing value if present; when writing `project_structure.type`, write `"single_project"` only (must NOT write `"monorepo"` or `null`) |
+  | `null` (or `monorepo_detection == null`) | may write `"single_project"` or `null` (must NOT write `"monorepo"`) |
+
+  Never write `monorepo_detection` itself — `/audit` is exclusive owner.
+
   **A1 merge rule amendments** (applied summary; mechanism in `plugin/references/lib/merge_rules.md`):
   - **Row 1 — `claude_code_configuration_state.model`**: any-skill writer; last-write-wins; written at Step 0.5 and Final Phase. Stateless mode: no-op (Phase 1 Global Invariant #6).
   - **Row 3 — `config-changelog.md` entry `- Model:` bullet**: `/create` delta-emits per the shared hybrid writer policy. See `plugin/references/learning-system.md § Model Bullet Emission` for full mechanics; this skill emits only when the resolved model differs from the immediately previous entry's bullet value.
