@@ -1,13 +1,13 @@
 ---
 title: Per-Package Rollup Procedure
-description: Per-sub-package score rollup procedure for /audit Phase 3.6 hook output. Defines coverage counters (4 fields), min/median/worst computation over scored_count, median even-count handling, worst tie semantics, n/a rendering when scored_count=0, and runtime invariants. No aggregate score (v2.13.0 contract).
+description: Per-subpackage score rollup procedure for /audit Phase 3.6 hook output. Defines coverage counters (4 fields), min/median/worst computation over scored_count, median even-count handling, worst tie semantics, n/a rendering when scored_count=0, and runtime invariants. No aggregate score (v2.13.0 contract).
 version: 1.0.0
 applies_to: audit-score-v4.1.0
 ---
 
 # Per-Package Rollup Procedure
 
-This document defines the rollup output emitted by /audit Phase 3.6 hook — a sub-package score rollup line summarizing min/median/worst across scored sub-packages, plus coverage counters. The rollup is **computed on render** — no `min`, `median`, `worst` fields are persisted in `profile.json` (v2.13.0 contract: no aggregate score).
+This document defines the rollup output emitted by /audit Phase 3.6 hook — a subpackage score rollup line summarizing min/median/worst across scored subpackages, plus coverage counters. The rollup is **computed on render** — no `min`, `median`, `worst` fields are persisted in `profile.json` (v2.13.0 contract: no aggregate score).
 
 ## §0. Scope
 
@@ -23,10 +23,10 @@ This document defines the rollup output emitted by /audit Phase 3.6 hook — a s
 
 ## §1. Coverage Counters (persisted in subpackage_coverage)
 
-- **`package_roots_total`**: count of distinct paths in `monorepo_detection.package_roots_for_scoring[]` BEFORE coverage filtering. Includes sub-packages with and without CLAUDE.md.
-- **`with_claude_md`**: count of sub-packages where `<package_root>/CLAUDE.md` exists (independent of whether scoring succeeded).
-- **`without_claude_md`**: count of sub-packages where `<package_root>/CLAUDE.md` does NOT exist.
-- **`scored_count`**: count of entries in `subpackages[]`. Equals number of successfully scored sub-packages.
+- **`package_roots_total`**: count of distinct paths in `monorepo_detection.package_roots_for_scoring[]` BEFORE coverage filtering. Includes subpackages with and without CLAUDE.md.
+- **`with_claude_md`**: count of subpackages where `<package_root>/CLAUDE.md` exists (independent of whether scoring succeeded).
+- **`without_claude_md`**: count of subpackages where `<package_root>/CLAUDE.md` does NOT exist.
+- **`scored_count`**: count of entries in `subpackages[]`. Equals number of successfully scored subpackages.
 
 ### §1.1 Runtime Invariants
 
@@ -39,7 +39,7 @@ The strict inequality `scored_count < with_claude_md` indicates degraded scoring
 
 ## §2. Min / Median / Worst Computation (over scored_count subset)
 
-Computed only over `subpackages[]` entries (i.e., scored sub-packages). The cardinality is `scored_count` per §1.
+Computed only over `subpackages[]` entries (i.e., scored subpackages). The cardinality is `scored_count` per §1.
 
 ### §2.1 Min
 
@@ -57,14 +57,14 @@ When `scored_count == 0`, `median = n/a`.
 
 `worst = path(s) at the min final_score, tie-sorted ascending by repo-relative path, render first N with tie count`.
 
-- If single sub-package at min: `worst = "<that path>"` (single path)
-- If multiple sub-packages at min (tie): `worst = "<first N tie-sorted paths> (and K-N more tied)"` where N is a small render limit (suggest N=3) and K is total tie count.
-  - Example (5 sub-packages tied at `final_score=42`, sorted ascending): `worst = "packages/api, packages/billing, packages/web (and 2 more tied)"` (N=3, K=5, K-N=2).
+- If single subpackage at min: `worst = "<that path>"` (single path)
+- If multiple subpackages at min (tie): `worst = "<first N tie-sorted paths> (and K-N more tied)"` where N is a small render limit (suggest N=3) and K is total tie count.
+  - Example (5 subpackages tied at `final_score=42`, sorted ascending): `worst = "packages/api, packages/billing, packages/web (and 2 more tied)"` (N=3, K=5, K-N=2).
 - When `scored_count == 0`: `worst = n/a`.
 
 ## §3. n/a Rendering When scored_count == 0
 
-When `scored_count == 0` (e.g., monorepo with sub-packages but none have CLAUDE.md, or all parse errors):
+When `scored_count == 0` (e.g., monorepo with subpackages but none have CLAUDE.md, or all parse errors):
 
 - min = n/a
 - median = n/a
@@ -74,21 +74,21 @@ Coverage counters still rendered. Two example scenarios for `scored_count == 0` 
 
 - **Parse-error scenario** (with_claude_md=2, scored_count=0):
   ```
-  Sub-package Score Rollup
+  Subpackage Score Rollup
     min=n/a, median=n/a, worst=n/a (0 scored, 0 without CLAUDE.md, 2 unscored)
   ```
-  Both sub-packages had CLAUDE.md but failed to parse.
+  Both subpackages had CLAUDE.md but failed to parse.
 
 - **No-CLAUDE.md scenario** (with_claude_md=0, scored_count=0):
   ```
-  Sub-package Score Rollup
+  Subpackage Score Rollup
     min=n/a, median=n/a, worst=n/a (0 scored, 2 without CLAUDE.md, 0 unscored)
   ```
-  Sub-packages discovered via workspace declaration but none have CLAUDE.md yet.
+  Subpackages discovered via workspace declaration but none have CLAUDE.md yet.
 
 The abstract rollup line template (see `output-format.md` Rollup Summary Line for full rendering rules):
 ```
-Sub-package Score Rollup
+Subpackage Score Rollup
   min={X}, median={Y}, worst={path(s)} ({N} scored, {M} without CLAUDE.md, {K} unscored)
 ```
 where `M = subpackage_coverage.without_claude_md` and `K = with_claude_md - scored_count`.
