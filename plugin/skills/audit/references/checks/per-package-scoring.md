@@ -7,11 +7,11 @@ applies_to: audit-score-v4.1.0
 
 # Per-Package Scoring Procedure
 
-This document defines the per-sub-package CLAUDE.md scoring procedure invoked by /audit Phase 3.6 (see `Detection-Spec-2b.md` §5 L577-594). For each package root in `monorepo_detection.package_roots_for_scoring[]` (capped at scored=50), if the sub-package's `CLAUDE.md` exists and is parseable, this procedure produces one entry in `claude_code_configuration_state.claude_md.subpackages[]` with required fields `[path, claude_md_path, final_score (0-100), cap_tier (50|60|100), lav_breakdown (L1-L6)]`.
+This document defines the per-sub-package CLAUDE.md scoring procedure invoked by /audit Phase 3.6. For each package root in `monorepo_detection.package_roots_for_scoring[]` (capped at scored=50), if the sub-package's `CLAUDE.md` exists and is parseable, this procedure produces one entry in `claude_code_configuration_state.claude_md.subpackages[]` with required fields `[path, claude_md_path, final_score (0-100), cap_tier (50|60|100), lav_breakdown (L1-L6)]`.
 
 ## §0. Scope
 
-**Authority**: Phase 2b spec phase DEC-5 (ALL L1-L6 package-local, NO root inheritance), DEC-6 (cap tier per-package independent), DEC-7 (no aggregate score; rollup is min/median/worst/counts only — see `per-package-rollup.md`).
+**Authority**: v2.13.0 per-package scoring contract (audit-score-v4.1.0). Three binding rules: (1) ALL L1-L6 axes evaluated package-local with NO root inheritance, (2) cap tier is per-package independent, (3) rollup carries no aggregate score (see `per-package-rollup.md`).
 
 **Inputs**:
 - `package_root`: repo-relative path from `monorepo_detection.package_roots_for_scoring[i]`
@@ -26,7 +26,7 @@ This document defines the per-sub-package CLAUDE.md scoring procedure invoked by
 
 ## §1. Mechanical T1+T2+T3 (Package-Rebased)
 
-The package root is treated as the project root for mechanical evaluation. Root state is NEVER inherited (DEC-5).
+The package root is treated as the project root for mechanical evaluation. Root state is NEVER inherited.
 
 ### §1.1 T1 Foundation (per-package)
 
@@ -80,13 +80,13 @@ Apply `lav.md` L7-L15 boundary rule with sub-package context:
 - If sub-package T3.3 detected missing tool config (PARTIAL/FAIL) → sub-package L2 scores **0** for that issue.
 - If sub-package T3.7 detected undocumented env vars (PARTIAL/FAIL) → sub-package L2 scores 0 (same axis).
 
-**Critical**: T3 mechanical detection happens BEFORE LAV evaluation per `scoring-model.md` precedent. The boundary rule is applied per-sub-package independently. Root T3 detections do NOT suppress sub-package LAV (DEC-5: NO root inheritance).
+**Critical**: T3 mechanical detection happens BEFORE LAV evaluation per `scoring-model.md` precedent. The boundary rule is applied per-sub-package independently. Root T3 detections do NOT suppress sub-package LAV (no root inheritance).
 
 Mechanical and LAV layers are complementary per-package, not redundant.
 
 ## §3. LAV Evaluation (per-package)
 
-Apply `lav.md` L23-L28 ranges and L34-L62 guidelines per sub-package. ALL six axes evaluated package-local using sub-package CLAUDE.md content + sub-package directory state. Root LAV is NEVER inherited (DEC-5).
+Apply `lav.md` L23-L28 ranges and L34-L62 guidelines per sub-package. ALL six axes evaluated package-local using sub-package CLAUDE.md content + sub-package directory state. Root LAV is NEVER inherited.
 
 ### §3.1 Axis Application
 
@@ -101,11 +101,11 @@ Apply `lav.md` L23-L28 ranges and L34-L62 guidelines per sub-package. ALL six ax
 
 `LAV_nonL5 = L1 + L2 + L3 + L4 + L6` (range -6 to +9, excludes L5).
 
-### §3.2 No Re-calibration for Short Sub-packages (DEC-5 + R1 D1.5)
+### §3.2 No Re-calibration for Short Sub-packages
 
 Sub-package CLAUDE.md is typically shorter than root (~30-50 lines vs ~100-200). L4/L5 guidelines remain qualitative per `lav.md` — no size-based threshold re-calibration. A short sub-package CLAUDE.md may earn +1 L5 if content is sparse but unique; +1 L4 if minimal but clear. This is consistent with root scoring and avoids re-spec burden.
 
-## §4. Synergy Bonus per-package (R2 P1 corrected substitution — binding)
+## §4. Synergy Bonus per-package
 
 SB is computed from package-local eligible item outcomes only. Two pairs (per `scoring-model.md` L143-L150):
 
@@ -125,13 +125,13 @@ Uses package-local **T2.1/T2.2** semantics against sub-package `.claude/settings
 
 ### §4.3 Inheritance rule
 
-Root SB is **NEVER inherited** (DEC-5). Sub-package without own settings.json typically has T2.1+T2.2 SKIP → §4.2 pair earns 0. Sub-package without own test/build commands typically has T1.2+T1.3 FAIL/SKIP → §4.1 pair earns 0. Many sub-packages will have SB = 0.
+Root SB is **NEVER inherited**. Sub-package without own settings.json typically has T2.1+T2.2 SKIP → §4.2 pair earns 0. Sub-package without own test/build commands typically has T1.2+T1.3 FAIL/SKIP → §4.1 pair earns 0. Many sub-packages will have SB = 0.
 
 Maximum SB per sub-package: +5 (both pairs PASS).
 
 **Note**: SB is NOT persisted in `subpackages[]` schema — it is an intermediate value consumed only by the Final formula (§6).
 
-## §5. Cap Tier per-package (DEC-6, R1 D1.3 Accept frame (a))
+## §5. Cap Tier per-package
 
 Identical rule to root cap tier (`scoring-model.md` L100-L103), applied per sub-package independently:
 
@@ -143,7 +143,7 @@ cap = 100 otherwise
 
 Each sub-package's own L5 + L1/L2/L4 minimums determine that sub-package's cap_tier. Stored in `subpackages[i].cap_tier` enum {50, 60, 100}.
 
-## §6. Final Formula per-package (R1 D1.4 + R2 P1 corrected substitution)
+## §6. Final Formula per-package
 
 ```
 Final = min(DS × (1 + LAV_nonL5 / 50) + SB, cap)
@@ -158,7 +158,7 @@ Result naturally bounded by schema range [0, 100] (schema requires final_score: 
 
 Stored in `subpackages[i].final_score` (schema 1.2.0).
 
-## §7. Degraded State Handling (R1 D6.1 + D6.2 + R2 P1 omit semantics)
+## §7. Degraded State Handling
 
 When a sub-package has a CLAUDE.md file (so it counts toward `with_claude_md`) but cannot be scored, **omit the entry from `subpackages[]`** and emit a stable note code in `monorepo_detection.notes[]`. This produces `with_claude_md > scored_count` divergence (intentional per schema 1.2.0 closure — both fields are independent counters).
 
@@ -184,6 +184,6 @@ Action: same as §7.1, but with note code:
 { "code": "lav_evaluation_failed_subpackage", "details": "<package_root>: <reason>" }
 ```
 
-### §7.3 No placeholder rows (R1 D6.3 + R1 C4)
+### §7.3 No placeholder rows
 
 Schema 1.2.0 requires `final_score`, `cap_tier`, and full `lav_breakdown` — placeholder values (e.g., final_score=0, cap_tier=50, all L scores at min) misrepresent and are NOT permitted. Omit the entry instead.

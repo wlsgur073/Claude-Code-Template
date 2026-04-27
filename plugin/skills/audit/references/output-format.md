@@ -113,7 +113,7 @@ Generation rules:
 
 When `monorepo_detection.detected == true` AND `subpackage_coverage.package_roots_total > 0`, render a Sub-package Score Rollup block AFTER the root Score Breakdown section. This follows the summary-first style of audit output (root summary → details → sub-package summary → sub-package details).
 
-### Rollup Summary Line (D5.2)
+### Rollup Summary Line
 
 ```
 Sub-package Score Rollup
@@ -124,7 +124,7 @@ Sub-package Score Rollup
 - `K = with_claude_md - scored_count` (unscored due to parse errors / LAV failures).
 - Worst tie format (per `checks/per-package-rollup.md` §2.3): `"<first N tie-sorted paths> (and K-N more tied)"` with N=3 suggested. Example (5 sub-packages tied at `final_score=42`, sorted ascending): `worst = "packages/api, packages/billing, packages/web (and 2 more tied)"`.
 
-### Per-Sub-package Score Table (D5.1 + D5.3)
+### Per-Sub-package Score Table
 
 Render the table sorted ascending by repo-relative path. Apply display cap = 20 (`monorepo_detection.package_root_caps.display`). The variable `total_filtered = subpackage_coverage.package_roots_total` (= `with_claude_md + without_claude_md` per `checks/per-package-rollup.md` §1.1).
 
@@ -146,7 +146,7 @@ Status values:
 
 When `total_filtered ≤ 20`: render full list, no `(+N more)` notice.
 
-### Section Order (D5.4)
+### Section Order
 
 The audit output sections are ordered summary-first (matching existing root output style at L11-L23):
 
