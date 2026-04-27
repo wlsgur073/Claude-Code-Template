@@ -107,6 +107,57 @@ Generation rules:
 
 **Maturity path and previous-audit comparison:** Always at the very end of the output. Show current maturity level and what condition is needed for the next level. If already Level 3, suggest advanced optimizations (hooks, agents, MCP). If previous audit results exist, append the delta comparison: "Since your last audit (DATE): score changed from X → Y. Resolved: [items]. Still open: [items]."
 
+---
+
+## Sub-package Score Rollup (when monorepo detected)
+
+When `monorepo_detection.detected == true` AND `subpackage_coverage.package_roots_total > 0`, render a Sub-package Score Rollup block AFTER the root Score Breakdown section. This follows the summary-first style of audit output (root summary → details → sub-package summary → sub-package details).
+
+### Rollup Summary Line (D5.2)
+
+```
+Sub-package Score Rollup
+  min={X}, median={Y}, worst={path(s)} ({N} scored, {M} without CLAUDE.md, {K} unscored)
+```
+
+- If `scored_count == 0` (per `checks/per-package-rollup.md` §3): `min=n/a, median=n/a, worst=n/a (0 scored, M without CLAUDE.md, K unscored)`.
+- `K = with_claude_md - scored_count` (unscored due to parse errors / LAV failures).
+- Worst tie format (per `checks/per-package-rollup.md` §2.3): `"<first N tie-sorted paths> (and K-N more tied)"` with N=3 suggested. Example (5 sub-packages tied at `final_score=42`, sorted ascending): `worst = "packages/api, packages/billing, packages/web (and 2 more tied)"`.
+
+### Per-Sub-package Score Table (D5.1 + D5.3)
+
+Render the table sorted ascending by repo-relative path. Apply display cap = 20 (`monorepo_detection.package_root_caps.display`). The variable `total_filtered = subpackage_coverage.package_roots_total` (= `with_claude_md + without_claude_md` per `checks/per-package-rollup.md` §1.1).
+
+```
+Sub-package Scores (showing first 20 of {total_filtered}; ascending by path)
+  Path                          | Status        | Score | Cap | LAV (L1-L6)
+  ------------------------------|---------------|-------|-----|-------------
+  packages/api                  | scored        | 75.5  | 100 | 2,2,1,0,0,1
+  packages/cli                  | no CLAUDE.md  | n/a   | n/a | n/a
+  packages/web                  | unscored      | n/a   | n/a | n/a (parse error)
+  ...
+  (+{total_filtered - 20} more not shown)
+```
+
+Status values:
+- `scored`: sub-package has entry in `subpackages[]` (final_score, cap_tier, lav_breakdown all populated)
+- `no CLAUDE.md`: sub-package has no CLAUDE.md file (counted in `subpackage_coverage.without_claude_md`)
+- `unscored`: sub-package has CLAUDE.md but parse/LAV failure; row omitted from `subpackages[]`, note in `monorepo_detection.notes[]`
+
+When `total_filtered ≤ 20`: render full list, no `(+N more)` notice.
+
+### Section Order (D5.4)
+
+The audit output sections are ordered summary-first (matching existing root output style at L11-L23):
+
+1. Quality Gate + Score (root)
+2. Top 3 Priorities (root)
+3. Score Breakdown (root)
+4. **Sub-package Score Rollup** (only when monorepo detected)
+5. **Per-Sub-package Score Table** (only when monorepo detected)
+
+This places aggregate summary before per-row details at both root and sub-package levels.
+
 ## Early Halt Output
 
 When CLAUDE.md does not exist (T1.1 FAIL), the audit halts immediately. Use this output instead of the standard format:
