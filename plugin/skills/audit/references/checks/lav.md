@@ -14,6 +14,8 @@ LAV evaluates holistic accuracy that **cannot be mechanically verified**. If a d
 
 Mechanical checks and LAV form complementary layers, not redundant penalties.
 
+**Per-package application**: When applied to a sub-package CLAUDE.md during monorepo audit, the boundary rule operates with sub-package T3 detections only. Root T3 detections do NOT suppress sub-package LAV. See `per-package-scoring.md` §2 for the full per-package procedure.
+
 ## Evaluation Structure
 
 Answer each question after reviewing CLAUDE.md against the actual project state:
