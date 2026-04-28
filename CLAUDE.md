@@ -54,6 +54,7 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - `python .github/scripts/check-i18n-parity.py` — confirms i18n directories mirror EN structure (stdlib only)
 - `python .github/scripts/check-json-schemas.py` — validates `plugin.json`, `marketplace.json`, `settings.json` schemas
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
+- `SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" python .github/scripts/check-smoke-fixtures.py` — smoke fixture byte-diff verifier (env var required, value matches `.github/workflows/smoke.yml`)
 - Python inline scripts on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK — default `cp949` codec raises `UnicodeEncodeError`
 
 ### Release Process
