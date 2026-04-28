@@ -1528,6 +1528,7 @@ PROFILE_KEY_ORDER = [
     "testing",
     "build_and_dev",
     "project_structure",
+    "monorepo_detection",
     "claude_code_configuration_state",
 ]
 
@@ -1578,10 +1579,13 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
         "build_and_dev",
         "project_structure",
     ]
+    owned_by_audit_only = [
+        "monorepo_detection",
+    ]
     if current is None:
         current = _empty_profile(delta.get("metadata", {}).get("last_updated", ""))
     merged = json.loads(json.dumps(current))  # deep copy via JSON
-    merged["schema_version"] = "1.1.0"
+    merged["schema_version"] = "1.2.0"
     delta_meta = delta.get("metadata", {})
     existing_meta = merged.setdefault("metadata", {})
     existing_meta["generated_by"] = "guardians-of-the-claude"
@@ -1617,6 +1621,10 @@ def merge_profile(current: dict | None, delta: dict, skill: str) -> dict:
                     ccs_m["model"] = ccs_d["model"]
                 if "scoring_model_ack" in ccs_d:
                     ccs_m["scoring_model_ack"] = ccs_d["scoring_model_ack"]
+    if skill == "audit":
+        for k in owned_by_audit_only:
+            if k in delta:
+                merged[k] = delta[k]
     if skill == "secure":
         if "claude_code_configuration_state" in delta:
             ccs_d = delta["claude_code_configuration_state"]
@@ -1937,15 +1945,19 @@ def handle_audit(ctx: RunContext, state: WorkspaceState) -> WorkspaceState:
             f"- Recommendations: (none)"
         )
         state.changelog = _changelog_with_entry(state.changelog, entry)
-        # Also emit monorepo audit-output.md (disclosure-only).
+        # Emit monorepo audit-output.md per per-package-rollup.md format.
+        # Subpackage Score Rollup section renders when monorepo_detection.detected==true
+        # AND subpackage_coverage.package_roots_total>0 (output-format.md conditional rule).
         audit_output = (
             "# /audit — Monorepo Run\n\n"
             "Root `CLAUDE.md` detected; 2 workspace packages contain their own `CLAUDE.md`.\n\n"
-            "## Additional CLAUDE.md Files\n\n"
-            "Disclosure only — per-package scoring is scheduled for a future audit\n"
-            "release (see `docs/ROADMAP.md` \"Audit v4 Phase 2\").\n\n"
-            "- packages/api/CLAUDE.md (9 lines)\n"
-            "- packages/web/CLAUDE.md (8 lines)\n"
+            "## Subpackage Score Rollup\n\n"
+            "  min=60.0, median=60.0, worst=packages/api, packages/web "
+            "(2 scored, 0 without CLAUDE.md, 0 unscored)\n\n"
+            "| Path | Score | Cap |\n"
+            "|---|---|---|\n"
+            "| packages/api | 60.0 | 100 |\n"
+            "| packages/web | 60.0 | 100 |\n"
         )
         atomic_write_text(ctx.work_dir / "audit-output.md", audit_output)
     # migration fixture: the /audit run doesn't add a changelog entry —
@@ -2075,8 +2087,61 @@ def _audit_detect_profile(ctx: RunContext) -> dict:
                 "source_convention": "packages/",
                 "key_directories": ["packages/api/", "packages/web/"],
             },
+            "monorepo_detection": {
+                "detected": True,
+                "evidence": [
+                    {
+                        "type": "workspace_declaration",
+                        "ecosystem": "node",
+                        "manifest": "package.json",
+                        "field": "workspaces",
+                        "raw_value": ["packages/*"],
+                        "resolved_roots": ["packages/api", "packages/web"],
+                        "resolved_roots_total": 2,
+                        "resolved_roots_truncated": False,
+                    },
+                ],
+                "package_roots": ["packages/api", "packages/web"],
+                "package_roots_for_scoring": ["packages/api", "packages/web"],
+                "package_root_caps": {
+                    "display": 20,
+                    "scored": 50,
+                    "unscored_count_in_view": 0,
+                    "total_filtered": 2,
+                },
+                "notes": [],
+            },
             "claude_code_configuration_state": {
-                "claude_md": {"exists": True, "section_count": 5},
+                "claude_md": {
+                    "exists": True,
+                    "section_count": 5,
+                    "subpackage_coverage": {
+                        "package_roots_total": 2,
+                        "with_claude_md": 2,
+                        "without_claude_md": 0,
+                        "scored_count": 2,
+                    },
+                    "subpackages": [
+                        {
+                            "path": "packages/api",
+                            "claude_md_path": "packages/api/CLAUDE.md",
+                            "final_score": 60.0,
+                            "cap_tier": 100,
+                            "lav_breakdown": {
+                                "L1": 0, "L2": 0, "L3": 0, "L4": 0, "L5": 1, "L6": 0,
+                            },
+                        },
+                        {
+                            "path": "packages/web",
+                            "claude_md_path": "packages/web/CLAUDE.md",
+                            "final_score": 60.0,
+                            "cap_tier": 100,
+                            "lav_breakdown": {
+                                "L1": 0, "L2": 0, "L3": 0, "L4": 0, "L5": 1, "L6": 0,
+                            },
+                        },
+                    ],
+                },
                 "settings_json": {"exists": False, "has_permissions": False},
                 "rules_count": 0,
                 "agents_count": 0,
