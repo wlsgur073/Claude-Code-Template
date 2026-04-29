@@ -92,6 +92,14 @@ def classify_bucket(profile: dict) -> str:
     if lines is None:
         return "Outlier"  # defensive — should not reach here for non-short-circuit samples
 
+    # Outlier (verbose-prose-sparse-config): >=200 lines + zero formal config
+    # Captures projects that consolidate guidance into CLAUDE.md prose rather
+    # than splitting into separate rules/hooks/agents/MCP files. Common in mature
+    # monorepos where the workspace orchestrator's design intent is explained
+    # narratively rather than enforced by per-file config.
+    if lines >= 200 and rules == 0 and hooks == 0 and agents == 0 and mcp == 0:
+        return "Outlier"
+
     # Advanced: 100-250 lines (200-250 exception) + rules>=3 + >=2 of {hooks>=1, agents>=1, MCP>=1, deny>=5}
     if 100 <= lines <= 250 and rules >= 3:
         signal_count = sum([hooks >= 1, agents >= 1, mcp >= 1, deny >= 5])
