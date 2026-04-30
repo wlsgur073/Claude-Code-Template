@@ -133,6 +133,7 @@ If `monorepo_detection.detected == true` AND `monorepo_detection.package_roots_f
 
 1. Read `references/checks/per-package-scoring.md` and execute the per-package scoring procedure for each package root in `monorepo_detection.package_roots_for_scoring[:scored_cap]`.
 2. Read `references/checks/per-package-rollup.md` and emit the rollup output (min, median, worst, coverage counters) per the rendering rules.
+3. **Per-package findings are transient.** Per-package score rows (`subpackages[]`) and coverage counters (`subpackage_coverage`) ARE persisted per `plugin/references/lib/merge_rules.md` `/audit` ownership. Statistical aggregates (`min`, `median`, `worst`) are computed-on-render per `references/checks/per-package-rollup.md` §4 (No Persistence). Any advisory-style observations surfaced for individual subpackages render to terminal output only — they MUST NOT be added to `recommendations.json`. Persistence semantics for per-package recommendations are deferred to a later minor; v2.13.0 maintains a transient-by-default contract for per-subpackage findings.
 
 If `monorepo_detection.detected != true` OR `package_roots_for_scoring[]` is empty, skip Phase 3.6 entirely.
 
