@@ -9,13 +9,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.13.0] - 2026-05-01
+
+### Added
+
+- **Per-package `CLAUDE.md` scoring with rollup output for monorepos.** `/audit` now scores each subpackage `CLAUDE.md` independently using the same LAV/scoring formula and emits a Subpackage Score Rollup section in the audit output (min/median/worst across LAV components + counts of scored / disclosure-only / total subpackages). Subpackages without `CLAUDE.md` contribute to coverage metrics (`scored_count`, `disclosure_only_count`) but no score row. Cap policy: display=20 / scored=50 — projects above the scored cap have remaining subpackages reported as visible unscored counts. Phase 3.6 Per-Package Scoring runs after the root LAV computation; structure is treated as a facet contributing to scoring inputs, not a sole-criterion bucket override. New reference docs: `plugin/skills/audit/references/checks/per-package-scoring.md` (per-package LAV + Score Boost + cap + Final + degraded modes) and `plugin/skills/audit/references/checks/per-package-rollup.md` (rollup format + scored_count=0 fixture handling).
+
+- **Deterministic monorepo detection** codified in `plugin/skills/audit/references/checks/monorepo-detection.md` (217 lines). Workspace-declaration parsing across 14 ecosystems, 7 directory heuristic patterns with High/Medium/Low confidence semantics, a 5-phase algorithm (workspace declaration → disclosure walk inclusion → heuristic → 4-layer filter → cap), a 5-type evidence schema (`workspace_declaration` / `heuristic_signal` / `convention` / `composite_build` / `parse_error`), and cap policy. Detection is deterministic — no LLM-runtime heuristic, no deep manifest parsing beyond declared globs, no cross-ecosystem inference.
+
+- **`profile.json` schema 1.2.0 (additive)** with two new field families:
+  - `project_structure.monorepo_detection { detected, evidence[], package_roots[], package_roots_for_scoring[], package_root_caps, notes[] }` — replaces the v2.10-era fixture-only `is_monorepo` boolean with structured detection output.
+  - `claude_code_configuration_state.claude_md.subpackages[]` — array of `{ path, exists, section_count }` per disclosed subpackage. `/audit` is the sole writer; full-list replace under one Final Phase lock (no per-row partial merge — per-package scores have no historical-trend semantic in this version).
+  - Cross-field type consistency: schema rejects `type:single_project + monorepo_detection.detected:true`; `type:monorepo` requires `detected:true`; `null` only with absent/null detection.
+
+- **`/create` `monorepo_detection` write-precondition decision table** in `plugin/skills/create/SKILL.md`. Documents the merge-rule boundary: `/create` does not author `monorepo_detection` (no write path); `/audit` is the sole writer. Surfaces this contract to future contributors before they add a write path.
+
+- **Outlier rubric — verbose-prose-sparse-config path.** `classify_bucket()` in `ci/scripts/check-audit-goldens.py` now classifies `CLAUDE.md` files with rich prose but minimal mechanical configuration (rules / hooks / agents / MCP all near-zero) as Outlier. Captures real-world projects where the maintainer documented intent extensively but never wired up Claude Code automation surfaces.
+
+- **`audit-goldens` validator monorepo invariants.**
+  - **A8** `monorepo_detection` shape: `detected` boolean + `evidence[]` non-empty disjoint with `package_roots_for_scoring[]` non-empty when `detected:true`.
+  - **A9** `subpackage_coverage` consistency: `scored_count + disclosure_only_count + unscored_count == total_count`.
+  - **A10** per-row subpackage invariants: `section_count >= 0`, `exists` boolean, `path` non-empty string.
+  Conditional on fixture shape — A8/A9/A10 only run when `monorepo_detection.detected:true` to avoid false positives on single-project fixtures.
+
+- **`nrwl/nx` audit-goldens fixture** — first native monorepo with sub-`CLAUDE.md` adoption (`pnpm-workspace.yaml` + `packages/devkit/CLAUDE.md` 62 lines + `packages/nx/src/native/CLAUDE.md` 51 lines). Validates the per-package scoring path with real-world workspace metadata; brings the audit-goldens count to 9 fixtures.
+
+- **`CLAUDE.md` "Verifying Changes Locally"** gains the `SMOKE_PINNED_UTC` env var pin example for `check-smoke-fixtures.py` (matches the value used in `.github/workflows/smoke.yml`). Local validation now reproduces the CI smoke-lane byte-diff verification deterministically.
+
 ### Changed
 
-- **Scoring contract bumped** `audit-score-v4.0.0` → `audit-score-v4.1.0`, triggered by upcoming change in monorepo audit score reporting semantics. Source-of-truth `plugin/references/scoring-model.md` frontmatter updated; 8 audit-goldens + 8 generated profile.json fixtures regenerated to match; 5 hand-authored t6-* fixtures normalized to current contract with `seen_count: 2` (silent steady — isolates banner trigger from drift/silence test scope). Banner trigger fires on next audit run for users on the previous contract — expected behavior. `scoring-model.md` frontmatter version 1.0.1 → 1.0.2.
+- **Scoring contract bumped** `audit-score-v4.0.0` → `audit-score-v4.1.0`, triggered by the monorepo audit reporting semantics change below. Source-of-truth `plugin/references/scoring-model.md` frontmatter updated; 8 audit-goldens + 8 generated profile.json fixtures regenerated to match; 5 hand-authored t6-* fixtures normalized to current contract with `seen_count: 2` (silent steady — isolates banner trigger from drift/silence test scope). Banner trigger fires on next audit run for users on the previous contract — expected behavior. `scoring-model.md` frontmatter version 1.0.1 → 1.0.2.
+
+- **"Monorepo => Outlier" sole short-circuit retired.** Structure now contributes to scoring inputs (subpackage rollup, coverage metrics) instead of forcing the Outlier bucket as a sole criterion. Existing fixtures previously gated by `is_monorepo:true` re-classify via the `claude_md_lines > 250` Outlier path with the same bucket result (validated against `vercel/next-js` — bucket unchanged, score delta = 0). Removes the contract-declaration vs implementation mismatch that the v4.1.0 bump exposed.
+
+- **`/audit` `SKILL.md` — Phase 1.5 expansion + Phase 3.6 hook + always-regenerate list extended.** Phase 1.5 Subpackage Discovery now consumes the manifest list defined in `monorepo-detection.md` (workspace-declaration files across 14 ecosystems + 7 heuristic patterns) instead of a hard-coded subset. Phase 3.6 Per-Package Scoring is invoked after root LAV computation. Always-regenerate list extended to include `subpackages[]` and `monorepo_detection`. **Per-package findings are transient by default** — score rows (`subpackages[]`) and coverage counters (`subpackage_coverage`) persist per `merge_rules.md` `/audit` ownership; advisory-style observations surfaced for individual subpackages render to terminal output only and MUST NOT be added to `recommendations.json`. Statistical aggregates (`min`, `median`, `worst`) are computed-on-render per `per-package-rollup.md` §4. Persistence semantics for per-package recommendations are deferred to a later minor.
+
+- **`output-format.md` Subpackage Score Rollup conditional rendering.** Section renders only when `subpackages[]` non-empty; rollup `total_count` invariant matches `subpackages[].length`. Canonical "Subpackage" heading style applied consistently across `per-package-scoring.md` and `per-package-rollup.md`. New **"Polyglot Example (Mixed Ecosystems)"** subsection demonstrates that the rollup format is ecosystem-agnostic — paths follow each ecosystem's native convention (`crates/<name>` Rust, `packages/<name>` Node, `python/<name>` Python, `services/<name>` heuristic-gated), while the LAV multiplier, cap tiers, and per-row table format render identically across ecosystems.
+
+- **`plugin/references/lib/merge_rules.md`** gains the `/audit`-only ownership entry for `monorepo_detection` + `claude_md.subpackages` + `claude_md.subpackage_coverage` and a `project_structure` consistency precondition. Frontmatter version 1.2.1 → 1.3.0.
+
+- **`plugin/references/learning-system.md`** adds cross-references for `per-package-scoring.md` and `per-package-rollup.md` so downstream skill implementations have a single navigation anchor.
+
+- **JSON Schema architecture extended to `base + v1.0.0 + v1.1.0 + v1.2.0` wrappers.** `profile.schema.base.json` extended with `monorepo_detection` + `subpackages[]` field shapes; `profile.schema.v1.2.0.json` is the new sibling wrapper selecting `unevaluatedProperties: false` at every nested level (continues the v2.12.0 base+wrapper pattern). Dispatchers in `.github/scripts/check-json-schemas.py` and `.github/scripts/check-smoke-fixtures.py` route by `schema_version` literal. `ci/scripts/preflight-schema.py` extended to **10 assertions** covering v1.2.0 closure-coverage gates and cross-field type-consistency rejection.
+
+- **Smoke runner per-skill target-version rule.** `.github/scripts/check-smoke-fixtures.py` now allows different skills within a fixture to emit different `schema_version` values (e.g., `/audit` emits v1.2.0 with `monorepo_detection`; `/secure` and `/optimize` continue at v1.2.0 without authoring those fields per the `/audit`-only ownership rule). Replaces the previous fixture-wide single-version assumption.
+
+- **`audit-goldens` 8 existing fixtures migrated to schema 1.2.0.** Each fixture declares `monorepo_detection` (with `detected:false` + empty evidence/roots arrays for single-project fixtures). Vestigial `is_monorepo` boolean removed from all 8 fixtures.
+
+- **Smoke goldens migrated to schema 1.2.0** across 4 canonical fixtures (`migration` / `beginner-path` / `warm-start` / `monorepo`). State-summary cascade: smoke runner's `Source: profile.json v{schema_version}` inline interpolation propagates the new schema_version into all 4 `state-summary.md` goldens. Same migration applied to 5 t6-* fixtures and 3 t7-* fixtures (8 profile.json + 7 state-summary.md cascade).
+
+### Removed
+
+- **Vestigial `is_monorepo` field** removed from `REQUIRED_PROFILE_KEYS` in `ci/scripts/check-audit-goldens.py` (was a fixture-only flag, never declared in the JSON schema).
+- **`is_monorepo` boolean field** removed from the 8 pre-existing audit-goldens fixtures. Replaced by structured `monorepo_detection`.
+
+### Migration
+
+- **`profile.json` schema auto-upgrade on first writable `/audit` run.** v2.11.x / v2.12.x `local/profile.json` with `schema_version: "1.1.0"` is upgraded to `schema_version: "1.2.0"` on the first writable `/audit` invocation after upgrade. Existing fields are preserved; new fields populated automatically:
+  - `project_structure.monorepo_detection` from manifest scan + heuristic detection per `monorepo-detection.md`.
+  - `claude_code_configuration_state.claude_md.subpackages[]` from disclosure walk (per-subpackage `path` + `exists` + `section_count`).
+
+  Additive-only — no breaking changes to existing field shapes. No manual action required.
+
+- **Single-project users are unaffected.** Schema declares both new field families as optional with empty defaults; existing single-project workflows render `detected:false` / empty `subpackages[]` and continue unchanged.
+
+- **`audit-score-v4.1.0` contract banner.** Users on `audit-score-v4.0.0` (v2.12.x) see the scoring-contract-change banner on their next two `/audit` runs (per the v2.12.0 two-write acknowledgement protocol). Persistence-backed; skipped in stateless mode.
 
 ### Fixed
 
 - **Shipped surface boundary cleanup** (3 files): `plugin/references/lib/state_io.md` and `plugin/references/lib/merge_rules.md` (line 9 each) had a redundant authoritative-source pointer to a maintainer-local document not present in the published tree. The pointer is removed; frontmatter description already provides self-contained intent. `docs/ROADMAP.md` lines 53-54 (Audit v4 forward-plan section) rewritten with version-centric phrasing in place of internal workstream labels — public roadmap now reads correctly without referring to maintainer-internal organizational vocabulary. Frontmatter versions bumped: `state_io.md` 1.0.0 → 1.0.1, `merge_rules.md` 1.2.0 → 1.2.1 (content modification per file-version semver).
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface (per-package scoring + monorepo detection + Subpackage Score Rollup output section + new reference docs + new schema version 1.2.0) without breaking existing skill contracts. Schema 1.2.0 is additive-only.
+
+- **Validation set scope.** v2.13.0 ships per-package scoring with **1 native monorepo sample (`nrwl/nx`)** as initial coverage. Empirical reality: major popular OSS frameworks have effectively 0 sub-`CLAUDE.md` adoption today, so single-sample is acceptable for v2.13.0's initial validation goal. Wider validation (25-40 monorepo candidates across ≥5 ecosystems) is scheduled for v2.13.1.
+
+- **Validation.** 13 validators GREEN on local pre-release sweep: `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-audit-goldens.py` (9/9 with A1-A10), `check-audit-drift-aware.py`, `check-scoring-contract-consistency.py` (canonical = `audit-score-v4.1.0`), `check-scoring-formula.py`, `check-scoring-model-lav-linkage.py`, `check-changelog-parser.py`, `check-sample-list-preconditions.py`, `preflight-schema.py` (10 assertions), `check-smoke-fixtures.py` (4 fixtures GREEN with `SMOKE_PINNED_UTC` pinning), and `lychee` link check.
+
+- **`plugin/.claude-plugin/plugin.json`:** version bumped `2.12.3` → `2.13.0`.
+- **`README.md`:** version badge updated `2.12.3` → `2.13.0`.
+
+- **Change Propagation Checklist followed:** `plugin.json`, `README.md` badge, `CHANGELOG.md`. Fix scopes touched: `plugin/skills/audit/` (SKILL.md + references/checks/* + references/output-format.md), `plugin/skills/create/SKILL.md`, `plugin/references/` (scoring-model.md + learning-system.md + lib/merge_rules.md + lib/state_io.md + schemas/*), `ci/scripts/check-audit-goldens.py`, `.github/scripts/check-smoke-fixtures.py`, `ci/scripts/preflight-schema.py`, `ci/fixtures/audit-goldens/**` (8 migrated + 1 new), `ci/fixtures/migration|beginner-path|warm-start|monorepo/**` (4 smoke fixtures), `ci/fixtures/t6-*/**` + `ci/fixtures/t7-*/**` (8 fixtures). No `security-patterns.md`, no shell-script surface, no i18n mirror updates required (changes are plugin-only — single source).
 
 ## [2.12.3] - 2026-04-26
 
