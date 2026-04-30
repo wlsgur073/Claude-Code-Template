@@ -148,6 +148,26 @@ Status values:
 
 When `total_filtered ≤ 20`: render full list, no `(+N more)` notice.
 
+### Polyglot Example (Mixed Ecosystems)
+
+Subpackage paths follow each ecosystem's native convention — the rollup format is ecosystem-agnostic. The same table renders for projects mixing multiple ecosystems in a single workspace:
+
+```
+Subpackage Score Rollup
+  min=42.0, median=70.4, worst=services/api (4 scored, 1 without CLAUDE.md, 0 unscored)
+
+Subpackage Scores (showing first 20 of 5; ascending by path)
+  Path                          | Status        | Score | Cap | LAV (L1-L6)
+  ------------------------------|---------------|-------|-----|-------------
+  crates/parser                 | scored        | 75.0  | 100 | 2,2,1,0,0,1
+  packages/devkit               | scored        | 72.5  | 100 | 2,2,1,0,0,1
+  python/ml-utils               | scored        | 68.2  | 100 | 2,1,1,0,0,1
+  scripts/build                 | no CLAUDE.md  | n/a   | n/a | n/a
+  services/api                  | scored        | 42.0  | 60  | 2,1,1,0,-3,0
+```
+
+Path conventions illustrated: `crates/<name>` (Rust `Cargo.toml [workspace] members`), `packages/<name>` (Node `package.json workspaces` or `pnpm-workspace.yaml`), `python/<name>` (Python `[tool.uv.workspace] members` or `[tool.hatch.workspace] members`), `services/<name>` (heuristic Medium-confidence pattern per `references/checks/monorepo-detection.md` §2 — gated by ≥2 manifest-bearing subdirectories or co-occurrence with a higher-confidence signal). The LAV multiplier and cap tiers operate identically across ecosystems; only the path strings vary.
+
 ### Section Order
 
 The audit output sections are ordered summary-first (matching existing root output style at L11-L23):
