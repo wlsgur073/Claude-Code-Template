@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- `plugin/references/scoring-model.md` frontmatter 1.0.2 → 1.0.3 — cross-references to `per-package-scoring.md` and `per-package-rollup.md` added adjacent to the Scoring Formula section (downstream skill navigation aid). Edits shipped within the v2.13.0 brand but not captured in that release's CHANGELOG entry; recorded here for documentation completeness.
+
 ## [2.13.0] - 2026-05-01
 
 ### Added
