@@ -1,7 +1,7 @@
 ---
 title: "Monorepo Detection"
 description: "Per-ecosystem workspace declaration parsing rules and detection algorithm for /audit Phase 1.5. Defines parsing rules for 14 ecosystems, heuristic signals, detection algorithm pseudocode, type consistency rules, and cap policy."
-version: "1.0.0"
+version: 1.0.0
 applies_to: "audit-score-v4.1.0"
 ---
 
@@ -98,7 +98,7 @@ When workspace declaration parsing returns zero workspace evidence but the proje
 
 ## §3. Detection Algorithm
 
-The algorithm proceeds in five phases. Phase A iterates ecosystems in deterministic order parsing each workspace declaration; all ecosystems are checked (early exit is forbidden because polyglot monorepos may have multiple declarations). Phase B runs regardless of Phase A — heuristic evidence supplements declarations. Phase A.5 includes every disclosed subpackage CLAUDE.md parent directory in the uncapped candidate root set before filtering. Phase C applies the 4-layer filter (Layer 1 root exclusion implicit; Layer 3 defensive sanity check). Phase D sets `detected` from filtered roots, declarations, or high-confidence heuristics. Phase E applies caps and emits the result.
+The algorithm proceeds in five phases. Phase A iterates ecosystems in deterministic order parsing each workspace declaration; all ecosystems are checked (early exit is forbidden because polyglot monorepos may have multiple declarations). Phase B runs regardless of Phase A — heuristic evidence supplements declarations. Phase B.5 includes every disclosed subpackage CLAUDE.md parent directory in the uncapped candidate root set before filtering. Phase C applies the 4-layer filter (Layer 1 root exclusion implicit; Layer 3 defensive sanity check). Phase D sets `detected` from filtered roots, declarations, or high-confidence heuristics. Phase E applies caps and emits the result.
 
 ```
 function detect_monorepo(project_root):
@@ -154,7 +154,7 @@ function detect_monorepo(project_root):
                          "manifest_bearing_subdirs": len(subdirs)})
         candidate_roots.update(subdirs)
 
-    # Phase A.5: disclosure walk inclusion (subset invariant)
+    # Phase B.5: disclosure walk inclusion (subset invariant)
     for claude_md_path in phase_1_5_disclosure_walk(project_root):
         candidate_roots.add(parent_dir(claude_md_path))
 
@@ -189,7 +189,7 @@ function detect_monorepo(project_root):
     }
 ```
 
-**Phase 1.5 mapping**: candidate roots are the deduplicated union of three sources — workspace-declaration roots (Phase A), accepted heuristic roots (Phase B), and CLAUDE.md disclosure walk parents (Phase A.5). The uncapped filtered root set (Phase C output) MUST include every disclosed subpackage CLAUDE.md parent that passes Layer 2/3/4. `package_roots_for_scoring[]` is the `scored=50` capped prefix; truncation past the cap MUST be surfaced through `package_root_caps` and `notes`. `package_roots[]` is the display-capped prefix of `package_roots_for_scoring[]`.
+**Phase 1.5 mapping**: candidate roots are the deduplicated union of three sources — workspace-declaration roots (Phase A), accepted heuristic roots (Phase B), and CLAUDE.md disclosure walk parents (Phase B.5). The uncapped filtered root set (Phase C output) MUST include every disclosed subpackage CLAUDE.md parent that passes Layer 2/3/4. `package_roots_for_scoring[]` is the `scored=50` capped prefix; truncation past the cap MUST be surfaced through `package_root_caps` and `notes`. `package_roots[]` is the display-capped prefix of `package_roots_for_scoring[]`.
 
 ## §4. Type Consistency Rules
 

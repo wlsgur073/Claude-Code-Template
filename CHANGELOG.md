@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - `plugin/references/scoring-model.md` frontmatter 1.0.2 → 1.0.3 — cross-references to `per-package-scoring.md` and `per-package-rollup.md` added adjacent to the Scoring Formula section (downstream skill navigation aid). Edits shipped within the v2.13.0 brand but not captured in that release's CHANGELOG entry; recorded here for documentation completeness.
 
+- `plugin/skills/audit/references/checks/monorepo-detection.md` §3 sub-step Phase A.5 renamed to Phase B.5 — its position in the algorithm body is between Phase B (heuristic signals) and Phase C (4-layer filter); the prior "A.5" naming implied an A-adjacent position and was inconsistent with the algorithm code order. The 5-phase A/B/C/D/E structure is preserved with B.5 as the disclosure-walk sub-step. Documentation clarity only — algorithm behavior unchanged. The v2.13.0 release note's phase-sequence shorthand reads correctly under the new naming as `workspace declaration → heuristic → disclosure walk inclusion → 4-layer filter → cap`.
+
+- `plugin/skills/audit/references/checks/monorepo-detection.md` frontmatter `version` field unquoted (`"1.0.0"` → `1.0.0`) for stylistic alignment with sibling reference docs (`per-package-rollup.md`, `per-package-scoring.md`). YAML parse-equivalent — no semantic change.
+
 ## [2.13.0] - 2026-05-01
 
 ### Added
