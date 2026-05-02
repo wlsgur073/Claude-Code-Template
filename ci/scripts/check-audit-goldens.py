@@ -7,7 +7,7 @@ Assertions per golden (6 always + A7 self-only + A8/A9/A10 monorepo-only):
   A3: LAV_nonL5 == L1 + L2 + L3 + L4 + L6 (L5 routed via cap tier instead)
   A4: cap matches cap tier rule (60 / 50 / 100)
   A5: re-computed Final matches expected_final_score within +/-0.001
-  A6: expected_bucket matches bucket rubric applied to profile
+  A6: expected_bucket matches bucket rubric (profile + distributed_config monorepo signals)
   A7 (slug == "guardians-of-the-claude"): expected_final_score in [53, 63]
   A8 (monorepo_detection.detected==true only): detection backing + cap invariants
   A9 (monorepo_detection.detected==true only): subpackage_coverage 4-counter invariants
@@ -49,7 +49,7 @@ REQUIRED_PROFILE_KEYS = {
 REQUIRED_SCORING_KEYS = {
     "DS", "SB", "L1", "L2", "L3", "L4", "L5", "L6", "LAV_nonL5", "cap"
 }
-VALID_BUCKETS = {"Starter", "Intermediate", "Advanced", "Outlier"}
+VALID_BUCKETS = {"Starter", "Intermediate", "Advanced", "Outlier", "distributed_config"}
 VALID_CAPS = {50, 60, 100}
 SELF_SLUG = "guardians-of-the-claude"
 SELF_SCORE_MIN = 53.0
@@ -119,6 +119,95 @@ def classify_bucket(profile: dict) -> str:
 
     # Rubric-unmatched (should not occur for curated v2.0.0 samples)
     return "UNMATCHED"
+
+
+def classify_bucket_distributed(data: dict) -> bool:
+    """Apply distributed-config rubric per distributed-config-bucket.md.
+
+    Required (ALL): with_claude_md >= 2 + project_structure.type=monorepo +
+    monorepo_detection.detected=true.
+    Supporting (>=2 of 4): ratio >= 0.5 + lines <= 150 +
+    mean(L6) >= 0.5 + NOT verbose-prose-sparse-config.
+    Exclusion (any -> False): lines > 1000 OR all subpackages final_score < 30.
+    """
+    profile = data["profile"]
+    project_structure = data.get("project_structure", {})
+    monorepo = project_structure.get("monorepo_detection", {})
+    coverage = (
+        data.get("claude_code_configuration_state", {})
+        .get("claude_md", {})
+        .get("subpackage_coverage", {})
+    )
+    subpackages = (
+        data.get("claude_code_configuration_state", {})
+        .get("claude_md", {})
+        .get("subpackages", [])
+    )
+
+    # Required: type=monorepo + detected=true
+    if project_structure.get("type") != "monorepo":
+        return False
+    if not monorepo.get("detected"):
+        return False
+
+    # Required: with_claude_md >= 2
+    with_cm = coverage.get("with_claude_md", 0)
+    if with_cm < 2:
+        return False
+
+    # Exclusion 1: claude_md_lines > 1000
+    lines = profile["claude_md_lines"] or 0
+    if lines > 1000:
+        return False
+
+    # Exclusion 2: all scored subpackages have final_score < 30
+    if subpackages and all(sp.get("final_score", 100) < 30 for sp in subpackages):
+        return False
+
+    # Supporting signals (>=2 of 4)
+    package_roots_total = coverage.get("package_roots_total", 0)
+    signals = 0
+
+    # Signal 1: distributed config ratio
+    if package_roots_total > 0 and with_cm / package_roots_total >= 0.5:
+        signals += 1
+
+    # Signal 2: root CLAUDE.md compactness
+    if lines <= 150:
+        signals += 1
+
+    # Signal 3: subpackage-local actionability (mean L6 >= 0.5 over scored)
+    if subpackages:
+        l6_values = [sp.get("lav_breakdown", {}).get("L6", 0) for sp in subpackages]
+        if l6_values and sum(l6_values) / len(l6_values) >= 0.5:
+            signals += 1
+
+    # Signal 4: verbose-prose-sparse-config exclusion
+    rules = profile["rules_count"] or 0
+    hooks = profile["hooks_count"] or 0
+    agents = profile["agents_count"] or 0
+    mcp = profile["mcp_count"] or 0
+    mechanical_config = rules + hooks + agents + mcp
+    if not (lines > 250 and mechanical_config < 4):
+        signals += 1
+
+    return signals >= 2
+
+
+def classify_bucket_full(data: dict) -> str:
+    """Apply full bucket rubric including distributed_config check.
+
+    Evaluation order (per distributed-config-bucket.md §0):
+    1. Outlier short-circuits + verbose-prose-sparse-config Outlier (via classify_bucket)
+    2. distributed_config (if rubric matches)
+    3. Advanced / Intermediate / Starter / UNMATCHED (existing branches)
+    """
+    profile_bucket = classify_bucket(data["profile"])
+    if profile_bucket == "Outlier":
+        return "Outlier"
+    if classify_bucket_distributed(data):
+        return "distributed_config"
+    return profile_bucket
 
 
 def check_a8_detection_backing(profile: dict) -> tuple[bool, str]:
@@ -299,8 +388,8 @@ def validate_golden(path: Path) -> list[str]:
             f"stored={stored_final} computed={expected_final:.4f}"
         )
 
-    # A6: expected_bucket matches bucket rubric applied to profile
-    computed_bucket = classify_bucket(data["profile"])
+    # A6: expected_bucket matches bucket rubric (incl. distributed_config check)
+    computed_bucket = classify_bucket_full(data)
     stored_bucket = data["expected_bucket"]
     if stored_bucket not in VALID_BUCKETS:
         errors.append(f"{slug} A6: bucket must be in {VALID_BUCKETS}; got {stored_bucket!r}")

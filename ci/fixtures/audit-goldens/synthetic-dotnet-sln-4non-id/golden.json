@@ -28,9 +28,9 @@
     "LAV_nonL5": 6,
     "cap": 100
   },
-  "expected_bucket": "Advanced",
+  "expected_bucket": "distributed_config",
   "expected_final_score": 63.6,
-  "bucket_rationale": "Advanced per bucket rubric: 180 lines in [100, 250] range + rules_count 4 >= 3 + signal_count = (hooks_count >= 1) + (deny_count >= 5) = 2 >= 2 (hooks_count 1, deny_count 5). Labeled synthetic .NET solution with 4 csproj sub-packages declared in Solution.sln (canonical .sln format). All 4 sub-packages have CLAUDE.md (with_claude_md=4, scored_count=4 = 100% adoption). Subpackage final_scores 90.0 / 75.0 / 60.0 / 40.0 are pairwise distinct (median between mid pair = 67.5, mean = 66.25). LAV: L1=+2 (.NET target framework + project type claims documented), L2=+2 (concrete project dependency graph examples), L3=+1 (.NET gotchas like Solution Folder vs project distinction), L6=+1 (concrete dotnet commands e.g., 'dotnet test Solution.sln --filter Category=Unit'). source_type=synthetic; labeled and excluded from empirical OSS denominators. First audit-goldens fixture using the Advanced bucket.",
+  "bucket_rationale": "distributed_config per distributed-config-bucket.md rubric: monorepo type + detected=true + with_claude_md=4>=2 (required conditions PASS). Supporting signals 3/4: ratio 4/4=1.0>=0.5 + root claude_md_lines 180>150 (compactness signal fails) + mean L6 over scored=3/4=0.75>=0.5 (A/B/C L6=1, D L6=0) + verbose-prose-sparse-config exclusion holds (180<=250). Exclusions both clear (lines<=1000, no scored final<30). Labeled synthetic .NET solution with 4 csproj sub-packages declared in Solution.sln (canonical .sln format). All 4 sub-packages have CLAUDE.md (with_claude_md=4, scored_count=4 = 100% adoption). Subpackage final_scores 90.0 / 75.0 / 60.0 / 40.0 are pairwise distinct (median between mid pair = 67.5, mean = 66.25). LAV: L1=+2 (.NET target framework + project type claims documented), L2=+2 (concrete project dependency graph examples), L3=+1 (.NET gotchas like Solution Folder vs project distinction), L6=+1 (concrete dotnet commands e.g., 'dotnet test Solution.sln --filter Category=Unit'). source_type=synthetic; labeled and excluded from empirical OSS denominators. Reclassified from Advanced to distributed_config at v2.13.1 introduction of distributed_config bucket.",
   "project_structure": {
     "type": "monorepo",
     "monorepo_detection": {

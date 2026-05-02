@@ -28,9 +28,9 @@
     "LAV_nonL5": 4,
     "cap": 100
   },
-  "expected_bucket": "Intermediate",
+  "expected_bucket": "distributed_config",
   "expected_final_score": 50.6,
-  "bucket_rationale": "Intermediate per bucket rubric: 140 lines in [60, 200] range + rules_count 3 in [2, 5] + hooks_count 1 in [1, 2] + agents_count 0 <= 1 + mcp_count 0 <= 1. Advanced not triggered: signal_count = (hooks>=1)=1 + (deny>=5)=0 = 1 < 2 (deny_count 3 below threshold). Labeled synthetic Python uv workspace declaring 5 sub-packages via [tool.uv.workspace] members ('packages/foo' through 'packages/quux'). 3 sub-CLAUDE.md (foo + bar + baz with diverse final_scores 80.0 / 65.0 / 45.0 demonstrating per-package variance), 2 without (qux + quux). LAV: L2=+2 (concrete uv workspace usage examples in CLAUDE.md), L3=+1 (Python packaging gotchas documented — uv lockfile resolution + workspace dependency edge cases), L6=+1 (concrete uv invocations e.g., 'uv run --package foo pytest'). source_type=synthetic; labeled and excluded from empirical OSS denominators. scored_count=3 demonstrates non-trivial multi-package CLAUDE.md coverage with per-package score variance.",
+  "bucket_rationale": "distributed_config per distributed-config-bucket.md rubric: monorepo type + detected=true + with_claude_md=3>=2 (required conditions PASS). Supporting signals 4/4: ratio 3/5=0.6>=0.5 + root claude_md_lines 140<=150 + mean L6 over scored=2/3=0.67>=0.5 (foo L6=1, bar L6=1, baz L6=0) + verbose-prose-sparse-config exclusion holds (140<=250). Exclusions both clear (lines<=1000, no scored final<30). Labeled synthetic Python uv workspace declaring 5 sub-packages via [tool.uv.workspace] members ('packages/foo' through 'packages/quux'). 3 sub-CLAUDE.md (foo + bar + baz with diverse final_scores 80.0 / 65.0 / 45.0 demonstrating per-package variance), 2 without (qux + quux). LAV: L2=+2 (concrete uv workspace usage examples in CLAUDE.md), L3=+1 (Python packaging gotchas documented — uv lockfile resolution + workspace dependency edge cases), L6=+1 (concrete uv invocations e.g., 'uv run --package foo pytest'). source_type=synthetic; labeled and excluded from empirical OSS denominators. Reclassified from Intermediate to distributed_config at v2.13.1 introduction of distributed_config bucket.",
   "project_structure": {
     "type": "monorepo",
     "monorepo_detection": {

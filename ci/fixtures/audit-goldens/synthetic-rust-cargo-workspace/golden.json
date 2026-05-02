@@ -28,9 +28,9 @@
     "LAV_nonL5": 2,
     "cap": 100
   },
-  "expected_bucket": "Intermediate",
+  "expected_bucket": "distributed_config",
   "expected_final_score": 38.4,
-  "bucket_rationale": "Intermediate per bucket rubric: 120 lines in [60, 200] range + rules_count 2 in [2, 5] + agents_count 0 <= 1 + mcp_count 0 <= 1. Labeled synthetic Rust cargo workspace with 3 sub-crates (foo + bar + baz), 2 with sub-CLAUDE.md (foo + bar), 1 without (baz). T1.1-T1.3 PASS (cargo build/test commands documented at root). T2.1 PARTIAL (single deny pattern). T3.4 PARTIAL (2 rules in plugin/skills/audit/references/checks/-style structure). LAV: L3=+1 (Rust workspace gotchas like target-dir conflict documented), L6=+1 (concrete cargo invocations e.g., 'cargo test --workspace --all-features'). source_type=synthetic; labeled and excluded from empirical OSS denominators.",
+  "bucket_rationale": "distributed_config per distributed-config-bucket.md rubric: monorepo type + detected=true + with_claude_md=2>=2 (required conditions PASS). Supporting signals 4/4: ratio 2/3=0.67>=0.5 + root claude_md_lines 120<=150 + mean L6 over scored=0.5>=0.5 (foo L6=1, bar L6=0) + verbose-prose-sparse-config exclusion holds (120<=250). Exclusions both clear (lines<=1000, no scored final<30). Labeled synthetic Rust cargo workspace with 3 sub-crates (foo + bar + baz), 2 with sub-CLAUDE.md, 1 without (baz). LAV: L3=+1 (Rust workspace gotchas like target-dir conflict documented), L6=+1 (concrete cargo invocations e.g., 'cargo test --workspace --all-features'). source_type=synthetic; labeled and excluded from empirical OSS denominators. Reclassified from Intermediate to distributed_config at v2.13.1 introduction of distributed_config bucket.",
   "project_structure": {
     "type": "monorepo",
     "monorepo_detection": {
