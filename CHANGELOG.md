@@ -7,15 +7,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.13.1] - 2026-05-02
+
+### Added
+
+- **6 synthetic monorepo audit-goldens fixtures** covering 6 ecosystems with the `synthetic/` slug prefix and `source_type=synthetic` labeling (excluded from empirical OSS denominators per scoring-model semantics):
+  - `synthetic-rust-cargo-workspace` (Rust): `Cargo.toml [workspace] members` declares 3 sub-crates, 2 with sub-CLAUDE.md
+  - `synthetic-go-work-monorepo` (Go): `go.work` declares 2 sub-modules, 0 with sub-CLAUDE.md (low-adoption baseline)
+  - `synthetic-gradle-composite` (Java/Gradle): `settings.gradle.kts` mixes `includeBuild('build-logic')` with multi-project `include(':app', ':lib')` — first audit-goldens fixture exercising the `composite_build` evidence type
+  - `synthetic-python-uv-workspace` (Python): `pyproject.toml [tool.uv.workspace] members` declares 5 sub-packages, 3 with sub-CLAUDE.md (diverse final_scores 80/65/45 demonstrating per-package variance)
+  - `synthetic-dotnet-sln-4non-id` (.NET): `Solution.sln` declares 4 csproj sub-projects, all 4 with sub-CLAUDE.md (pairwise distinct final_scores 90/75/60/40 — non-identical even-count distribution exercising the per-package-rollup median-of-evens path)
+  - `synthetic-tied-worst-rollup-k4` (Rust): `Cargo.toml [workspace] members` declares 4 sub-crates, all 4 with sub-CLAUDE.md tied at final_score 60.0 — exercises the `(and K-N more tied)` rollup display path per `per-package-rollup.md` §2.3 with K=4, N=3
+  - `nrwl/nx` Node baseline retained from v2.13.0
+
+- **Detection probe fixture infrastructure** — 56 fixtures across 14 ecosystems organized into three tiers under `ci/fixtures/detection-probe/` (Tier A 29 fixtures across Node + Rust + Go + Python + Maven + Gradle + dual-role-manifest scenarios; Tier B 14 fixtures across .NET + Elixir + Swift + Ruby; Tier C 13 fixtures across C/C++ + Dart + Erlang + Haskell). Each fixture exercises `monorepo-detection.md` parsing rules with positive / negative / edge-case scenarios. New validator `ci/scripts/check-detection-probe.py` wired into CI as 18th job validating fixture schema invariants.
+
+- **`distributed_config` bucket rubric** in `plugin/skills/audit/references/checks/distributed-config-bucket.md` (NEW shipped, ~81 lines). Required conditions (`with_claude_md >= 2` + `project_structure.type == "monorepo"` + `monorepo_detection.detected == true`), 4 supporting signals with `>=2` threshold (distributed config ratio `>= 0.5`, root CLAUDE.md compactness `<= 150` lines, mean L6 actionability ratio `>= 0.5` over scored subpackages, verbose-prose-sparse-config exclusion), exclusion conditions (excessive root `> 1000` lines, all scored subpackages `final_score < 30`), and advisory numeric guardrails (`with_claude_md ∈ [3, 20]`, `distributed_config_ratio ∈ [0.5, 1.0]`). Captures monorepos that distribute Claude Code configuration across sub-package CLAUDE.md files rather than centralizing in root.
 
 ### Changed
 
-- `plugin/references/scoring-model.md` frontmatter 1.0.2 → 1.0.3 — cross-references to `per-package-scoring.md` and `per-package-rollup.md` added adjacent to the Scoring Formula section (downstream skill navigation aid). Edits shipped within the v2.13.0 brand but not captured in that release's CHANGELOG entry; recorded here for documentation completeness.
+- **`classify_bucket()` extension** in `ci/scripts/check-audit-goldens.py`. New `classify_bucket_full(data: dict) -> str` orchestrator wraps existing `classify_bucket(profile: dict) -> str` (signature preserved, backward compatible). Evaluation order: Outlier short-circuits + verbose-prose-sparse-config Outlier → `distributed_config` (NEW, applied via `classify_bucket_distributed(data: dict) -> bool`) → Advanced/Intermediate/Starter. `VALID_BUCKETS` set extended with `"distributed_config"`. `validate_golden()` now calls `classify_bucket_full(data)` so the A6 bucket-rubric assertion covers all paths.
+
+- **3 audit-goldens fixtures reclassified** to `distributed_config` per the new rubric. Each fixture's `expected_bucket` and `bucket_rationale` updated:
+  - `synthetic-rust-cargo-workspace`: Intermediate → distributed_config (4/4 supporting signals — ratio 0.67, compactness 120 lines, mean L6 0.5, verbose-prose-sparse-config exclusion holds)
+  - `synthetic-python-uv-workspace`: Intermediate → distributed_config (4/4 supporting signals — ratio 0.6, compactness 140 lines, mean L6 0.67, verbose-prose-sparse-config exclusion holds)
+  - `synthetic-dotnet-sln-4non-id`: Advanced → distributed_config (3/4 supporting signals — ratio 1.0, mean L6 0.75, verbose-prose-sparse-config exclusion holds; root compactness signal fails at 180 > 150)
+
+- `plugin/references/scoring-model.md` frontmatter `1.0.2` → `1.0.3` — cross-references to `per-package-scoring.md` and `per-package-rollup.md` added adjacent to the Scoring Formula section (downstream skill navigation aid). Edits shipped within the v2.13.0 brand but not captured in that release's CHANGELOG entry; recorded here for documentation completeness.
 
 - `plugin/skills/audit/references/checks/monorepo-detection.md` §3 sub-step Phase A.5 renamed to Phase B.5 — its position in the algorithm body is between Phase B (heuristic signals) and Phase C (4-layer filter); the prior "A.5" naming implied an A-adjacent position and was inconsistent with the algorithm code order. The 5-phase A/B/C/D/E structure is preserved with B.5 as the disclosure-walk sub-step. Documentation clarity only — algorithm behavior unchanged. The v2.13.0 release note's phase-sequence shorthand reads correctly under the new naming as `workspace declaration → heuristic → disclosure walk inclusion → 4-layer filter → cap`.
 
 - `plugin/skills/audit/references/checks/monorepo-detection.md` frontmatter `version` field unquoted (`"1.0.0"` → `1.0.0`) for stylistic alignment with sibling reference docs (`per-package-rollup.md`, `per-package-scoring.md`). YAML parse-equivalent — no semantic change.
+
+### Notes
+
+- **SemVer rationale.** Patch (z) — adds new fixtures, new shipped rubric doc, and validator extension via wrapper pattern that preserves existing function signatures (backward compatible). No new user-callable skill surface, no breaking schema changes, no migration required for existing users. Per CLAUDE.md release process: patch covers fixes and platform-compat work; this release also covers test-surface expansion and validator additivity which fits the patch envelope (no contract change).
+
+- **Validation set scope.** Empirical measurement of 10 OSS monorepo candidates was conducted, with 6 accepted and 4 rejected per detection criteria. The "popular OSS monorepo + root CLAUDE.md" intersection was found near-empty in 2026 (`nrwl/nx` is the lone real-OSS exemplar across the candidate set + existing audit-goldens). All 6 new fixtures in v2.13.1 are labeled synthetic, excluded from empirical OSS denominators per scoring-model semantics. The synthetic fixture set provides three distinct cardinality coverage areas: ≥2 fixtures with `scored_count >= 3` (synthetic-python-uv 3 + synthetic-dotnet 4 + synthetic-tied 4), ≥1 fixture with even-count `scored_count` of 4 with non-identical middle values (synthetic-dotnet 90/75/60/40), and ≥1 fixture K≥4 worst-tie (synthetic-tied uniform 60/60/60/60).
+
+- **Bucket distribution.** Post-v2.13.1 audit-goldens count is 15 fixtures across 5 buckets — Outlier×6 (5 baseline + synthetic-tied-worst-rollup-k4), Intermediate×3 (2 baseline + synthetic-gradle-composite), Starter×3 (2 baseline + synthetic-go-work-monorepo), distributed_config×3 (synthetic-rust-cargo-workspace + synthetic-python-uv-workspace + synthetic-dotnet-sln-4non-id), Advanced×0 (no fixtures meet the Advanced rubric thresholds — empirical OSS reality preserved).
+
+- **Validation.** 13 validators GREEN on local pre-release sweep: `check-frontmatter-parity.py`, `check-i18n-parity.py`, `check-json-schemas.py`, `check-audit-goldens.py` (15/15 with A1-A10), `check-detection-probe.py` (56 fixtures schema-valid), `check-audit-drift-aware.py`, `check-scoring-contract-consistency.py` (canonical = `audit-score-v4.1.0`), `check-scoring-formula.py`, `check-scoring-model-lav-linkage.py`, `check-changelog-parser.py`, `check-sample-list-preconditions.py`, `preflight-schema.py` (10 assertions), `check-smoke-fixtures.py` (4 fixtures GREEN with `SMOKE_PINNED_UTC` pinning).
+
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.13.0` → `2.13.1`.
+- `README.md`: version badge updated `2.13.0` → `2.13.1`.
+
+### Per-fixture score matrix
+
+| Fixture | Bucket (v2.13.1) | Baseline (v2.13.0) | v2.13.1 | Delta | New | Reason |
+|---|---|---|---|---|---|---|
+| exa-networks-exabgp | Outlier | 22.68 | 22.68 | 0.0 | no | Bucket and score unchanged |
+| guardians-of-the-claude | Outlier | 60.112 | 60.112 | 0.0 | no | Self-reference, bucket and score unchanged |
+| nrwl-nx | Outlier | 46.84 | 46.84 | 0.0 | no | Verbose-prose-sparse-config Outlier path takes precedence over distributed_config check (lines 226 + zero mechanical config) |
+| rilldata-rill | Intermediate | 26.168 | 26.168 | 0.0 | no | Bucket and score unchanged |
+| stacksjs-ts-collect | Starter | 4.16 | 4.16 | 0.0 | no | Bucket and score unchanged |
+| the-cafe-git-ai-commit | Starter | 9.152 | 9.152 | 0.0 | no | Bucket and score unchanged |
+| ubolonton-emacs-module-rs | Intermediate | 27.536 | 27.536 | 0.0 | no | Bucket and score unchanged |
+| vercel-next-js | Outlier | 25.6 | 25.6 | 0.0 | no | Bucket and score unchanged |
+| wesm-moneyflow | Outlier | 48.38 | 48.38 | 0.0 | no | Bucket and score unchanged |
+| synthetic-go-work-monorepo | Starter | new | 12.0 | new | yes | Synthetic Go workspace fixture; with_claude_md=0 fails distributed_config required condition (>=2) |
+| synthetic-gradle-composite | Intermediate | new | 43.6 | new | yes | Synthetic Gradle composite-build fixture; with_claude_md=1 fails distributed_config required condition (>=2) |
+| synthetic-rust-cargo-workspace | distributed_config | new | 38.4 | new | yes | Synthetic Rust cargo workspace fixture; reclassified from Intermediate (4/4 supporting signals) |
+| synthetic-python-uv-workspace | distributed_config | new | 50.6 | new | yes | Synthetic Python uv workspace fixture; reclassified from Intermediate (4/4 supporting signals) |
+| synthetic-dotnet-sln-4non-id | distributed_config | new | 63.6 | new | yes | Synthetic .NET solution fixture; reclassified from Advanced (3/4 supporting signals; root compactness fails at 180 > 150) |
+| synthetic-tied-worst-rollup-k4 | Outlier | new | 45.2 | new | yes | Synthetic Rust cargo workspace K=4 worst-tie fixture; verbose-prose-sparse-config Outlier path (lines=220 + zero mechanical config) precedes distributed_config check |
 
 ## [2.13.0] - 2026-05-01
 
