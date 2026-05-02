@@ -320,3 +320,23 @@ jobs:
 
       - name: Run scoring-contract consistency validator
         run: python ci/scripts/check-scoring-contract-consistency.py
+
+  detection-probe-check:
+    name: Detection probe fixture schema check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Check detection probe fixtures
+        run: |
+          python ci/scripts/check-detection-probe.py || EXIT_CODE=$?
+          EXIT_CODE=${EXIT_CODE:-0}
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "::warning::ci/fixtures/detection-probe/ not found; detection-probe check skipped."
+            exit 0
+          fi
+          exit "$EXIT_CODE"
