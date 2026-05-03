@@ -141,9 +141,9 @@ Check if `<project-root>/sprint-contract.md` exists.
   there). No further action needed in Phase 2B.
 - **If no** → proceed to Question B1.
 
-If proceeding past Step A, ask both questions in sequence — capture user
-responses for Phase 3A generation. If the user provides empty answers,
-record placeholder fallback values explicitly.
+If proceeding past the existence check, ask both questions in sequence —
+capture user responses for Phase 3A generation. If the user provides
+empty answers, record placeholder fallback values explicitly.
 
 ### Question B1: In Scope
 
