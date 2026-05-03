@@ -1,5 +1,5 @@
 # CLAUDE.md
-<!-- Last reviewed: 2026-04-22 -->
+<!-- Last reviewed: 2026-05-03 -->
 
 This is a documentation and template repository — no application source code and no runtime build system, but CI validates it via Python structural checks (frontmatter parity, i18n parity, JSON schemas), shellcheck, link checking, and an LLM-output eval framework in `test/`. Its purpose is to teach developers how to configure Claude Code for their own projects.
 
@@ -61,8 +61,11 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 
 - **SemVer:** patch (z) for fixes and platform-compat work (e.g., adding a `.ps1` companion to an existing `.sh` hook — no new user-callable surface); minor (y) only when adding user-callable surface (new skill, new SKILL.md frontmatter field, new template variant, new `/audit` flag); major (x) for breaking contract changes
 - **GitHub Release title:** version only (`vX.Y.Z`) — no subtitle or theme. **Body:** `## Highlights` section with 3–5 short pointer bullets summarizing the release, followed by `**Full details:** [CHANGELOG — vX.Y.Z](<anchor URL>)`. CHANGELOG.md remains the source of truth for full rationale, validation, and notes — the release body is intentionally minimal to avoid redundancy. No `## Summary` prose, no self-curated "What's new" headers, no emojis. Anchor URL format: `https://github.com/<owner>/<repo>/blob/main/CHANGELOG.md#<slug>` where `<slug>` is the GitHub slug of `[X.Y.Z] - YYYY-MM-DD` (drop `[`, `]`, `.`; spaces → hyphens; lowercase). Past releases set the pattern: `gh release view <prev> --json name,body`
-- **`gh release` with markdown body:** HEREDOC breaks on backticks and special chars in markdown — always write notes to a temp file and pass with `-F <file>`, then delete the file. Full sequence: stage specific files → commit → `git tag vX.Y.Z` → push commits → push tag → `gh release create vX.Y.Z --title "vX.Y.Z" -F notes.md`
+- **`gh release` with markdown body:** HEREDOC breaks on backticks and special chars in markdown — always write notes to a temp file and pass with `-F <file>`, then delete the file. Full sequence: stage specific files → commit → `git tag -a vX.Y.Z -m "vX.Y.Z — <feature>"` (annotated, not lightweight) → `git push --follow-tags origin main` (atomic commits+tag push) → `gh release create vX.Y.Z --title "vX.Y.Z" -F notes.md`
 - **CHANGELOG `## [Unreleased]` bucket:** post-release docs/i18n fixes accumulate in a `## [Unreleased]` section at the top of CHANGELOG. Each fix commit includes its own Unreleased entry (atomic, self-describing). At next patch release, rename `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`. Promote triggers: security-adjacent fix lands → release immediately; 5+ accumulated items or 30+ days stale → suggest release.
+- **Pre-push self-regression grep:** before `git push --follow-tags`, grep working tree for retired vocab from same-cycle renames (heading labels, retired internal IDs) — catches incomplete cascades that escape per-task review. Cheap insurance vs forced post-push fix-up commit.
+- **Annotated tag SHA verify post-push:** `git ls-remote --tags origin v<tag>` SHA must equal local `git rev-parse v<tag>` (the annotated tag object SHA, not `^{commit}` peeled). Mismatch indicates the annotation didn't propagate — re-push with `git push origin refs/tags/v<tag>` to fix.
+- **`eval-manifest.json` sealed at v2.11.0:** the file froze at maintainer signoff 2026-04-16 and v2.12.0–v2.14.0 releases skipped entry-add. Release plans that stipulate updating this file should follow precedent (skip) unless smoke-runner re-execution actually occurs.
 
 ## Plugin Development Rules
 
