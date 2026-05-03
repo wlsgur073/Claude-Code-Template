@@ -7,6 +7,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.14.0] - YYYY-MM-DD
+
+### Added
+
+- **Sprint Contract artifact** — `/create` Advanced path now generates a
+  `sprint-contract.md` file at the project root, capturing the user's
+  scope commitments for the current work cycle. Schema: YAML frontmatter
+  (`title`, `description`, `version`) + boundary sentence + `## In Scope`
+  section (flat bullets, bold noun phrase + clarifying sentence) +
+  `## Deferred` section (each item with `Reason: ...`). Independent semver
+  starting `1.0.0`.
+- **Phase 2B negotiation step** in `/create` Advanced path — two
+  conversational questions (In Scope / Deferred) inserted between Phase 2A
+  questions and Phase 3A generation. Empty user responses fall back to
+  explicit placeholders (`- Initial setup — to be defined` /
+  `- None recorded during initial setup`). Zero-options principle
+  preserved (no flags, no `$ARGUMENTS`).
+- **Phase 2A-Incremental gap detection** — existing-project re-run now
+  scans for `sprint-contract.md` presence and offers it as missing-item
+  option (g) when absent.
+- **i18n templates** — `sprint-contract.md` template added in EN
+  (`templates/advanced/`) plus ko-KR and ja-JP mirrors under
+  `docs/i18n/<lang>/templates/advanced/`.
+
+### Changed
+
+- `plugin/skills/create/templates/advanced.md`: new Phase 2B inserted
+  between Phase 2A and Phase 3A; Phase 3A "Always generate" gains
+  `sprint-contract.md` write step (Advanced path only); Phase 2A-Incremental
+  scan list and missing-items checklist updated to include
+  `sprint-contract.md`.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.13.1` → `2.14.0`.
+- `README.md`: version badge updated `2.13.1` → `2.14.0`.
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface (`/create` Advanced Phase 2B negotiation step + `sprint-contract.md` artifact + Phase 2A-Incremental gap detection of the new file) without breaking existing skill contracts. Starter path is zero-impact; existing Advanced workflows gain two new conversational questions and one new generated file. No schema changes, no breaking field shapes.
+- **Static lifecycle** — `sprint-contract.md` is user-managed after
+  creation. `/audit`, `/secure`, and `/optimize` do NOT interact with the
+  file. User edits manually if scope evolves.
+- **Starter zero-impact** — Starter path generates no `sprint-contract.md`.
+  Verified via existing `beginner-path` smoke fixture (negative assertion
+  implicit — Starter fixture's expected output does not include
+  `sprint-contract.md`).
+- **No new CI surface** — `sprint-contract.md` is markdown free-form content
+  (no JSON schema). Existing validators absorb the new files automatically:
+  `check-frontmatter-parity.py` + `check-i18n-parity.py` enforce the
+  EN/ko-KR/ja-JP parity invariants on the trio, `check-skill-stability.py`
+  covers the `advanced.md` Phase 2B edits, `check-json-schemas.py` validates
+  the `plugin.json` version bump, and `check-changelog-parser.py` validates
+  this entry. No new validator script added.
+- **Idempotency** — re-running `/create` Advanced on a project with existing
+  `sprint-contract.md` preserves the file (skips negotiation, emits 1-line
+  terminal notice).
+- **profile.json schema unchanged** — `sprint-contract.md` presence is NOT
+  tracked in `profile.json` (standalone artifact, no skill state-machine
+  coupling). Future `/audit`-based features that want to read scope content
+  will use filesystem-direct access.
+- **Forward-compatible versioning** — `sprint-contract.md` frontmatter starts
+  at `1.0.0`. Future additive changes (e.g., parse anchors for downstream
+  feature integration) are minor `1.x.0` bumps.
+
 ## [2.13.1] - 2026-05-02
 
 ### Added
