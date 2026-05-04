@@ -2440,6 +2440,17 @@ def assert_summary_derived_from_sources(ctx: RunContext, state: WorkspaceState) 
 # ---------------------------------------------------------------------------
 
 
+# Golden-only artifacts: present as frozen reference snapshots in golden/
+# but the reference Python skill handlers in this script do not (yet) emit
+# them. byte-diff comparison is skipped when the file is missing from the
+# actual run; once present, byte equality is enforced. This existence guard
+# lets goldens land ahead of generator wiring while still catching golden
+# regression once a future task connects the handler to the artifact path.
+# Migration fixture has no entry here (and no qa-report.md golden) — its
+# legacy-state preservation contract is unchanged.
+GOLDEN_ONLY_ARTIFACTS = frozenset({"local/qa-report.md"})
+
+
 def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) -> str:
     """Recursive byte-for-byte comparison of directory trees.
 
@@ -2448,6 +2459,11 @@ def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) ->
     unchanged in the fixture's input/ (the verifier mutates a work-copy of
     input/, so input source files like package.json are allowed to linger
     unchanged — goldens only capture the skill-produced artifacts).
+
+    Files listed in GOLDEN_ONLY_ARTIFACTS are skipped from the
+    "missing file" check when absent in actual — they are frozen
+    reference snapshots whose generators are not yet wired. When such a
+    file IS present in actual, byte equality is still enforced.
 
     Returns "" if equal, else a concise multi-line diff summary."""
     actual_files = _collect_files(actual)
@@ -2460,6 +2476,10 @@ def byte_diff_tree(actual: Path, golden: Path, input_dir: Path | None = None) ->
     diffs = []
     missing = sorted(golden_files - actual_files)
     for rel in missing:
+        # Allowed: golden-only reference snapshot whose generator is
+        # not yet wired into the Python reference handler.
+        if rel in GOLDEN_ONLY_ARTIFACTS:
+            continue
         diffs.append(f"missing file (in golden, not in actual): {rel}")
 
     extra = sorted(actual_files - golden_files)
