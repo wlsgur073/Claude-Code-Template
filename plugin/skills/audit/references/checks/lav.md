@@ -78,3 +78,11 @@ LAV Findings:
 ```
 
 If all LAV items score above 0, output: "LAV: No accuracy issues found."
+
+## Counterfactual Generation (per-item, post-score)
+
+Immediately after committing each L1-L6 score, derive a single-evidence counterfactual to the next higher band. "Material" = next-band reach achievable by ONE evidence item (one of: H2/H3 ≤10 lines project-specific; named command + flags + path; correctly-named directory or file path; deduplicated bullets or removed redundant section). If 2+ evidence items required, mark immaterial.
+
+**Score immutability (mandatory)**: counterfactual analysis MUST NOT change the just-committed L1-L6 score. If the counterfactual derivation suggests a different numeric score, that suggestion is discarded — the original score stands. Re-scoring at counterfactual-generation time is forbidden.
+
+Output format per item: `{score: <committed>, counterfactual: <"Score would reach +X if CLAUDE.md cited [evidence type]" or "immaterial">}`. Use hypothetical-observation phrasing only — imperative verbs directing the user to take an action are forbidden.
