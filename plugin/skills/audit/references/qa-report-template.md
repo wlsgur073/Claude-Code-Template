@@ -6,7 +6,17 @@ version: "1.0.0"
 
 # qa-report.md Render Template
 
-`qa-report.md` is a post-audit transparency artifact written to `local/qa-report.md`. Sections 1-4 always render; section 5 conditional per sprint-contract parser branches.
+`qa-report.md` is a post-audit transparency artifact written to `local/qa-report.md`. Sections 1-4 always render; Section 5 conditional per sprint-contract parser branches.
+
+## Section List Invariance
+
+`qa-report.md` section *content* adapts to audit data per the per-section rules below, but the section list itself is fixed in order. Forbidden by spec:
+
+- Omitting any of sections 1-4.
+- Reordering any section.
+- Adding new top-level sections by audit input.
+
+The only allowed section-list variation is Section 5: Sprint Contract Coverage, which renders if and only if the sprint-contract parser reaches B4 (valid) or B2 (frontmatter advisory). Otherwise omitted.
 
 ## Frontmatter (always emitted at top)
 
@@ -58,7 +68,7 @@ Single-row table. Columns: Final, Bucket, DS, SB, LAV_nonL5, cap.
 
 ## Section 3 — Bucket Rationale (always)
 
-Narrative paragraph citing the bucket-rubric path that produced the live classification. Reference the live classifier (`Final` and `Bucket` from Section 1), not fixture vocabulary.
+1-3 sentences citing the bucket-rubric path that produced the live classification. Reference the live classifier (`Final` and `Bucket` from Section 1), not fixture vocabulary.
 
 ## Section 4 — Recommendations Linkage (always, 3-state branch)
 
@@ -66,7 +76,7 @@ Branches by `local/recommendations.json` state. MUST NOT enumerate or paraphrase
 
 | State | Detection | Rendered text |
 |---|---|---|
-| Valid with entries | exists + parses + ≥1 entry | Single bullet pointer to `local/recommendations.json` |
+| Valid with entries | exists + parses + ≥1 entry | "- See `local/recommendations.json` for active recommendations." |
 | Valid empty | exists + parses + `recommendations: []` | "No active recommendations." |
 | Absent / unreadable / stateless | missing OR parse fail OR stateless mode | "Recommendation state unavailable for this report." |
 
@@ -90,7 +100,13 @@ Zero-alignment fallback: render table with all `—` entries plus footer line *"
 
 ## Negative-Transparency Filter (S5)
 
-Apply to GENERATOR-AUTHORED regions only (template prose, render templates). DO NOT apply to user-quoted content (CLAUDE.md evidence in §2, sprint contract labels/bodies in §5, file paths from audited project).
+Apply to GENERATOR-AUTHORED regions only (template prose, render templates). DO NOT apply to user-quoted content.
+
+**Verbatim-preserved content categories (MUST NOT be filtered):**
+
+- (a) CLAUDE.md evidence quoted in Section 2 "Evidence cited" column.
+- (b) Sprint contract item labels and bodies quoted in Section 5 mapping table.
+- (c) File paths, command strings, AND identifiers extracted from the audited project (all three; do not narrow to file paths only).
 
 Forbidden tokens in generator-authored regions:
 
