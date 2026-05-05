@@ -353,3 +353,16 @@ jobs:
 
       - name: Validate qa-report.md goldens
         run: python .github/scripts/check-qa-report-shape.py
+
+  hook-script-parity:
+    name: Hook script byte-equal parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Run hook script parity validator
+        run: python .github/scripts/check-hook-script-parity.py
