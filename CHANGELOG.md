@@ -7,6 +7,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **qa-report.md post-audit transparency artifact** — `/audit` writes a
+  new `local/qa-report.md` file after the Summary phase. Self-versioned
+  (independent semver, starting `1.0.0`), sibling to existing canonical
+  state files. Section list: 4 always-present sections (Score Summary /
+  LAV Item Rationale / Bucket Rationale / Recommendations Linkage) + 1
+  conditional section (Sprint Contract Coverage, present if and only if
+  `<project-root>/sprint-contract.md` is present and contains an
+  extractable `## In Scope` section).
+- **LAV-time counterfactual generation** — each LAV item (L1-L6) gains a
+  "Counterfactual to next band" cell describing what evidence would lift
+  the score one band, framed as hypothetical observation only (never
+  imperative). Generation occurs immediately after each score commits;
+  scores are immutable (counterfactual analysis MUST NOT change the
+  just-committed L1-L6 score). Material counterfactuals require exactly
+  one piece of evidence; multi-piece deltas render as `—`.
+- **Optional `<project-root>/sprint-contract.md` read** — `/audit` parses
+  the user-managed `sprint-contract.md` (created by `/create` Advanced in
+  v2.14.0) after audit-fact freeze, extracts `## In Scope` bullets, and
+  aligns them with LAV evidence in the qa-report Sprint Contract Coverage
+  table. Read is optional, read-only, non-fatal on any failure
+  (frontmatter advisory / missing header / unreadable file all degrade
+  gracefully).
+- **CI validator `check-qa-report-shape.py`** — enforces section-list
+  invariance, generator-authored forbidden-token absence, and
+  imperative-mood absence in shipped golden fixtures. Wired into
+  `docs-check.yml` as the 19th CI job.
+- **3 qa-report.md golden snapshots** — `ci/golden/{beginner-path,monorepo,warm-start}/local/qa-report.md`
+  covering absent / valid / per-package contexts. Smoke fixture verifier
+  extended to byte-diff `qa-report.md` per fixture.
+
+### Changed
+
+- **`/audit` execution gains a new render step** between the Summary and
+  Persist phases. The render emits `local/qa-report.md` from
+  already-frozen audit facts only. Stateless mode and unwritable `local/`
+  both fall back to terminal-output rendering (no silent skip).
+- **`plugin/references/learning-system.md`** documents `qa-report.md` as
+  a sibling canonical state file (frontmatter bump 2.3.4 → 2.3.5).
+- **LAV scoring is unchanged.** A pre-release calibration probe (42
+  cells: 7 cases × 6 LAV items, each scored under both control and
+  treatment prompts) showed 0 calibration shift between the two prompts,
+  so the planned LAV prompt hardening was dropped from this release.
+  `audit-score-v4.1.0` stays. `profile.json` schema stays at 1.2.0 (no
+  new durable state introduced).
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.14.0` → `2.15.0`.
+- `README.md`: version badge updated `2.14.0` → `2.15.0`.
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface
+  (`qa-report.md` artifact emitted by `/audit` + Sprint Contract Coverage
+  table when `sprint-contract.md` is present) without breaking existing
+  skill contracts. No schema changes, no breaking field shapes.
+- **Static sprint-contract.md lifecycle preserved** — `/audit`'s read of
+  `sprint-contract.md` is read-only; the file remains user-managed (per
+  v2.14.0 contract). Edits to `sprint-contract.md` are still user-driven.
+- **Invocation-agnostic write** — `qa-report.md` rendering follows the
+  same write/terminal rule in every `/audit` invocation context
+  (subagent / reviewer / direct user / hook-triggered). No
+  context-specific branching.
+- **Forward-compatible versioning** — `qa-report.md` frontmatter starts at
+  `1.0.0`. Future additive changes to the section list or render contract
+  are minor `1.x.0` bumps.
+- **Change Propagation Checklist followed.** Files touched:
+  `plugin/skills/audit/references/qa-report-template.md` (NEW) +
+  `plugin/skills/audit/references/checks/sprint-contract.md` (NEW) +
+  `plugin/skills/audit/references/checks/lav.md` (counterfactual section
+  appended) + `plugin/skills/audit/SKILL.md` (new render step inserted) +
+  `plugin/references/learning-system.md` (canonical state file list
+  expansion + frontmatter bump) + `.github/workflows/docs-check.yml`
+  (new validator job) + `.github/scripts/check-qa-report-shape.py` (NEW
+  validator) + `.github/scripts/check-smoke-fixtures.py` (`qa-report.md`
+  byte-diff extension) + 3 `ci/golden/*/local/qa-report.md` (NEW) + 1
+  `ci/fixtures/*/sprint-contract.md` (NEW input fixture for valid-state
+  path coverage) + `plugin/.claude-plugin/plugin.json` (version bump) +
+  `README.md` (badge bump) + `CHANGELOG.md` (this entry).
+
 ## [2.14.0] - 2026-05-03
 
 ### Added
