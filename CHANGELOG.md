@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.15.0] - 2026-05-05
 
 ### Added
 
@@ -87,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `ci/fixtures/*/sprint-contract.md` (NEW input fixture for valid-state
   path coverage) + `plugin/.claude-plugin/plugin.json` (version bump) +
   `README.md` (badge bump) + `CHANGELOG.md` (this entry).
+- **Validation.** 15 validators GREEN on local pre-release sweep + 1 expected SKIP (sample-list, local-only curation artifact): `check-frontmatter-parity.py` (18 pairs), `check-i18n-parity.py` (60 files / 4 pairs), `check-json-schemas.py` (14 JSON), `check-qa-report-shape.py` (3 goldens), `check-recommendation-registry.py` (2 negative examples rejected), `check-skill-stability.py` (4 skills), `check-changelog-parser.py` (6/6), `check-scoring-formula.py` (5/5 samples), `check-scoring-model-lav-linkage.py` (4/4), `check-audit-goldens.py` (15/15 with A1-A10), `check-detection-probe.py` (56 fixtures), `check-audit-drift-aware.py` (6/6), `check-scoring-contract-consistency.py` (canonical = audit-score-v4.1.0), `preflight-schema.py` (10/10), `check-smoke-fixtures.py` (4/4 with `SMOKE_PINNED_UTC` pinning).
 
 ## [2.14.0] - 2026-05-03
 
