@@ -340,3 +340,16 @@ jobs:
             exit 0
           fi
           exit "$EXIT_CODE"
+
+  qa-report-shape-check:
+    name: qa-report.md golden shape validator
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Validate qa-report.md goldens
+        run: python .github/scripts/check-qa-report-shape.py
