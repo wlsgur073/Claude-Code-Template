@@ -82,7 +82,7 @@ Branches by `local/recommendations.json` state. MUST NOT enumerate or paraphrase
 
 ## Section 5 — Sprint Contract Coverage (CONDITIONAL — B4 or B2 only)
 
-Render if and only if sprint-contract parser reaches B4 (valid) or B2 (frontmatter advisory). Section is OMITTED entirely on B1 (absent) or B3 (no In Scope / empty). See `references/checks/sprint-contract.md` for parser spec.
+Render if and only if sprint-contract parser reaches B4 (valid) or B2 (frontmatter advisory). Section is OMITTED entirely on B1 (absent), B3 (no In Scope / empty), or B5 (unreadable). See `references/checks/sprint-contract.md` for parser spec.
 
 When rendered:
 

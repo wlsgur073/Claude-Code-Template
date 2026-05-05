@@ -166,10 +166,10 @@ Read `references/qa-report-template.md` for the full template skeleton (5-sectio
 
 **Steps:**
 
-1. **Sprint contract parse (optional, post-freeze)**: read `references/checks/sprint-contract.md` and execute the parser. Always capture the resulting branch state (B1/B2/B3/B4); capture extracted In Scope items only when state is B4 or B2.
+1. **Sprint contract parse (optional, post-freeze)**: read `references/checks/sprint-contract.md` and execute the parser. Always capture the resulting branch state (B1/B2/B3/B4/B5); capture extracted In Scope items only when state is B4 or B2.
 2. **Section 1-4 render** (always): emit Score Summary + LAV Item Rationale (with counterfactual column from LAV-time generation, see `references/checks/lav.md` Counterfactual Generation section) + Bucket Rationale + Recommendations Linkage (3-state branch by `local/recommendations.json` state).
 3. **Section 5 conditional render**: if sprint-contract parse reached B4 (valid) or B2 (frontmatter advisory), emit Sprint Contract Coverage with In Scope ↔ LAV mapping (P4 alignment rule). Otherwise omit.
-4. **Negative-transparency filter** (S5): apply forbidden-token filter to generator-authored regions only. User-quoted content (CLAUDE.md evidence, sprint contract labels/bodies, project file paths) passes through verbatim.
+4. **Negative-transparency filter** (S5): apply forbidden-token filter to generator-authored regions only. User-quoted content (CLAUDE.md evidence, sprint contract labels/bodies, and file paths, command strings, and identifiers extracted from the audited project) passes through verbatim.
 5. **Write target**: `local/qa-report.md`. If `local/` is unwritable (same check that triggers stateless mode per Phase 1 Global Invariant #6) or stateless mode is active, render to terminal output instead of writing — no silent skip.
 
 **Invocation-agnostic**: this phase MUST NOT branch on invocation context (subagent / reviewer / direct user / hook-triggered). The same write/terminal rule applies in every context.

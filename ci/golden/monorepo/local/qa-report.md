@@ -23,7 +23,7 @@ version: "1.0.0"
 
 ## Bucket Rationale
 
-The live classifier emitted Bucket = distributed_config and Final = 28.5. Profile signals satisfy the distributed_config rubric path: `project_structure.type` = monorepo, `monorepo_detection.detected` = true, `subpackage_coverage.with_claude_md` = 2 (≥2 required). Three of four supporting signals hold (workspace ratio 2/2 = 1.0 ≥ 0.5; root compactness 27 lines ≤ 150; verbose-prose-sparse-config exclusion) — §2.3 fails (mean L6 = 0) — above the 2-of-4 threshold.
+The live classifier emitted Bucket = distributed_config and Final = 28.5. Profile signals satisfy the distributed_config rubric path: `project_structure.type` = monorepo, `monorepo_detection.detected` = true, `subpackage_coverage.with_claude_md` = 2 (≥2 required). Three of four supporting signals hold (workspace ratio 2/2 = 1.0 ≥ 0.5; root compactness 27 lines ≤ 150; verbose-prose-sparse-config exclusion) — Section 2.3 fails (mean L6 = 0) — above the 2-of-4 threshold.
 
 ## Recommendations Linkage
 

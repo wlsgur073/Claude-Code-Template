@@ -41,7 +41,7 @@ Evaluate state in this exact order:
 4. **Zero-items handling** — extraction yields zero items → B3 with warning.
 5. **Multi-line bullets** — continuation lines indented by ≥2 spaces under a bullet are appended to that bullet's body. Continuation ends at the next bullet or section boundary.
 
-## In Scope ↔ LAV Mapping (B4 only)
+## In Scope ↔ LAV Mapping (B4 or B2 only)
 
 Render in qa-report Sprint Contract Coverage section:
 
