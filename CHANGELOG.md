@@ -7,6 +7,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Advanced template hook templates** — three new lifecycle observability
+  hooks (PreCompact, SubagentStop, Stop) ship under
+  `templates/advanced/hooks/`, each with bash + PowerShell dual-entry.
+  Outputs land in `<project>/.claude/local/hooks/` (gitignored).
+- **`templates/advanced/.claude/.gitignore`** — ignores `local/` directory
+  (skill state + hook outputs).
+- **`.github/scripts/check-hook-script-parity.py`** validator and new
+  **`hook-script-parity`** CI job verify byte-equal mirroring of
+  `templates/advanced/hooks/*.{sh,ps1}`, `.gitignore`, and `settings.json`
+  across EN / ko-KR / ja-JP.
+- **Root `.gitattributes`** entries for advanced template config assets
+  (`.gitignore` and `settings.json` paths) to enforce LF line endings on
+  Windows checkouts. Wildcard `*.sh` / `*.ps1` rules already covered hook
+  scripts.
+
+### Changed
+
+- `templates/advanced/scripts/validate-prompt.{sh,ps1}` moved to
+  `templates/advanced/hooks/validate-prompt.{sh,ps1}` for directory
+  unification. `templates/advanced/.claude/settings.json` UserPromptSubmit
+  wire path updated accordingly. Behavior unchanged. Empty `scripts/`
+  directory removed in EN and both i18n mirrors.
+- `docs/guides/getting-started.md` (+ ko-KR / ja-JP mirrors): validate-prompt
+  path reference updated. Frontmatter version bumped `1.2.4` → `1.2.5`.
+- `CLAUDE.md` workflow note: docs-check job count updated to 20 with full
+  names listed.
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.15.0` → `2.16.0`.
+- `README.md`: version badge updated `2.15.0` → `2.16.0`.
+
+### i18n
+
+- `docs/i18n/ko-KR/templates/advanced/hooks/` and
+  `docs/i18n/ja-JP/templates/advanced/hooks/` mirrored byte-equal,
+  including `.gitignore` and `settings.json` under `.claude/`.
+
+### Notes
+
+- **SemVer rationale.** Minor (y) — adds new user-callable surface
+  (active-wired hook templates in the advanced template) without breaking
+  existing skill contracts. No schema changes, no breaking field shapes.
+- **Boundary preserved.** Starter template, plugin SessionStart hook, skill
+  bodies, `profile.json` schema, `audit-score-v4.1.0` scoring contract, and
+  `recommendation-registry.json` all unchanged.
+
 ## [2.15.0] - 2026-05-05
 
 ### Added
