@@ -35,8 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   directory removed in EN and both i18n mirrors.
 - `docs/guides/getting-started.md` (+ ko-KR / ja-JP mirrors): validate-prompt
   path reference updated. Frontmatter version bumped `1.2.4` → `1.2.5`.
-- `CLAUDE.md` workflow note: docs-check job count updated to 20 with full
-  names listed.
+- `CLAUDE.md`: docs-check job count updated to 20 with full names listed;
+  shell-script path list aligned with `validate-prompt` move
+  (`templates/advanced/scripts/*.sh` → `hooks/*.sh`).
 - `plugin/.claude-plugin/plugin.json`: version bumped `2.15.0` → `2.16.0`.
 - `README.md`: version badge updated `2.15.0` → `2.16.0`.
 
