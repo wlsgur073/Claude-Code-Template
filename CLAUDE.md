@@ -45,6 +45,7 @@ A single change can ripple across the repo. When modifying any file, check downs
 - **Deny pattern format change** → grep `Read\(.*secrets` or similar across all files to ensure consistency
 - **Root `README.md` → i18n mirrors** (ko-KR, ja-JP): sync content + language switcher, but NOT the badge row (version/license/status badges are language-neutral, EN-only by design — absence in translations is not drift)
 - **i18n frontmatter `version:` bump semantics:** bump when new content is added/translated, NOT when fixing drift to restore parity with EN (drift fixes return already-agreed content to parity — no semantic change)
+- **`templates/` path/structural rename** → grep `CLAUDE.md` `Repository Structure` for stale path mentions (`*.sh` lists, dir paths); CLAUDE.md is consistently missed as a cascade target
 
 ### Verifying Changes Locally
 
@@ -64,7 +65,9 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - **`gh release` with markdown body:** HEREDOC breaks on backticks and special chars in markdown — always write notes to a temp file and pass with `-F <file>`, then delete the file. Full sequence: stage specific files → commit → `git tag -a vX.Y.Z -m "vX.Y.Z — <feature>"` (annotated, not lightweight) → `git push --follow-tags origin main` (atomic commits+tag push) → `gh release create vX.Y.Z --title "vX.Y.Z" -F notes.md`
 - **CHANGELOG `## [Unreleased]` bucket:** post-release docs/i18n fixes accumulate in a `## [Unreleased]` section at the top of CHANGELOG. Each fix commit includes its own Unreleased entry (atomic, self-describing). At next patch release, rename `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`. Promote triggers: security-adjacent fix lands → release immediately; 5+ accumulated items or 30+ days stale → suggest release.
 - **Pre-push self-regression grep:** before `git push --follow-tags`, grep working tree for retired vocab from same-cycle renames (heading labels, retired internal IDs) — catches incomplete cascades that escape per-task review. Cheap insurance vs forced post-push fix-up commit.
+- **Pre-publish release notes verification:** before `gh release create`, grep actual implementation file (hook script, validator) against any specific technical claim in body (regex, allow-list, threshold) — catches spec-vs-claim drift that pre-push grep misses.
 - **Annotated tag SHA verify post-push:** `git ls-remote --tags origin v<tag>` SHA must equal local `git rev-parse v<tag>` (the annotated tag object SHA, not `^{commit}` peeled). Mismatch indicates the annotation didn't propagate — re-push with `git push origin refs/tags/v<tag>` to fix.
+- **Branch+tag same-name `push --delete`:** `git push origin --delete v2.X.0` errors with "matches more than one" when both branch and tag share the name; use `git push origin --delete refs/heads/v2.X.0` (explicit refspec) to remove the staging branch only (tag preserved).
 - **`eval-manifest.json` sealed at v2.11.0:** the file froze at maintainer signoff 2026-04-16 and v2.12.0–v2.14.0 releases skipped entry-add. Release plans that stipulate updating this file should follow precedent (skip) unless smoke-runner re-execution actually occurs.
 
 ## Plugin Development Rules
