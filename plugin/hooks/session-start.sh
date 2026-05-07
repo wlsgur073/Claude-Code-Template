@@ -158,8 +158,39 @@ check_drift_family() {
   fi
 }
 
-# Unresolved + repeated-decline family stubs — subsequent commits add the family logic.
-check_unresolved_family() { echo ""; }
+# Unresolved family — PENDING recs with age >= N OR pending_count >= K.
+# STALE entries explicitly excluded (per spec — STALE has its own state-machine semantics).
+check_unresolved_family() {
+  [ ! -f "$RECS" ] && { echo ""; return; }
+
+  # Build matching set: PENDING entries where age_days >= N_DAYS OR pending_count >= K_COUNT.
+  # Render: oldest first_seen, oldest_id, total matching count, oldest's pending_count.
+  local match_json
+  match_json=$(jq --argjson now "$NOW_UTC" --argjson N "$N_DAYS" --argjson K "$K_COUNT" '
+    .recommendations
+    | map(select(.status == "PENDING"))
+    | map(. + {age_days: ((($now - (.first_seen | sub("Z$"; "+00:00") | fromdateiso8601)) / 86400) | floor)})
+    | map(select(.age_days >= $N or .pending_count >= $K))
+    | sort_by(.first_seen)
+    | {count: length, oldest: .[0]}
+  ' < "$RECS" 2>/dev/null || echo '{"count":0}')
+
+  local count
+  count=$(echo "$match_json" | jq -r '.count // 0')
+  if [ "$count" -eq 0 ]; then
+    echo ""
+    return
+  fi
+
+  local oldest_first_seen oldest_id oldest_count
+  oldest_first_seen=$(echo "$match_json" | jq -r '.oldest.first_seen // "" | sub("T.*"; "")')
+  oldest_id=$(echo "$match_json" | jq -r '.oldest.id // ""')
+  oldest_count=$(echo "$match_json" | jq -r '.oldest.pending_count // 0')
+
+  echo "Open recommendations: $count pending since $oldest_first_seen; oldest: $oldest_id (seen pending $oldest_count times)."
+}
+
+# Repeated-decline family stub — subsequent commit adds the family logic.
 check_repeated_decline_family() { echo ""; }
 
 DRIFT_LINE=$(check_drift_family)
