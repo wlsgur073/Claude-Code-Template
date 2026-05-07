@@ -93,6 +93,7 @@ RECOMMENDATIONS_NEGATIVE_EXAMPLES: list[str] = [
     "plugin/references/schemas/examples/negative/recommendations.resolved-without-by.example.json",
     "plugin/references/schemas/examples/negative/recommendations.v1.0.0-with-decline-count.example.json",
     "plugin/references/schemas/examples/negative/recommendations.v1.1.0-decline-count-negative.example.json",
+    "plugin/references/schemas/examples/negative/recommendations.metadata-extra.example.json",
 ]
 
 
