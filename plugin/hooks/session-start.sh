@@ -190,8 +190,36 @@ check_unresolved_family() {
   echo "Open recommendations: $count pending since $oldest_first_seen; oldest: $oldest_id (seen pending $oldest_count times)."
 }
 
-# Repeated-decline family stub — subsequent commit adds the family logic.
-check_repeated_decline_family() { echo ""; }
+# Repeated-decline family — DECLINED recs with decline_count >= M.
+# STALE entries explicitly excluded; PENDING recs with historical
+# decline_count > 0 do NOT fire (status guard against false-positive).
+check_repeated_decline_family() {
+  [ ! -f "$RECS" ] && { echo ""; return; }
+
+  # Highest decline_count among DECLINED status; tie-break newest last_seen.
+  # Default decline_count to 0 for legacy 1.0.0 files lacking the field.
+  local match_json
+  match_json=$(jq --argjson M "$M_DECLINES" '
+    .recommendations
+    | map(select(.status == "DECLINED"))
+    | map(. + {decline_count: (.decline_count // 0)})
+    | map(select(.decline_count >= $M))
+    | sort_by([-(.decline_count), .last_seen])
+    | reverse
+    | .[0] // null
+  ' < "$RECS" 2>/dev/null || echo "null")
+
+  if [ "$match_json" = "null" ] || [ -z "$match_json" ]; then
+    echo ""
+    return
+  fi
+
+  local rec_id rec_count
+  rec_id=$(echo "$match_json" | jq -r '.id // ""')
+  rec_count=$(echo "$match_json" | jq -r '.decline_count // 0')
+
+  echo "Repeated declines: $rec_id declined $rec_count times total; consider acknowledging or updating manually."
+}
 
 DRIFT_LINE=$(check_drift_family)
 UNRESOLVED_LINE=$(check_unresolved_family)
