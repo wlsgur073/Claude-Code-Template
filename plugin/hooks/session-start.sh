@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-# plugin/hooks/session-start.sh — Phase 6 SessionStart Orchestrator
-# State-aware re-entry digest extending the prior 4-case bootstrap-detection hook.
+# plugin/hooks/session-start.sh — SessionStart state-aware re-entry digest.
 # Read-only over canonical state. Source filter + lock-based dual-entry de-duplication.
-# See docs/superpowers/v3-roadmap/phase-6-design.md v1.6.1 for full architecture.
+# Bootstrap cases (no config / no profile) early-return with the existing prompts;
+# after profile exists, three trigger families (drift / unresolved / repeated-decline)
+# stack into a capped multi-line digest in fixed priority order.
 set -e
 
 PROFILE=".claude/.plugin-cache/guardians-of-the-claude/local/profile.json"
 RECS=".claude/.plugin-cache/guardians-of-the-claude/local/recommendations.json"
 LOCK_DIR=".claude/.plugin-cache/guardians-of-the-claude/local/.session-start.lock"
 
-# Threshold constants (locked by T20 calibration; placeholders here):
-N_DAYS=7      # unresolved age threshold
+# Threshold constants (calibrated against representative scenarios; tune via patch
+# release if production noise/signal feedback surfaces).
+N_DAYS=7      # unresolved age threshold (days since first_seen)
 K_COUNT=3     # unresolved pending_count threshold
 M_DECLINES=3  # repeated-decline threshold
 
