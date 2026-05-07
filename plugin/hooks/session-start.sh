@@ -77,9 +77,88 @@ EOF
   exit 0
 fi
 
-# Stackable family checks — stub implementations return empty until T12-T14.
-# T15 wires emit_digest with priority order + char cap.
-check_drift_family() { echo ""; }
+# Drift family — checks 4 reasons in priority order.
+# Outputs a single rendered line if any reason fires, else empty.
+check_drift_family() {
+  local primary=""
+  local primary_message=""
+  local other_count=0
+
+  # Reason 1 (highest priority): legacy_mtime — any monitored manifest newer than profile.
+  # Manifest list (23 paths) preserved from the pre-rewrite hook.
+  for f in package.json package-lock.json pnpm-lock.yaml yarn.lock \
+           pnpm-workspace.yaml lerna.json nx.json turbo.json rush.json \
+           tsconfig.json \
+           pyproject.toml poetry.lock uv.lock requirements.txt \
+           go.mod go.sum \
+           Cargo.toml Cargo.lock \
+           pom.xml \
+           Gemfile Gemfile.lock \
+           .mcp.json .claude/settings.json; do
+    if [ -f "$f" ] && [ "$f" -nt "$PROFILE" ]; then
+      primary="legacy_mtime"
+      primary_message="$f newer than profile"
+      break
+    fi
+  done
+
+  # Reason 2: schema_version_mismatch — profile.schema_version differs from plugin's expected.
+  # Canonical version is 1.2.0 (current shipped profile schema).
+  local PROFILE_SV
+  PROFILE_SV=$(jq -r '.schema_version // ""' < "$PROFILE" 2>/dev/null || echo "")
+  local EXPECTED_SV="1.2.0"
+  if [ -n "$PROFILE_SV" ] && [ "$PROFILE_SV" != "$EXPECTED_SV" ]; then
+    if [ -z "$primary" ]; then
+      primary="schema_version_mismatch"
+      primary_message="profile.schema_version $PROFILE_SV expected $EXPECTED_SV"
+    else
+      other_count=$((other_count + 1))
+    fi
+  fi
+
+  # Reason 3: ecosystem_change — workspace declaration file present but profile records single_project.
+  local PROFILE_MONOREPO_DETECTED
+  PROFILE_MONOREPO_DETECTED=$(jq -r '.project_structure.monorepo_detection.detected // false' < "$PROFILE" 2>/dev/null || echo "false")
+  local has_workspace_file="false"
+  for wf in pnpm-workspace.yaml lerna.json nx.json turbo.json rush.json; do
+    if [ -f "$wf" ]; then has_workspace_file="true"; break; fi
+  done
+  if [ "$has_workspace_file" = "true" ] && [ "$PROFILE_MONOREPO_DETECTED" = "false" ]; then
+    if [ -z "$primary" ]; then
+      primary="ecosystem_change"
+      primary_message="workspace declaration present but profile records single_project"
+    else
+      other_count=$((other_count + 1))
+    fi
+  fi
+
+  # Reason 4: scoring_contract_bump — profile.scoring_model_ack differs from plugin's current.
+  # Plugin's current scoring contract ID is audit-score-v4.1.0.
+  local PROFILE_SCORE_ACK
+  PROFILE_SCORE_ACK=$(jq -r '.claude_code_configuration_state.scoring_model_ack.contract_id // ""' < "$PROFILE" 2>/dev/null || echo "")
+  local EXPECTED_SCORE="audit-score-v4.1.0"
+  if [ -n "$PROFILE_SCORE_ACK" ] && [ "$PROFILE_SCORE_ACK" != "$EXPECTED_SCORE" ]; then
+    if [ -z "$primary" ]; then
+      primary="scoring_contract_bump"
+      primary_message="profile.scoring_model_ack $PROFILE_SCORE_ACK expected $EXPECTED_SCORE"
+    else
+      other_count=$((other_count + 1))
+    fi
+  fi
+
+  if [ -z "$primary" ]; then
+    echo ""
+    return
+  fi
+
+  if [ "$other_count" -gt 0 ]; then
+    echo "Drift: $primary_message (+$other_count other drift signals); run /guardians-of-the-claude:audit."
+  else
+    echo "Drift: $primary_message; run /guardians-of-the-claude:audit."
+  fi
+}
+
+# Unresolved + repeated-decline family stubs — subsequent commits add the family logic.
 check_unresolved_family() { echo ""; }
 check_repeated_decline_family() { echo ""; }
 
