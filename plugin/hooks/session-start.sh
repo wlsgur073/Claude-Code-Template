@@ -169,7 +169,7 @@ check_unresolved_family() {
   match_json=$(jq --argjson now "$NOW_UTC" --argjson N "$N_DAYS" --argjson K "$K_COUNT" '
     .recommendations
     | map(select(.status == "PENDING"))
-    | map(. + {age_days: ((($now - (.first_seen | sub("Z$"; "+00:00") | fromdateiso8601)) / 86400) | floor)})
+    | map(. + {age_days: ((($now - (.first_seen | fromdateiso8601)) / 86400) | floor)})
     | map(select(.age_days >= $N or .pending_count >= $K))
     | sort_by(.first_seen)
     | {count: length, oldest: .[0]}
@@ -225,9 +225,23 @@ DRIFT_LINE=$(check_drift_family)
 UNRESOLVED_LINE=$(check_unresolved_family)
 REPEATED_DECLINE_LINE=$(check_repeated_decline_family)
 
-# Render digest only if at least one family fired (stub: never fires until T12-T14).
 if [ -n "$DRIFT_LINE$UNRESOLVED_LINE$REPEATED_DECLINE_LINE" ]; then
-  : # T15 fills in emit_digest
+  # Render digest body (header + non-empty trigger lines in priority order).
+  body="Guardians: project state needs attention."
+  [ -n "$DRIFT_LINE" ]            && body="$body"$'\n'"- $DRIFT_LINE"
+  [ -n "$UNRESOLVED_LINE" ]       && body="$body"$'\n'"- $UNRESOLVED_LINE"
+  [ -n "$REPEATED_DECLINE_LINE" ] && body="$body"$'\n'"- $REPEATED_DECLINE_LINE"
+
+  # Char cap defense: truncate at 1997 + sentinel if somehow over 2000 chars.
+  # Should be unreachable given the 3-line cap and reasonable trigger renders;
+  # fixture byte-diff coverage is the primary enforcement layer.
+  if [ ${#body} -gt 2000 ]; then
+    body="${body:0:1997}..."
+    echo "Digest body exceeded 2000 chars; truncated at 1997 + sentinel" >&2
+  fi
+
+  # Emit JSON output per Anthropic hook contract.
+  jq -n --arg ctx "$body" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
 fi
 
 exit 0
