@@ -203,7 +203,14 @@ try {
         $sorted = $matching | Sort-Object first_seen
         $oldest = $sorted[0]
         $count = $matching.Count
-        $oldestDate = ($oldest.first_seen -split "T")[0]
+        # ConvertFrom-Json auto-converts ISO 8601 strings to [DateTime] in PS 5.1+ and 7+,
+        # and `-split "T"` on a DateTime stringifies via current culture (e.g. "04/29/2026 00:00:00" on en-US).
+        # Force ISO short-date (YYYY-MM-DD) output regardless of input shape for parity with the bash hook.
+        $oldestDate = if ($oldest.first_seen -is [DateTime]) {
+            $oldest.first_seen.ToUniversalTime().ToString("yyyy-MM-dd", [System.Globalization.CultureInfo]::InvariantCulture)
+        } else {
+            ([string]$oldest.first_seen -split "T")[0]
+        }
         return "Open recommendations: $count pending since $oldestDate; oldest: $($oldest.id) (seen pending $($oldest.pending_count) times)."
     }
 
