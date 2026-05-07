@@ -56,7 +56,16 @@ Before pushing, run the same scripts CI runs. Note: `check-json-schemas.py` fetc
 - `python .github/scripts/check-json-schemas.py` — validates `plugin.json`, `marketplace.json`, `settings.json` schemas
 - `lychee 'README.md' 'docs/**/*.md' 'plugin/**/*.md' 'CHANGELOG.md' 'templates/**/*.md'` — link check (requires [lychee](https://github.com/lycheeverse/lychee))
 - `SMOKE_PINNED_UTC="2026-04-14T00:00:00Z" python .github/scripts/check-smoke-fixtures.py` — smoke fixture byte-diff verifier (env var required, value matches `.github/workflows/smoke.yml`)
-- Python inline scripts on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK — default `cp949` codec raises `UnicodeEncodeError`
+- Python on Windows: prepend `import sys; sys.stdout.reconfigure(encoding="utf-8")` before printing non-ASCII / U+FFFD / mixed CJK; use `open(path, encoding='utf-8')` for files with em-dashes / non-ASCII (e.g., schema descriptions) — default `cp949` codec raises `UnicodeEncodeError` / `UnicodeDecodeError`
+- 4 additional Python validators in `.github/scripts/` for release-time sweep (not in routine local checks): `check-recommendation-registry.py`, `check-skill-stability.py`, `check-qa-report-shape.py`, `check-hook-script-parity.py`. All 8 must pass GREEN before tag/push.
+
+**Cross-platform shell/fixture gotchas** (encountered when authoring hook scripts or extending the smoke runner):
+
+- `< /dev/stdin` does NOT exist on Git Bash. Hook scripts reading SessionStart-style stdin payload should use jq's default stdin (`jq -r '.field' 2>/dev/null`) without redirection.
+- `subprocess.stdout` preserves source line endings (CRLF on Git Bash); `Path.read_text(encoding='utf-8')` uses universal newlines (CRLF→LF). Normalize both sides via `.replace("\r\n", "\n").strip()` before byte comparison.
+- Windows `bash` via PATH may resolve to WSL bash (fails with Hyper-V error if virtualization disabled). Python subprocess invoking shell should prefer explicit Git Bash path (`C:\Program Files\Git\bin\bash.exe`) — see `_find_bash()` in `.github/scripts/check-smoke-fixtures.py`.
+- CI fixtures requiring file mtime ordering (e.g., `legacy_mtime` drift trigger in `ci/fixtures/sessionstart-orchestrator/`): git checkout does NOT preserve mtimes. Each such fixture ships `setup.sh` with `touch -t YYYYMMDDHHMM <file>`; the smoke runner sources it before invoking the hook.
+- jq `fromdateiso8601` accepts `Z` suffix directly. Do NOT pre-convert via `sub("Z$"; "+00:00")` — some jq builds reject the offset format.
 
 ### Release Process
 

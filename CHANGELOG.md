@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- `CLAUDE.md`: cross-platform shell/fixture gotchas codified — 5 entries on Git Bash `/dev/stdin` absence, subprocess CRLF vs `Path.read_text()` LF normalization, Windows `bash` resolving to WSL (Git Bash explicit path preference / `_find_bash()` helper), fixture mtime not preserved by git checkout (setup.sh required), and jq `fromdateiso8601` Z-suffix handling. Also extends `Verifying Changes Locally` with file `open(encoding='utf-8')` note + lists 4 release-only Python validators alongside the routine 4 + lychee.
+
 ## [2.17.0] - 2026-05-07
 
 ### Added
