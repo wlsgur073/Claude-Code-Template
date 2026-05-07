@@ -27,7 +27,11 @@ else
 fi
 
 # Source filter (script-side; hooks.json matcher is the load-bearing first-line filter).
-# Fail-open default: if jq is missing or stdin is malformed, default to startup.
+# jq is a HARD dependency throughout this hook: source parsing here, profile/recs
+# JSON reads in the trigger families below, and final emit_digest output. If jq
+# is missing the hook degrades to silent zero-output (every jq call falls through
+# to its empty-string default). Source-line fail-open here only protects against
+# a malformed stdin payload from the Claude Code SessionStart contract.
 # Read stdin via jq's default (no '< /dev/stdin' — that path doesn't exist on Git Bash).
 SOURCE=$(jq -r '.source // "startup"' 2>/dev/null || echo "startup")
 case "$SOURCE" in

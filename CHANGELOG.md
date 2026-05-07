@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [2.17.0] - 2026-05-07
 
+> **Superseded by v2.17.1** — Linux smoke 8/13 fixtures false-fired
+> `legacy_mtime` drift due to `actions/checkout` mtime ordering on ext4
+> (`.claude/settings.json` checked out after `local/profile.json` lexicographically).
+> Recommendations schema wrappers also left nested `metadata` open contrary to
+> the `profile` precedent. v2.17.1 ships fixture `setup.sh` mtime pinning,
+> per-property metadata closure on both wrappers, a codified pre-publish smoke
+> gate in `CLAUDE.md` Release Process, an honest jq hard-dependency note in the
+> hook source, and a PowerShell fixture lane in the smoke runner.
+
 ### Added
 
 - **SessionStart Orchestrator** — `plugin/hooks/session-start.{sh,ps1}` extended
