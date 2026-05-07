@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "recommendations.schema.v1.0.0.json",
+  "title": "Open Recommendations — v1.0.0 Wrapper",
+  "description": "Versioned wrapper for legacy recommendations.json schema 1.0.0. Closes with unevaluatedProperties: false at wrapper scope, rejecting decline_count and any other field not in the base. Frozen post-bump — no further modifications. Mirrors profile.schema.v1.0.0.json's frozen-post-bump pattern.",
+  "type": "object",
+  "allOf": [{ "$ref": "recommendations.schema.base.json" }],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "allOf": [{ "$ref": "recommendations.schema.base.json#/$defs/recommendationItemBase" }],
+        "unevaluatedProperties": false
+      }
+    }
+  },
+  "unevaluatedProperties": false
+}
