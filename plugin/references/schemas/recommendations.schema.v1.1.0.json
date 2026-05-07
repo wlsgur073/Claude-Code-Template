@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "recommendations.schema.v1.1.0.json",
+  "title": "Open Recommendations — v1.1.0 Wrapper",
+  "description": "Versioned wrapper adding decline_count integer field per recommendation entry. Closes with unevaluatedProperties: false at wrapper scope. decline_count is monotonic-cumulative (per design §4.1): increments on each DECLINE write recorded by /create, /audit, /secure, or /optimize; never decremented even if rec re-transitions PENDING -> DECLINED.",
+  "type": "object",
+  "allOf": [{ "$ref": "recommendations.schema.base.json" }],
+  "properties": {
+    "schema_version": { "const": "1.1.0" },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "allOf": [{ "$ref": "recommendations.schema.base.json#/$defs/recommendationItemBase" }],
+        "properties": {
+          "decline_count": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Cumulative count of DECLINED events for this recommendation. Increments on each decline write recorded by /create, /audit, /secure, or /optimize. Read-only from SessionStart hook. Independent of status. Monotonic — never decremented."
+          }
+        },
+        "unevaluatedProperties": false
+      }
+    }
+  },
+  "unevaluatedProperties": false
+}
