@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.1.0",
+  "metadata": {"last_updated": "2026-05-07T00:00:00Z"},
+  "recommendations": [
+    {"id": "rec-500", "status": "PENDING", "first_seen": "2026-04-07T00:00:00Z", "last_seen": "2026-05-06T00:00:00Z", "pending_count": 1, "decline_count": 0},
+    {"id": "rec-501", "status": "STALE", "first_seen": "2026-01-01T00:00:00Z", "last_seen": "2026-02-01T00:00:00Z", "pending_count": 5, "decline_count": 0},
+    {"id": "rec-502", "status": "STALE", "first_seen": "2026-01-01T00:00:00Z", "last_seen": "2026-02-01T00:00:00Z", "pending_count": 0, "decline_count": 4}
+  ]
+}
