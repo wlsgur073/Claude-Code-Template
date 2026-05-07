@@ -7,7 +7,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.17.0] - 2026-05-07
+
+### Added
+
+- **SessionStart Orchestrator** — `plugin/hooks/session-start.{sh,ps1}` extended
+  from a 4-case mutually-exclusive bootstrap-detection hook to a gate-then-stack
+  state-aware re-entry digest. After bootstrap cases (no config / no profile)
+  early-return with their existing prompts, three trigger families stack into a
+  capped 2000-char multi-line digest in fixed priority order: drift (manifest
+  staleness with absorbed prior stale-detection + schema version mismatch +
+  ecosystem change + scoring contract bump), unresolved recommendations
+  (PENDING items >= N days old or surface count >= K, default N=7 K=3), and
+  repeated declines (DECLINED items with decline_count >= M, default M=3).
+  Source filter limits emission to `startup` and `resume` only via `hooks.json`
+  `matcher: "startup|resume"` first-line filter (script-side stdin parser
+  remains as defense-in-depth); `clear` and `compact` silenced. Lock-based
+  first-wins de-duplication (atomic `mkdir local/.session-start.lock` with 30s
+  TTL) prevents duplicate emit on machines with both bash and PowerShell
+  interpreters.
+
+- **`recommendations.json` schema additive minor (1.0.0 -> 1.1.0)** via
+  versioned-wrapper architecture — 3 new schema files
+  (`recommendations.schema.base.json` open at every scope,
+  `recommendations.schema.v1.0.0.json` frozen with `unevaluatedProperties: false`
+  at wrapper scope, `recommendations.schema.v1.1.0.json` adds `decline_count`
+  integer field with same closure). Pre-existing 1.0.0 files accepted via
+  parser inflation; writes from all four state-writing skills (`/create`,
+  `/audit`, `/secure`, `/optimize`) populate and increment the field.
+  `check-json-schemas.py` registers the 3 new schemas + new
+  `select_recommendations_wrapper(schema_version)` dispatcher mirroring
+  existing `select_profile_wrapper`. `merge_rules.md` cascade adds
+  `decline_count` increment-on-DECLINE-transition contract spanning all 4
+  state-writing skills.
+
+- **CI smoke lane extended** — `check-smoke-fixtures.py` adds
+  `run_sessionstart_fixture` covering 13 sessionstart-orchestrator fixtures
+  (no_signal / drift_legacy_mtime / drift_multi_reason / unresolved_only /
+  unresolved_K_isolation / repeated_decline_only / all_three / clear_source /
+  compact_source / legacy_v1_0_0_read / unknown_future_version /
+  stale_excluded / pending_decline_count_status_guard) alongside existing 4
+  skill-flow fixtures = 17 total CI runs. Fixtures use `SMOKE_PINNED_UTC` env
+  var for deterministic now_utc; mtime-sensitive fixtures source `setup.sh`
+  first to manipulate file mtimes (git checkout does not preserve mtimes).
 
 ### Changed
 
@@ -15,6 +57,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   gains `templates/` path-rename → CLAUDE.md `Repository Structure` cascade
   target; Release Process gains pre-publish release notes verification grep +
   branch+tag same-name `push --delete` disambiguation note.
+
+### Notes
+
+- Auto-mode deny counter trigger is not shipped in this release; a future
+  v2.18.0 will design the PermissionDenied collector and re-evaluate the
+  auto-mode territory.
+- Schema migration follows the prior versioned-wrapper precedent + closure-keyword
+  pattern: base schemas are open, versioned wrappers close with
+  `unevaluatedProperties: false` (NOT `additionalProperties: false`, which
+  evaluates within the base scope and rejects wrapper-added fields).
+  Forward-only compatibility contract: new plugin supports current minor +
+  N-1; downgrade and mixed-version local state are unsupported.
+- Threshold calibration: N=7 days / K=3 surfaces / M=3 declines locked after
+  7-scenario sanity check across all boundaries (empty / under-N-and-K /
+  N-boundary / K-boundary / under-M / M-boundary / above-M); full 27-combination
+  matrix deferred to a v2.17.x patch if production noise/signal feedback
+  surfaces.
 
 ## [2.16.0] - 2026-05-06
 
