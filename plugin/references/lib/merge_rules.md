@@ -75,6 +75,18 @@ Merge by canonical `id` (key). Never rewrite the whole array.
 
 **`metadata.last_updated`**: refreshed to the Final Phase's pinned-UTC timestamp on every atomic write, regardless of whether any recommendation entry changed. This keeps the payload's `metadata.last_updated` consistent with the file's mtime (since Task 4's Final Phase atomically writes all four canonical files). Individual entry timestamps (`first_seen`, `last_seen`) follow separate rules per entry.
 
+**`decline_count`** (added in schema 1.1.0): an integer field on each recommendation entry (minimum 0, default 0). Increment behavior:
+
+- **PENDING -> DECLINED transition**: set `decline_count = (current.decline_count or 0) + 1`. First decline (count was 0 or absent in legacy 1.0.0 file) sets `decline_count = 1`.
+- **DECLINED -> DECLINED re-record** (same skill or any of the four state-writing skills records a fresh DECLINE event for an already-DECLINED rec): increment `decline_count++`.
+- **PENDING -> PENDING** (no status change): preserve `current.decline_count` exactly. No-op even if `pending_count` increments via the existing `pending_count` rule.
+- **DECLINED -> PENDING** (re-transition: rec was declined, then user re-considered): preserve `current.decline_count` exactly. **Monotonic — never decremented.** A subsequent DECLINE on this PENDING rec will increment from the preserved historical value, which is rendered by SessionStart's repeated-decline trigger as `"declined N times total"` (cumulative semantics).
+- **RESOLVED transitions**: `decline_count` preserved as-is regardless of what it was before. RESOLVED is independent of the decline pathway.
+
+**Applies to all four state-writing skills**: `/create`, `/audit`, `/secure`, `/optimize`. Schema `issued_by` enum permits `"create"` and `/create`'s Phase 4.5 `Recommendations:` line writes DECLINED entries marked "DECLINED by user" (per `plugin/skills/create/SKILL.md`). Excluding `/create` from this rule produces silent under-counting on re-runs.
+
+**Lazy migration on first 1.1.0 write**: when a state-writing skill reads a 1.0.0 file (no `decline_count` field), it inflates missing `decline_count` to 0 in-memory and emits `1.1.0` schema on the next atomic write. Pre-existing DECLINED entries start at `decline_count = 0` (no historical reconstruction from `config-changelog.md` — the field is forward-looking advisory).
+
 ---
 
 ## config-changelog.md merge rules
