@@ -26,7 +26,8 @@ fi
 
 # Source filter (script-side; hooks.json matcher is the load-bearing first-line filter).
 # Fail-open default: if jq is missing or stdin is malformed, default to startup.
-SOURCE=$(jq -r '.source // "startup"' < /dev/stdin 2>/dev/null || echo "startup")
+# Read stdin via jq's default (no '< /dev/stdin' — that path doesn't exist on Git Bash).
+SOURCE=$(jq -r '.source // "startup"' 2>/dev/null || echo "startup")
 case "$SOURCE" in
   clear|compact) exit 0 ;;
 esac

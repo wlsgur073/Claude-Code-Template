@@ -26,6 +26,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass, field
@@ -2338,7 +2339,18 @@ def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
         "1.2.0": "profile.schema.v1.2.0.json",
     }
 
-    recs_schema = _load_schema("recommendations.schema.json")
+    # Recommendations dispatcher (mirrors profile pattern).
+    # combined recommendations.schema.json was retired in favor of the
+    # base + versioned-wrapper architecture.
+    recs_version_to_wrapper = {
+        "1.0.0": "recommendations.schema.v1.0.0.json",
+        "1.1.0": "recommendations.schema.v1.1.0.json",
+    }
+    recs_base_schema = _load_schema("recommendations.schema.base.json")
+    registry = registry.with_resources(
+        [("recommendations.schema.base.json", Resource.from_contents(recs_base_schema))]
+    )
+
     if state.profile is None:
         failures.append("profile.json was not written")
     else:
@@ -2357,10 +2369,18 @@ def assert_schema_valid(ctx: RunContext, state: WorkspaceState) -> list[str]:
     if state.recommendations is None:
         failures.append("recommendations.json was not written")
     else:
-        try:
-            jsonschema.validate(state.recommendations, recs_schema)
-        except jsonschema.ValidationError as e:
-            failures.append(f"recommendations.json schema invalid: {e.message}")
+        declared_recs_version = state.recommendations.get("schema_version")
+        if declared_recs_version not in recs_version_to_wrapper:
+            failures.append(
+                f"recommendations.json schema_version '{declared_recs_version}' not dispatchable; "
+                f"expected one of {sorted(recs_version_to_wrapper)}"
+            )
+        else:
+            recs_schema = _load_schema(recs_version_to_wrapper[declared_recs_version])
+            try:
+                jsonschema.Draft202012Validator(recs_schema, registry=registry).validate(state.recommendations)
+            except jsonschema.ValidationError as e:
+                failures.append(f"recommendations.json schema invalid ({declared_recs_version}): {e.message}")
     return failures
 
 
@@ -2597,6 +2617,92 @@ def run_fixture(
         return (True, "ok")
 
 
+def _find_bash() -> str:
+    """Locate a working bash interpreter.
+
+    On Windows, prefer Git Bash over WSL bash — WSL may resolve via PATH
+    but fail with Hyper-V errors when Hyper-V isn't enabled, breaking
+    fixture runs. On Linux/macOS, /usr/bin/bash from PATH is canonical.
+    Returns absolute path or 'bash' as last-resort.
+    """
+    import platform  # noqa: PLC0415
+    if platform.system() == "Windows":
+        for cand in (
+            r"C:\Program Files\Git\bin\bash.exe",
+            r"C:\Program Files (x86)\Git\bin\bash.exe",
+            r"C:\Program Files\Git\usr\bin\bash.exe",
+        ):
+            if Path(cand).is_file():
+                return cand
+    found = shutil.which("bash")
+    return found if found else "bash"
+
+
+def run_sessionstart_fixture(name: str) -> tuple[bool, str]:
+    """Run plugin/hooks/session-start.sh against a sessionstart-orchestrator fixture.
+
+    Each fixture has input/ (synthetic project state) and expected.json.
+    Optional setup.sh per fixture handles mtime adjustment for drift legacy_mtime
+    scenarios (git checkout does not preserve mtimes).
+    Hook runs with cwd=input, stdin source determined by fixture name,
+    SMOKE_PINNED_UTC=2026-05-07T00:00:00Z. Output byte-equal to expected.json.
+    """
+    fixture_dir = ROOT / "ci" / "fixtures" / "sessionstart-orchestrator" / name
+    input_dir = fixture_dir / "input"
+    expected_path = fixture_dir / "expected.json"
+    setup_path = fixture_dir / "setup.sh"
+    if not input_dir.is_dir() or not expected_path.is_file():
+        return False, f"fixture missing: {fixture_dir}"
+
+    if "clear" in name:
+        stdin_payload = '{"source":"clear"}'
+    elif "compact" in name:
+        stdin_payload = '{"source":"compact"}'
+    else:
+        stdin_payload = '{"source":"startup"}'
+
+    hook_path = ROOT / "plugin" / "hooks" / "session-start.sh"
+    env = os.environ.copy()
+    env["SMOKE_PINNED_UTC"] = "2026-05-07T00:00:00Z"
+    bash_bin = _find_bash()
+
+    # Optional setup.sh runs first (mtime adjustments for drift legacy_mtime fixtures).
+    # setup.sh self-locates via $(dirname "$0") so cwd doesn't matter.
+    if setup_path.is_file():
+        try:
+            subprocess.run(
+                [bash_bin, str(setup_path)],
+                check=True, capture_output=True,
+                cwd=str(fixture_dir), env=env, timeout=10,
+            )
+        except subprocess.TimeoutExpired:
+            return False, "setup.sh timed out"
+        except subprocess.CalledProcessError as exc:
+            stderr_decoded = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+            stdout_decoded = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+            return False, f"setup.sh failed (rc={exc.returncode}): stdout={stdout_decoded[:200]!r} stderr={stderr_decoded[:200]!r}"
+
+    try:
+        proc = subprocess.run(
+            [bash_bin, str(hook_path)],
+            input=stdin_payload.encode("utf-8"),
+            capture_output=True,
+            cwd=str(input_dir), env=env, timeout=10,
+        )
+    except subprocess.TimeoutExpired:
+        return False, "hook timed out"
+
+    # Normalize line endings before comparison.
+    # Python's read_text uses universal newlines (CRLF -> LF on Windows checkout)
+    # but subprocess stdout preserves whatever bash emitted (CRLF on Git Bash).
+    # Without normalization, every line break would diverge on Windows.
+    actual = proc.stdout.decode("utf-8", errors="replace").replace("\r\n", "\n").strip() if proc.stdout else ""
+    expected = expected_path.read_text(encoding="utf-8").strip()
+    if actual == expected:
+        return True, "byte-equal"
+    return False, f"diverged:\n  expected: {expected[:200]}\n  actual:   {actual[:200]}"
+
+
 # ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
@@ -2675,7 +2781,7 @@ def main() -> int:
     if local_dir:
         return run_local_lane(Path(local_dir))
 
-    # CI lane: frozen 4-fixture manifest.
+    # CI lane: frozen skill-flow fixture manifest.
     fixtures = ["migration", "beginner-path", "warm-start", "monorepo"]
     fail_count = 0
     for name in fixtures:
@@ -2688,6 +2794,28 @@ def main() -> int:
         print(f"[{tag}] {name}: {msg}")
         if not passed:
             fail_count += 1
+
+    # SessionStart orchestrator fixtures (separate lane — exercises the hook
+    # script directly rather than the skill-execution simulation).
+    sessionstart_fixtures = [
+        "fixture_no_signal", "fixture_drift_legacy_mtime", "fixture_drift_multi_reason",
+        "fixture_unresolved_only", "fixture_unresolved_K_isolation",
+        "fixture_repeated_decline_only", "fixture_all_three",
+        "fixture_clear_source", "fixture_compact_source",
+        "fixture_legacy_v1_0_0_read", "fixture_unknown_future_version",
+        "fixture_stale_excluded", "fixture_pending_decline_count_status_guard",
+    ]
+    for name in sessionstart_fixtures:
+        try:
+            passed, msg = run_sessionstart_fixture(name)
+        except Exception as exc:  # noqa: BLE001
+            passed = False
+            msg = f"exception: {exc.__class__.__name__}: {exc}"
+        tag = "PASS" if passed else "FAIL"
+        print(f"[{tag}] sessionstart/{name}: {msg}")
+        if not passed:
+            fail_count += 1
+
     return 1 if fail_count else 0
 
 
