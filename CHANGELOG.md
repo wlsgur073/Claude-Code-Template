@@ -7,11 +7,96 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.17.1] - 2026-05-07
+
+### Fixed
+
+- **Linux smoke fixtures (8/13 false-fire fix)** — non-drift sessionstart-orchestrator
+  fixtures (no_signal, unresolved_only, unresolved_K_isolation,
+  repeated_decline_only, legacy_v1_0_0_read, unknown_future_version,
+  stale_excluded, pending_decline_count_status_guard) now ship `setup.sh` that
+  pins all `input/` files to a deterministic old timestamp then bumps
+  `local/profile.json` to the latest. Restores Linux 8/13 FAIL to 13/13 PASS.
+  Root cause: `actions/checkout` lexicographic order on Linux ext4 leaves
+  `.claude/settings.json` strictly newer than `local/profile.json`,
+  false-firing legacy_mtime drift in fixtures meant to be silent.
+
+- **`recommendations.schema.{base,v1.0.0,v1.1.0}.json` metadata closure
+  regression** — wrappers previously closed only at root scope plus per-item;
+  nested `metadata` was silently open and accepted `metadata.extra: "anything"`.
+  `profile.schema.v1.1.0.json` precedent closes metadata via per-property
+  `allOf $ref + unevaluatedProperties: false`. Patch extracts metadata into
+  `recommendations.schema.base.json $defs/metadata` and applies the same
+  per-property closure to v1.0.0 + v1.1.0. Adds negative fixture
+  `recommendations.metadata-extra.example.json` registered in
+  `check-json-schemas.py` to assert rejection. Tightening only — existing
+  files lacking `metadata.extra` remain valid.
+
+- **`session-start.ps1` date locale bug** (uncovered by new ps1 fixture lane)
+  — `ConvertFrom-Json` auto-converts ISO 8601 strings to `[DateTime]` in
+  PowerShell 5.1+ and 7+, and `-split "T"` then stringifies via current
+  culture, producing `04/29/2026 00:00:00` on en-US instead of the
+  bash-equivalent `2026-04-29`. Fixed by detecting the DateTime case and
+  formatting via `InvariantCulture` `yyyy-MM-dd`. Drift and repeated-decline
+  families do not display dates and were unaffected.
+
+- **README.md version badge** — was stale at `2.16.0` after v2.17.0 release
+  (cascade missed). Bumped directly to `2.17.1`.
+
+### Added
+
+- **PowerShell sessionstart fixture lane** — `check-smoke-fixtures.py` gains
+  `_find_pwsh()` (Windows pwsh-7-then-powershell-5.1; Linux pwsh from PATH),
+  `_canonical_json()`, and `run_sessionstart_ps1_fixture()` mirroring the
+  bash variant. Each of the 13 sessionstart-orchestrator fixtures now runs
+  through BOTH `session-start.sh` AND `session-start.ps1`; equivalence is
+  checked via canonical JSON (sorted keys + compact separators) since bash
+  uses jq-default pretty format and ps1 uses `ConvertTo-Json` formatting that
+  differ in whitespace. Lane gracefully skipped when no PowerShell
+  interpreter is available; ubuntu-latest CI ships pwsh by default. Total
+  smoke runs: 4 skill-flow + 13 sessionstart-bash + 13 sessionstart-ps1 = 30.
 
 ### Changed
 
-- `CLAUDE.md`: cross-platform shell/fixture gotchas codified — 5 entries on Git Bash `/dev/stdin` absence, subprocess CRLF vs `Path.read_text()` LF normalization, Windows `bash` resolving to WSL (Git Bash explicit path preference / `_find_bash()` helper), fixture mtime not preserved by git checkout (setup.sh required), and jq `fromdateiso8601` Z-suffix handling. Also extends `Verifying Changes Locally` with file `open(encoding='utf-8')` note + lists 4 release-only Python validators alongside the routine 4 + lychee.
+- `CLAUDE.md` Release Process: pre-publish smoke-status gate codified —
+  the smoke workflow triggered by tag push (`push: tags: ['v*']`) MUST
+  conclude `success` before `gh release create`. Polling sequence handles
+  tag-trigger registration delay then blocks on
+  `gh run watch <id> --exit-status`. Without this gate v2.17.0 published
+  76 seconds after Linux smoke FAILED on tag SHA, leaving main RED.
+
+- `CLAUDE.md`: cross-platform shell/fixture gotchas codified — 5 entries on
+  Git Bash `/dev/stdin` absence, subprocess CRLF vs `Path.read_text()` LF
+  normalization, Windows `bash` resolving to WSL (Git Bash explicit path
+  preference / `_find_bash()` helper), fixture mtime not preserved by git
+  checkout (setup.sh required), and jq `fromdateiso8601` Z-suffix handling.
+  Also extends `Verifying Changes Locally` with file `open(encoding='utf-8')`
+  note + lists 4 release-only Python validators alongside the routine 4 +
+  lychee.
+
+- `plugin/hooks/session-start.sh` source-filter comment rewritten: jq is a
+  HARD dependency throughout the hook (source parsing, profile/recs JSON
+  reads, final emit_digest output). The fail-open near the source filter
+  only protects against a malformed stdin payload, not against jq absence.
+
+- `CHANGELOG.md` v2.17.0 entry: gains a supersession header pointing readers
+  to v2.17.1.
+
+- `plugin/.claude-plugin/plugin.json`: version bumped `2.17.0` → `2.17.1`.
+
+- `README.md`: version badge updated `2.16.0` → `2.17.1` (also restores the
+  v2.17.0 cascade miss).
+
+### Notes
+
+- Linux smoke divergence pattern (`actions/checkout` lexicographic order
+  leaving `.claude/settings.json` strictly newer than `local/profile.json`
+  on ext4) was masked on Windows NTFS by lower-resolution mtime + different
+  checkout ordering. Local Windows sanity is now formally a fast precheck;
+  only Linux CI conclusion qualifies as a release gate.
+- Manifest content fingerprint persisted in `profile.json` (long-term
+  replacement for live mtime comparison entirely) is deferred to v2.18.0
+  design.
 
 ## [2.17.0] - 2026-05-07
 
